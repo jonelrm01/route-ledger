@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Route Ledger</title>
+<meta name="theme-color" content="#14171C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Route Ledger">
+<link rel="apple-touch-icon" id="appleTouchIcon">
+<link rel="icon" id="favicon">
+<link rel="manifest" href="manifest.json">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg-deep:#14171C;
+    --bg-panel:#1B1F26;
+    --bg-panel-raised:#232833;
+    --hairline:#2C323D;
+    --amber:#E8A33D;
+    --amber-dim:#8C6526;
+    --teal:#3FA796;
+    --rose:#D1495B;
+    --text-primary:#F2EEE4;
+    --text-muted:#8A8F98;
+    --text-faint:#565C67;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg-deep);
+    color:var(--text-primary);
+    font-family:'Space Grotesk',sans-serif;
+    min-height:100vh;
+    padding-bottom:90px;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+  input,textarea{-webkit-user-select:text; user-select:text;}
+  .num{font-family:'JetBrains Mono',monospace; font-variant-numeric:tabular-nums;}
+
+  /* ---------- Header ---------- */
+  header{
+    padding:18px 20px 14px;
+    border-bottom:1px solid var(--hairline);
+    background:linear-gradient(180deg, #191D24 0%, var(--bg-deep) 100%);
+    position:sticky; top:0; z-index:20;
+  }
+  .header-row{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  .app-title-wrap{display:flex; align-items:baseline; gap:8px; min-width:0;}
+  #appTitle{
+    font-size:22px; font-weight:700; letter-spacing:-0.02em;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    cursor:pointer;
+  }
+  .rename-pencil{color:var(--text-faint); font-size:13px; flex-shrink:0;}
+  .clock{
+    font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--amber);
+    text-align:right; line-height:1.3;
+  }
+  .clock .date{color:var(--text-muted); font-size:11px; display:block;}
+
+  /* ---------- Odometer stat strip ---------- */
+  .odometer-strip{
+    display:flex; gap:10px; padding:14px 20px 4px; overflow-x:auto;
+  }
+  .odo-card{
+    flex:1 0 auto; min-width:104px;
+    background:var(--bg-panel);
+    border:1px solid var(--hairline);
+    border-radius:10px;
+    padding:10px 12px;
+  }
+  .odo-label{font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-faint);}
+  .odo-value{font-size:19px; font-weight:600; margin-top:3px;}
+  .odo-value.income{color:var(--teal);}
+  .odo-value.expense{color:var(--rose);}
+  .odo-value.net{color:var(--amber);}
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    display:flex; gap:6px; padding:16px 20px 0;
+  }
+  .tab{
+    padding:8px 14px; font-size:13px; font-weight:500;
+    color:var(--text-muted); background:transparent; border:none;
+    border-bottom:2px solid transparent; cursor:pointer;
+  }
+  .tab.active{color:var(--text-primary); border-bottom-color:var(--amber);}
+
+  main{padding:14px 20px 20px;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  /* ---------- Mic button ---------- */
+  .mic-wrap{display:flex; flex-direction:column; align-items:center; padding:26px 0 10px;}
+  .mic-btn{
+    width:96px; height:96px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #2A2018, var(--bg-panel-raised));
+    border:2px solid var(--amber-dim);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; position:relative;
+    transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .mic-btn svg{width:34px; height:34px; fill:var(--amber);}
+  .mic-btn.listening{
+    border-color:var(--amber);
+    box-shadow:0 0 0 8px rgba(232,163,61,0.08), 0 0 0 16px rgba(232,163,61,0.04);
+    animation:pulse 1.4s infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(232,163,61,0.25);}
+    70%{box-shadow:0 0 0 18px rgba(232,163,61,0);}
+    100%{box-shadow:0 0 0 0 rgba(232,163,61,0);}
+  }
+  .mic-hint{margin-top:12px; font-size:13px; color:var(--text-muted); text-align:center; min-height:34px; padding:0 24px;}
+  .mic-hint b{color:var(--text-primary); font-weight:600;}
+  .mic-examples{font-size:11px; color:var(--text-faint); text-align:center; margin-top:6px; line-height:1.6;}
+
+  .manual-toggle{
+    display:block; margin:14px auto 0; background:none; border:none;
+    color:var(--text-faint); font-size:12px; text-decoration:underline; cursor:pointer;
+  }
+
+  /* ---------- Manual form ---------- */
+  .manual-form{
+    display:none; margin-top:16px; background:var(--bg-panel);
+    border:1px solid var(--hairline); border-radius:12px; padding:16px;
+  }
+  .manual-form.open{display:block;}
+  .seg{display:flex; gap:8px; margin-bottom:12px;}
+  .seg button{
+    flex:1; padding:9px; border-radius:8px; border:1px solid var(--hairline);
+    background:var(--bg-panel-raised); color:var(--text-muted); font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .seg button.active[data-type="income"]{background:rgba(63,167,150,.15); border-color:var(--teal); color:var(--teal);}
+  .seg button.active[data-type="expense"]{background:rgba(209,73,91,.15); border-color:var(--rose); color:var(--rose);}
+  .seg button.active[data-type="mileage"]{background:rgba(232,163,61,.15); border-color:var(--amber); color:var(--amber);}
+  .field{margin-bottom:10px;}
+  .field label{display:block; font-size:11px; color:var(--text-faint); margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;}
+  .field input, .field select{
+    width:100%; background:var(--bg-deep); border:1px solid var(--hairline);
+    border-radius:8px; padding:10px; color:var(--text-primary); font-size:14px; font-family:inherit;
+  }
+  .save-btn{
+    width:100%; padding:12px; border-radius:8px; border:none; margin-top:4px;
+    background:var(--amber); color:#1A1305; font-weight:700; font-size:14px; cursor:pointer;
+  }
+
+  /* ---------- Entries list ---------- */
+  .day-group{margin-bottom:18px;}
+  .day-group-title{font-size:12px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px;}
+  .entry{
+    display:flex; align-items:center; gap:10px;
+    background:var(--bg-panel); border:1px solid var(--hairline);
+    border-radius:10px; padding:11px 12px; margin-bottom:7px;
+  }
+  .entry-icon{
+    width:34px; height:34px; border-radius:8px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:15px;
+  }
+  .entry-icon.income{background:rgba(63,167,150,.15); color:var(--teal);}
+  .entry-icon.expense{background:rgba(209,73,91,.15); color:var(--rose);}
+  .entry-icon.mileage{background:rgba(232,163,61,.15); color:var(--amber);}
+  .entry-info{flex:1; min-width:0;}
+  .entry-cat{font-size:13.5px; font-weight:600; text-transform:capitalize;}
+  .entry-time{font-size:11px; color:var(--text-faint); font-family:'JetBrains Mono',monospace;}
+  .entry-amt{font-size:14px; font-weight:700; font-family:'JetBrains Mono',monospace;}
+  .entry-amt.income{color:var(--teal);}
+  .entry-amt.expense{color:var(--rose);}
+  .entry-amt.mileage{color:var(--amber);}
+  .entry-del{background:none; border:none; color:var(--text-faint); font-size:16px; padding:4px 6px; cursor:pointer;}
+  .empty-state{text-align:center; padding:40px 20px; color:var(--text-faint); font-size:13px;}
+
+  /* ---------- Stats panel ---------- */
+  .stat-toggle{display:flex; gap:8px; margin-bottom:16px;}
+  .stat-toggle button{
+    flex:1; padding:9px; border-radius:8px; border:1px solid var(--hairline);
+    background:var(--bg-panel); color:var(--text-muted); font-weight:600; font-size:13px; cursor:pointer;
+  }
+  .stat-toggle button.active{background:var(--bg-panel-raised); color:var(--amber); border-color:var(--amber-dim);}
+  .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;}
+  .stat-card{background:var(--bg-panel); border:1px solid var(--hairline); border-radius:12px; padding:14px;}
+  .stat-card .label{font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em;}
+  .stat-card .value{font-size:22px; font-weight:700; margin-top:6px;}
+  .stat-card.wide{grid-column:1/-1;}
+  .bar-chart{display:flex; align-items:flex-end; gap:6px; height:120px; margin-top:10px;}
+  .bar-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
+  .bar{width:100%; border-radius:4px 4px 0 0; background:var(--teal); position:relative; min-height:2px;}
+  .bar.neg{background:var(--rose);}
+  .bar-day-label{font-size:9px; color:var(--text-faint); margin-top:5px;}
+
+  /* ---------- Calendar ---------- */
+  .cal-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .cal-header button{background:var(--bg-panel); border:1px solid var(--hairline); color:var(--text-primary); width:32px; height:32px; border-radius:8px; font-size:16px; cursor:pointer;}
+  .cal-month-label{font-size:15px; font-weight:600;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:5px;}
+  .cal-dow{font-size:10px; color:var(--text-faint); text-align:center; padding-bottom:4px;}
+  .cal-day{
+    aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border-radius:8px; font-size:12px; color:var(--text-muted); position:relative; cursor:pointer;
+    border:1px solid transparent;
+  }
+  .cal-day.empty{visibility:hidden;}
+  .cal-day.today{border-color:var(--amber-dim); color:var(--text-primary); font-weight:700;}
+  .cal-day.selected{background:var(--bg-panel-raised); border-color:var(--amber);}
+  .cal-day .dot-row{display:flex; gap:2px; margin-top:3px;}
+  .cal-dot{width:4px; height:4px; border-radius:50%;}
+  .cal-dot.income{background:var(--teal);}
+  .cal-dot.expense{background:var(--rose);}
+  .cal-dot.mileage{background:var(--amber);}
+  .cal-selected-list{margin-top:16px;}
+
+  /* ---------- Bottom nav ---------- */
+  nav.bottom{
+    position:fixed; bottom:0; left:0; right:0; z-index:20;
+    background:var(--bg-panel); border-top:1px solid var(--hairline);
+    display:flex; padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+  }
+  nav.bottom button{
+    flex:1; background:none; border:none; color:var(--text-faint);
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    font-size:10px; padding:6px 0; cursor:pointer;
+  }
+  nav.bottom button svg{width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8;}
+  nav.bottom button.active{color:var(--amber);}
+  nav.bottom button.active svg{fill:rgba(232,163,61,.15);}
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:50;
+    align-items:flex-end; justify-content:center;
+  }
+  .modal-backdrop.open{display:flex;}
+  .modal{
+    background:var(--bg-panel); border-radius:16px 16px 0 0; width:100%; max-width:480px;
+    padding:22px 20px calc(22px + env(safe-area-inset-bottom)); max-height:80vh; overflow-y:auto;
+  }
+  .modal h3{margin:0 0 4px; font-size:17px;}
+  .modal p{color:var(--text-muted); font-size:13px; line-height:1.6;}
+  .modal input{
+    width:100%; background:var(--bg-deep); border:1px solid var(--hairline); border-radius:8px;
+    padding:11px; color:var(--text-primary); font-size:15px; margin:12px 0; font-family:inherit;
+  }
+  .modal .row-btns{display:flex; gap:10px;}
+  .modal .row-btns button{flex:1; padding:11px; border-radius:8px; border:1px solid var(--hairline); background:var(--bg-panel-raised); color:var(--text-primary); font-weight:600; font-size:14px; cursor:pointer;}
+  .modal .row-btns button.primary{background:var(--amber); color:#1A1305; border:none;}
+  .modal .close-x{position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-faint); font-size:20px; cursor:pointer;}
+  .modal-inner{position:relative;}
+  .install-steps{margin-top:10px; font-size:13px; color:var(--text-muted); line-height:1.7;}
+  .install-steps b{color:var(--text-primary);}
+  .toast{
+    position:fixed; bottom:96px; left:50%; transform:translateX(-50%);
+    background:var(--bg-panel-raised); border:1px solid var(--hairline); color:var(--text-primary);
+    padding:10px 18px; border-radius:20px; font-size:13px; z-index:60; opacity:0; transition:opacity .25s ease, transform .25s ease;
+    pointer-events:none; white-space:nowrap;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(-6px);}
+
+  /* ---------- Settings gear ---------- */
+  .settings-btn{background:none; border:none; color:var(--text-faint); font-size:18px; cursor:pointer; padding:4px 6px; flex-shrink:0;}
+
+  /* ---------- Vehicle panel ---------- */
+  .vehicle-card{background:var(--bg-panel); border:1px solid var(--hairline); border-radius:12px; padding:16px; margin-bottom:16px;}
+  .vehicle-card h4{margin:0 0 12px; font-size:14px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em;}
+  .vehicle-row{display:flex; gap:8px; margin-bottom:10px;}
+  .vehicle-row .field{flex:1; margin-bottom:0;}
+  .odo-current{font-size:26px; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--text-primary);}
+  .odo-current-label{font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px;}
+  .resync-link{background:none; border:none; color:var(--amber); font-size:12px; text-decoration:underline; cursor:pointer; padding:0; margin-top:6px;}
+  .maint-item{
+    display:flex; align-items:center; gap:10px;
+    background:var(--bg-panel); border:1px solid var(--hairline); border-radius:10px;
+    padding:12px; margin-bottom:8px;
+  }
+  .maint-dot{width:10px; height:10px; border-radius:50%; flex-shrink:0;}
+  .maint-dot.ok{background:var(--teal);}
+  .maint-dot.soon{background:var(--amber);}
+  .maint-dot.overdue{background:var(--rose);}
+  .maint-info{flex:1; min-width:0;}
+  .maint-name{font-size:13.5px; font-weight:600;}
+  .maint-sub{font-size:11.5px; color:var(--text-faint); margin-top:2px;}
+  .maint-sub.overdue{color:var(--rose);}
+  .maint-sub.soon{color:var(--amber);}
+  .maint-done-btn{
+    background:var(--bg-panel-raised); border:1px solid var(--hairline); color:var(--text-primary);
+    font-size:11.5px; font-weight:600; padding:7px 10px; border-radius:7px; cursor:pointer; flex-shrink:0; white-space:nowrap;
+  }
+  .maint-disclaimer{font-size:11px; color:var(--text-faint); line-height:1.6; margin-top:14px; padding:0 2px;}
+
+  /* ---------- Settings modal extras ---------- */
+  .settings-section{margin-bottom:18px;}
+  .settings-section label{display:block; font-size:11px; color:var(--text-faint); margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em;}
+  .lang-options{display:flex; gap:8px;}
+  .lang-options button{
+    flex:1; padding:10px 6px; border-radius:8px; border:1px solid var(--hairline);
+    background:var(--bg-panel-raised); color:var(--text-muted); font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .lang-options button.active{background:rgba(232,163,61,.15); border-color:var(--amber); color:var(--amber);}
+
+  /* ---------- First-time maintenance setup ---------- */
+  .setup-row{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
+  .setup-row .setup-label{flex:1; font-size:13px; color:var(--text-muted); min-width:0;}
+  .setup-row input{width:100px; flex-shrink:0; text-align:right;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <div class="app-title-wrap" id="titleClickable">
+      <span id="appTitle">Route Ledger</span>
+      <span class="rename-pencil">✎</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="clock">
+        <span class="date" id="clockDate">—</span>
+        <span id="clockTime" class="num">--:--:--</span>
+      </div>
+      <button class="settings-btn" id="settingsBtn" aria-label="Settings">⚙</button>
+    </div>
+  </div>
+</header>
+
+<div class="odometer-strip">
+  <div class="odo-card"><div class="odo-label">Today net</div><div class="odo-value net num" id="odoToday">$0.00</div></div>
+  <div class="odo-card"><div class="odo-label">Week net</div><div class="odo-value net num" id="odoWeek">$0.00</div></div>
+  <div class="odo-card"><div class="odo-label">Month net</div><div class="odo-value net num" id="odoMonth">$0.00</div></div>
+  <div class="odo-card"><div class="odo-label">Month miles</div><div class="odo-value num" id="odoMiles" style="color:var(--text-primary)">0.0</div></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="log">Log</button>
+  <button class="tab" data-panel="stats">Stats</button>
+  <button class="tab" data-panel="calendar">Calendar</button>
+  <button class="tab" data-panel="vehicle">Vehicle</button>
+</div>
+
+<main>
+
+  <!-- LOG PANEL -->
+  <section class="panel active" id="panel-log">
+    <div class="mic-wrap">
+      <button class="mic-btn" id="micBtn" aria-label="Voice entry">
+        <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+      </button>
+      <div class="mic-hint" id="micHint">Tap and say an entry, or <b>"call this app [name]"</b> to rename it.</div>
+      <div class="mic-examples">"20 dollars income doordash" · "8 dollars expense gas" · "log 12 miles"</div>
+    </div>
+    <button class="manual-toggle" id="manualToggle">or enter manually</button>
+
+    <div class="manual-form" id="manualForm">
+      <div class="seg" id="typeSeg">
+        <button type="button" data-type="income" class="active">Income</button>
+        <button type="button" data-type="expense">Expense</button>
+        <button type="button" data-type="mileage">Mileage</button>
+      </div>
+      <div class="field" id="amountField">
+        <label>Amount ($)</label>
+        <input type="number" inputmode="decimal" id="manualAmount" placeholder="0.00" step="0.01">
+      </div>
+      <div class="field" id="milesField" style="display:none;">
+        <label>Miles</label>
+        <input type="number" inputmode="decimal" id="manualMiles" placeholder="0.0" step="0.1">
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="manualCategory">
+          <option>DoorDash</option><option>Uber Eats</option><option>Amazon Flex</option>
+          <option>Uber</option><option>Lyft</option><option>Gas</option><option>Maintenance</option>
+          <option>Parking / Tolls</option><option>Phone / Data</option><option>Other</option>
+        </select>
+      </div>
+      <button class="save-btn" id="manualSave">Save entry</button>
+    </div>
+
+    <div id="entriesList" style="margin-top:22px;"></div>
+  </section>
+
+  <!-- STATS PANEL -->
+  <section class="panel" id="panel-stats">
+    <div class="stat-toggle">
+      <button data-range="week" class="active">This week</button>
+      <button data-range="month">This month</button>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="label">Income</div><div class="value num" id="statIncome" style="color:var(--teal)">$0.00</div></div>
+      <div class="stat-card"><div class="label">Expenses</div><div class="value num" id="statExpense" style="color:var(--rose)">$0.00</div></div>
+      <div class="stat-card"><div class="label">Net</div><div class="value num" id="statNet" style="color:var(--amber)">$0.00</div></div>
+      <div class="stat-card"><div class="label">Miles driven</div><div class="value num" id="statMiles">0.0</div></div>
+      <div class="stat-card wide"><div class="label">Net per mile</div><div class="value num" id="statPerMile">$0.00 / mi</div></div>
+      <div class="stat-card wide">
+        <div class="label">Daily net</div>
+        <div class="bar-chart" id="barChart"></div>
+      </div>
+    </div>
+    <button class="save-btn" id="exportCsv" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline);">Export CSV</button>
+    <button class="save-btn" id="shareSummaryBtn" style="margin-top:10px;">Share summary</button>
+  </section>
+
+  <!-- CALENDAR PANEL -->
+  <section class="panel" id="panel-calendar">
+    <div class="cal-header">
+      <button id="calPrev">‹</button>
+      <div class="cal-month-label" id="calMonthLabel">—</div>
+      <button id="calNext">›</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-selected-list" id="calSelectedList"></div>
+  </section>
+
+  <!-- VEHICLE PANEL -->
+  <section class="panel" id="panel-vehicle">
+    <div class="vehicle-card">
+      <h4 id="vehicleProfileLabel">Vehicle profile</h4>
+      <div class="vehicle-row">
+        <div class="field"><label id="lblMake">Make</label><input type="text" id="vMake" placeholder="e.g. Honda"></div>
+        <div class="field"><label id="lblModel">Model</label><input type="text" id="vModel" placeholder="e.g. Civic"></div>
+      </div>
+      <div class="vehicle-row">
+        <div class="field"><label id="lblYear">Year</label><input type="number" id="vYear" placeholder="2019" inputmode="numeric"></div>
+        <div class="field"><label id="lblCurrentMileage">Current mileage</label><input type="number" id="vCurrentMileage" placeholder="e.g. 120000" inputmode="numeric"></div>
+      </div>
+
+      <div id="firstTimeMaintBlock" style="margin-top:6px;">
+        <div style="font-size:12px; color:var(--text-faint); margin:10px 0 8px;" id="firstTimeMaintIntro">
+          When was each of these last done? Leave as-is if you're not sure — we'll assume it matches your current mileage.
+        </div>
+        <div id="firstTimeMaintInputs"></div>
+      </div>
+
+      <button class="save-btn" id="vehicleSave">Save vehicle</button>
+    </div>
+
+    <div class="vehicle-card">
+      <h4 id="lblCurrentOdo">Current odometer (estimated)</h4>
+      <div class="odo-current-label" id="lblEstimated">Based on starting mileage + logged trips</div>
+      <div class="odo-current num" id="vCurrentOdo">0 mi</div>
+      <button class="resync-link" id="vResyncBtn">Update actual odometer reading</button>
+    </div>
+
+    <div class="vehicle-card">
+      <h4 id="lblMaintenance">Maintenance</h4>
+      <div id="maintList"></div>
+      <div class="maint-disclaimer" id="maintDisclaimer">
+        These are general industry-standard intervals, not manufacturer-specific figures. Check your owner's manual for your vehicle's exact schedule, and tap a service to update it when you know the real interval.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="bottom">
+  <button class="nav-btn active" data-panel="log">
+    <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z"/><path d="M17 11a5 5 0 0 1-10 0M12 18v3"/></svg>
+    Log
+  </button>
+  <button class="nav-btn" data-panel="stats">
+    <svg viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+    Stats
+  </button>
+  <button class="nav-btn" data-panel="calendar">
+    <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+    Calendar
+  </button>
+  <button class="nav-btn" data-panel="vehicle">
+    <svg viewBox="0 0 24 24"><path d="M5 17h14M5 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm14 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM5 17l1.5-6h11L19 17M6.5 11l1-3.5h9l1 3.5"/></svg>
+    Vehicle
+  </button>
+  <button class="nav-btn" id="installNavBtn">
+    <svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+    Install
+  </button>
+</nav>
+
+<!-- Rename modal -->
+<div class="modal-backdrop" id="renameModal">
+  <div class="modal">
+    <div class="modal-inner">
+      <button class="close-x" data-close="renameModal">×</button>
+      <h3>Rename app</h3>
+      <p>This name appears at the top of the app and on your home screen icon.</p>
+      <input type="text" id="renameInput" placeholder="e.g. Jonel's Route Ledger">
+      <div class="row-btns">
+        <button data-close="renameModal">Cancel</button>
+        <button class="primary" id="renameSave">Save name</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Install modal -->
+<div class="modal-backdrop" id="installModal">
+  <div class="modal">
+    <div class="modal-inner">
+      <button class="close-x" data-close="installModal">×</button>
+      <h3>Add to your home screen</h3>
+      <p>Install this as an app icon, then launch it by voice through your phone's own assistant.</p>
+      <div class="install-steps">
+        <b>iPhone (Safari)</b><br>
+        1. Tap the Share icon.<br>
+        2. Tap <b>Add to Home Screen</b>, confirm the name, then Add.<br>
+        3. Open the <b>Shortcuts</b> app → + → Add Action → "Open App" → choose this app.<br>
+        4. Tap the shortcut's settings → <b>Add to Siri</b> → record a phrase like "Open <span id="installAppNameIOS">Route Ledger</span>."<br>
+        5. Say <b>"Hey Siri, open <span id="installAppNameIOS2">Route Ledger</span>"</b> anytime.
+        <br><br>
+        <b>Android (Chrome)</b><br>
+        1. Tap the ⋮ menu.<br>
+        2. Tap <b>Add to Home screen</b> / <b>Install app</b>, confirm the name.<br>
+        3. Say <b>"Hey Google, open <span id="installAppNameAndroid">Route Ledger</span>"</b> — Assistant can open installed home-screen apps by name.
+      </div>
+      <div class="row-btns" style="margin-top:14px;">
+        <button class="primary" data-close="installModal">Got it</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Resync odometer modal -->
+<div class="modal-backdrop" id="resyncModal">
+  <div class="modal">
+    <div class="modal-inner">
+      <button class="close-x" data-close="resyncModal">×</button>
+      <h3 id="resyncTitle">Update odometer</h3>
+      <p id="resyncSub">Enter your vehicle's actual current mileage from the dashboard. Future trip miles you log will be added on top of this number.</p>
+      <input type="number" inputmode="numeric" id="resyncInput" placeholder="e.g. 62000">
+      <div class="row-btns">
+        <button data-close="resyncModal">Cancel</button>
+        <button class="primary" id="resyncSave">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit maintenance interval modal -->
+<div class="modal-backdrop" id="maintEditModal">
+  <div class="modal">
+    <div class="modal-inner">
+      <button class="close-x" data-close="maintEditModal">×</button>
+      <h3 id="maintEditTitle">Edit service</h3>
+      <p id="maintEditSub">Set the mileage this was last done, and the interval (miles) between services.</p>
+      <input type="number" inputmode="numeric" id="maintLastMileage" placeholder="Last done at (mi)">
+      <input type="number" inputmode="numeric" id="maintInterval" placeholder="Interval (mi)">
+      <div class="row-btns">
+        <button data-close="maintEditModal">Cancel</button>
+        <button class="primary" id="maintEditSave">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div class="modal-backdrop" id="settingsModal">
+  <div class="modal">
+    <div class="modal-inner">
+      <button class="close-x" data-close="settingsModal">×</button>
+      <h3 id="settingsTitle">Settings</h3>
+      <div class="settings-section">
+        <label id="lblVoiceLang">Voice language</label>
+        <div class="lang-options" id="langOptions">
+          <button type="button" data-lang="en-US">English</button>
+          <button type="button" data-lang="es-ES">Español</button>
+          <button type="button" data-lang="it-IT">Italiano</button>
+        </div>
+      </div>
+      <div class="row-btns">
+        <button class="primary" data-close="settingsModal" id="settingsDone">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- Storage ---------------- */
+  var STORAGE_KEY = 'routeLedger.entries.v1';
+  var NAME_KEY = 'routeLedger.appName.v1';
+  var VEHICLE_KEY = 'routeLedger.vehicle.v1';
+  var LANG_KEY = 'routeLedger.lang.v1';
+  var storageWorks = true;
+  try{
+    var storageTestKey='__t__'; localStorage.setItem(storageTestKey,'1'); localStorage.removeItem(storageTestKey);
+  }catch(e){ storageWorks = false; }
+
+  function loadEntries(){
+    if(!storageWorks) return (window.__memEntries || []);
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function saveEntries(entries){
+    if(!storageWorks){ window.__memEntries = entries; return; }
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); }catch(e){}
+  }
+  function loadName(){
+    if(!storageWorks) return window.__memName || 'Route Ledger';
+    try{ return localStorage.getItem(NAME_KEY) || 'Route Ledger'; }catch(e){ return 'Route Ledger'; }
+  }
+  function saveName(n){
+    if(!storageWorks){ window.__memName = n; return; }
+    try{ localStorage.setItem(NAME_KEY, n); }catch(e){}
+  }
+  function loadVehicle(){
+    var def = { make:'', model:'', year:'', odoBaseline:0, baselineSetAt:null, service:{} };
+    if(!storageWorks) return window.__memVehicle || def;
+    try{
+      var raw = localStorage.getItem(VEHICLE_KEY);
+      return raw ? JSON.parse(raw) : def;
+    }catch(e){ return def; }
+  }
+  function saveVehicle(v){
+    if(!storageWorks){ window.__memVehicle = v; return; }
+    try{ localStorage.setItem(VEHICLE_KEY, JSON.stringify(v)); }catch(e){}
+  }
+  function loadLang(){
+    if(!storageWorks) return window.__memLang || 'en-US';
+    try{ return localStorage.getItem(LANG_KEY) || 'en-US'; }catch(e){ return 'en-US'; }
+  }
+  function saveLang(l){
+    if(!storageWorks){ window.__memLang = l; return; }
+    try{ localStorage.setItem(LANG_KEY, l); }catch(e){}
+  }
+
+  var entries = loadEntries();
+  var appName = loadName();
+  var vehicle = loadVehicle();
+  var currentLang = loadLang();
+
+  /* ---------------- App name / icon ---------------- */
+  function applyName(name){
+    appName = name;
+    document.getElementById('appTitle').textContent = name;
+    document.title = name;
+    var metaTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+    if(metaTitle) metaTitle.setAttribute('content', name);
+    document.getElementById('installAppNameIOS').textContent = name;
+    document.getElementById('installAppNameIOS2').textContent = name;
+    document.getElementById('installAppNameAndroid').textContent = name;
+    saveName(name);
+    renderIcon(name);
+  }
+
+  function renderIcon(name){
+    var initial = (name.trim()[0] || 'R').toUpperCase();
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180">'+
+      '<rect width="180" height="180" rx="36" fill="#14171C"/>'+
+      '<rect x="6" y="6" width="168" height="168" rx="32" fill="none" stroke="#E8A33D" stroke-width="3"/>'+
+      '<text x="90" y="112" font-family="Space Grotesk, sans-serif" font-size="84" font-weight="700" fill="#E8A33D" text-anchor="middle">'+initial+'</text>'+
+      '</svg>';
+    var uri = 'data:image/svg+xml;base64,' + btoa(svg);
+    document.getElementById('appleTouchIcon').setAttribute('href', uri);
+    document.getElementById('favicon').setAttribute('href', uri);
+  }
+
+  applyName(appName);
+
+  /* ---------------- Language / i18n ---------------- */
+  var I18N = {
+    'en-US': {
+      micHintDefault: 'Tap and say an entry, or <b>"call this app [name]"</b> to rename it.',
+      micExamples: '"20 dollars income doordash" · "8 dollars expense gas" · "log 12 miles"',
+      settingsTitle: 'Settings', voiceLang: 'Voice language',
+      vehicleProfile: 'Vehicle profile', make: 'Make', model: 'Model', year: 'Year',
+      currentMileage: 'Current mileage',
+      firstTimeMaintIntro: "When was each of these last done? Leave as-is if you're not sure — we'll assume it matches your current mileage.",
+      currentOdo: 'Current odometer (estimated)', estimatedSub: 'Based on starting mileage + logged trips',
+      resyncLink: 'Update actual odometer reading', maintenance: 'Maintenance',
+      maintDisclaimer: "These are general industry-standard intervals, not manufacturer-specific figures. Check your owner's manual for your vehicle's exact schedule, and tap a service to update it when you know the real interval.",
+      resyncTitle: 'Update odometer', resyncSub: "Enter your vehicle's actual current mileage from the dashboard. Future trip miles you log will be added on top of this number.",
+      maintEditTitle: 'Edit service', maintEditSub: 'Set the mileage this was last done, and the interval (miles) between services.',
+      markDone: 'Mark done', edit: 'Edit',
+      statusOk: 'OK', statusSoon: 'due soon', statusOverdue: 'overdue',
+      dueAt: 'next due at', milesShort: 'mi',
+      items: { oil:'Oil change', tires:'Tire rotation', air_filter:'Air filter', brake_fluid:'Brake fluid',
+        trans_fluid:'Transmission fluid', spark_plugs:'Spark plugs', coolant:'Coolant flush', timing_belt:'Timing belt' },
+      shareSummary: 'Share summary', weeklySummary: 'Weekly summary', monthlySummary: 'Monthly summary',
+      incomeLabel: 'Income', expenseLabel: 'Expenses', netLabel: 'Net', milesLabel: 'Miles driven',
+      netPerMileLabel: 'Net per mile', byCategoryLabel: 'By category', copiedToClipboard: 'Summary copied to clipboard'
+    },
+    'es-ES': {
+      micHintDefault: 'Toca y di una entrada, o <b>"llama a esta app [nombre]"</b> para renombrarla.',
+      micExamples: '"20 dólares ingreso doordash" · "8 dólares gasto gasolina" · "registra 12 millas"',
+      settingsTitle: 'Ajustes', voiceLang: 'Idioma de voz',
+      vehicleProfile: 'Perfil del vehículo', make: 'Marca', model: 'Modelo', year: 'Año',
+      currentMileage: 'Kilometraje actual',
+      firstTimeMaintIntro: '¿Cuándo se hizo cada uno por última vez? Déjalo así si no estás seguro — asumiremos que coincide con tu kilometraje actual.',
+      currentOdo: 'Kilometraje actual (estimado)', estimatedSub: 'Basado en el kilometraje inicial + viajes registrados',
+      resyncLink: 'Actualizar lectura real del odómetro', maintenance: 'Mantenimiento',
+      maintDisclaimer: 'Estos son intervalos generales de la industria, no cifras específicas del fabricante. Consulta el manual de tu vehículo para el programa exacto, y toca un servicio para actualizarlo cuando conozcas el intervalo real.',
+      resyncTitle: 'Actualizar odómetro', resyncSub: 'Ingresa el kilometraje real actual de tu vehículo desde el tablero. Las millas de viajes futuros se sumarán a este número.',
+      maintEditTitle: 'Editar servicio', maintEditSub: 'Indica el kilometraje del último servicio y el intervalo (millas) entre servicios.',
+      markDone: 'Marcar hecho', edit: 'Editar',
+      statusOk: 'bien', statusSoon: 'pronto', statusOverdue: 'atrasado',
+      dueAt: 'próximo a', milesShort: 'mi',
+      items: { oil:'Cambio de aceite', tires:'Rotación de llantas', air_filter:'Filtro de aire', brake_fluid:'Líquido de frenos',
+        trans_fluid:'Líquido de transmisión', spark_plugs:'Bujías', coolant:'Cambio de refrigerante', timing_belt:'Correa de distribución' },
+      shareSummary: 'Compartir resumen', weeklySummary: 'Resumen semanal', monthlySummary: 'Resumen mensual',
+      incomeLabel: 'Ingresos', expenseLabel: 'Gastos', netLabel: 'Neto', milesLabel: 'Millas recorridas',
+      netPerMileLabel: 'Neto por milla', byCategoryLabel: 'Por categoría', copiedToClipboard: 'Resumen copiado al portapapeles'
+    },
+    'it-IT': {
+      micHintDefault: 'Tocca e pronuncia una voce, oppure <b>"chiama questa app [nome]"</b> per rinominarla.',
+      micExamples: '"20 dollari entrata doordash" · "8 dollari spesa benzina" · "registra 12 miglia"',
+      settingsTitle: 'Impostazioni', voiceLang: 'Lingua vocale',
+      vehicleProfile: 'Profilo veicolo', make: 'Marca', model: 'Modello', year: 'Anno',
+      currentMileage: 'Chilometraggio attuale',
+      firstTimeMaintIntro: "Quando è stato fatto ciascuno l'ultima volta? Lascia invariato se non sei sicuro — presumeremo che corrisponda al tuo chilometraggio attuale.",
+      currentOdo: 'Chilometraggio attuale (stimato)', estimatedSub: 'Basato sul chilometraggio iniziale + viaggi registrati',
+      resyncLink: "Aggiorna la lettura reale del contachilometri", maintenance: 'Manutenzione',
+      maintDisclaimer: "Questi sono intervalli generici del settore, non dati specifici del costruttore. Controlla il libretto del tuo veicolo per il programma esatto, e tocca un intervento per aggiornarlo quando conosci l'intervallo reale.",
+      resyncTitle: 'Aggiorna contachilometri', resyncSub: 'Inserisci il chilometraggio reale attuale del tuo veicolo dal cruscotto. I chilometri dei viaggi futuri si aggiungeranno a questo numero.',
+      maintEditTitle: 'Modifica intervento', maintEditSub: "Imposta il chilometraggio dell'ultimo intervento e l'intervallo (miglia) tra un intervento e l'altro.",
+      markDone: 'Segna fatto', edit: 'Modifica',
+      statusOk: 'ok', statusSoon: 'a breve', statusOverdue: 'in ritardo',
+      dueAt: 'prossimo a', milesShort: 'mi',
+      items: { oil:"Cambio olio", tires:'Rotazione gomme', air_filter:'Filtro aria', brake_fluid:'Liquido freni',
+        trans_fluid:'Liquido cambio', spark_plugs:'Candele', coolant:'Cambio refrigerante', timing_belt:'Cinghia distribuzione' },
+      shareSummary: 'Condividi riepilogo', weeklySummary: 'Riepilogo settimanale', monthlySummary: 'Riepilogo mensile',
+      incomeLabel: 'Entrate', expenseLabel: 'Spese', netLabel: 'Netto', milesLabel: 'Miglia percorse',
+      netPerMileLabel: 'Netto per miglio', byCategoryLabel: 'Per categoria', copiedToClipboard: 'Riepilogo copiato negli appunti'
+    }
+  };
+
+  var CATEGORY_WORDS_BY_LANG = {
+    'en-US': {'doordash':'DoorDash','uber eats':'Uber Eats','ubereats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','gas':'Gas','fuel':'Gas','maintenance':'Maintenance','repair':'Maintenance','parking':'Parking / Tolls','tolls':'Parking / Tolls','toll':'Parking / Tolls','phone':'Phone / Data','data':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart'},
+    'es-ES': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','gasolina':'Gas','combustible':'Gas','mantenimiento':'Maintenance','reparación':'Maintenance','estacionamiento':'Parking / Tolls','peaje':'Parking / Tolls','peajes':'Parking / Tolls','teléfono':'Phone / Data','datos':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart'},
+    'it-IT': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','benzina':'Gas','carburante':'Gas','manutenzione':'Maintenance','riparazione':'Maintenance','parcheggio':'Parking / Tolls','pedaggio':'Parking / Tolls','pedaggi':'Parking / Tolls','telefono':'Phone / Data','dati':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart'}
+  };
+
+  var COMMAND_WORDS_BY_LANG = {
+    'en-US': { rename:/(?:call this app|rename (?:the )?app to|name this app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miles|mile|mi)\b/, mileTrigger:/mile|drove|drive|trip|log/, amount:/(\d+(?:\.\d+)?)\s*(?:dollars?|bucks|\$)?/, expense:/expense|spent|paid|cost|gas|fuel|maintenance|repair|parking|toll/, income:/income|earned|made|got paid|payout|tip/ },
+    'es-ES': { rename:/(?:llama a esta app|renombra la app a|nombra esta app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:millas|milla)\b/, mileTrigger:/milla|conduje|conducir|viaje|registra/, amount:/(\d+(?:\.\d+)?)\s*(?:dólares|pesos|d[oó]lares)?/, expense:/gasto|gaste|gast[eé]|pagu[eé]|costo|gasolina|combustible|mantenimiento|reparaci[oó]n|estacionamiento|peaje/, income:/ingreso|gan[eé]|me pagaron|pago|propina/ },
+    'it-IT': { rename:/(?:chiama questa app|rinomina l'app in|rinomina questa app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miglia|miglio)\b/, mileTrigger:/miglia|guidato|guidare|viaggio|registra/, amount:/(\d+(?:\.\d+)?)\s*(?:dollari|euro)?/, expense:/spesa|speso|pagato|costo|benzina|carburante|manutenzione|riparazione|parcheggio|pedaggio/, income:/entrata|guadagnato|pagato ricevuto|mancia/ }
+  };
+
+  function t(key){
+    var dict = I18N[currentLang] || I18N['en-US'];
+    return dict[key] !== undefined ? dict[key] : (I18N['en-US'][key] || '');
+  }
+
+  function applyLanguage(lang){
+    currentLang = lang;
+    saveLang(lang);
+    if(recognition) recognition.lang = lang;
+    document.querySelectorAll('#langOptions button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.lang===lang);
+    });
+    document.getElementById('settingsTitle').textContent = t('settingsTitle');
+    document.getElementById('lblVoiceLang').textContent = t('voiceLang');
+    document.getElementById('lblMake').textContent = t('make');
+    document.getElementById('lblModel').textContent = t('model');
+    document.getElementById('lblYear').textContent = t('year');
+    document.getElementById('lblCurrentMileage').textContent = t('currentMileage');
+    document.getElementById('firstTimeMaintIntro').textContent = t('firstTimeMaintIntro');
+    document.getElementById('vehicleProfileLabel').textContent = t('vehicleProfile');
+    document.getElementById('lblCurrentOdo').textContent = t('currentOdo');
+    document.getElementById('lblEstimated').textContent = t('estimatedSub');
+    document.getElementById('vResyncBtn').textContent = t('resyncLink');
+    document.getElementById('lblMaintenance').textContent = t('maintenance');
+    document.getElementById('maintDisclaimer').textContent = t('maintDisclaimer');
+    document.getElementById('resyncTitle').textContent = t('resyncTitle');
+    document.getElementById('resyncSub').textContent = t('resyncSub');
+    document.getElementById('maintEditTitle').textContent = t('maintEditTitle');
+    document.getElementById('maintEditSub').textContent = t('maintEditSub');
+    if(!listening){
+      micHint.innerHTML = t('micHintDefault');
+    }
+    document.querySelector('.mic-examples').innerHTML = t('micExamples');
+    document.getElementById('shareSummaryBtn').textContent = t('shareSummary');
+    renderMaintList();
+    renderFirstTimeMaintInputs();
+  }
+
+  /* ---------------- Toast ---------------- */
+  var toastEl = document.getElementById('toast');
+  var toastTimer;
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2200);
+  }
+
+  /* ---------------- Clock (real device clock, used for all timestamps) ---------------- */
+  function tickClock(){
+    var now = new Date();
+    document.getElementById('clockTime').textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    document.getElementById('clockDate').textContent = now.toLocaleDateString([], {weekday:'short', month:'short', day:'numeric'});
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  /* ---------------- Tabs ---------------- */
+  var panels = ['log','stats','calendar','vehicle'];
+  function showPanel(name){
+    panels.forEach(function(p){
+      document.getElementById('panel-'+p).classList.toggle('active', p===name);
+    });
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('active', b.dataset.panel===name); });
+    document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.panel===name); });
+    if(name==='stats') renderStats();
+    if(name==='calendar') renderCalendar();
+    if(name==='log') renderEntriesList();
+    if(name==='vehicle') renderVehiclePanel();
+  }
+  document.querySelectorAll('.tab').forEach(function(b){ b.addEventListener('click', function(){ showPanel(b.dataset.panel); }); });
+  document.querySelectorAll('.nav-btn[data-panel]').forEach(function(b){ b.addEventListener('click', function(){ showPanel(b.dataset.panel); }); });
+
+  /* ---------------- Modals ---------------- */
+  function openModal(id){ document.getElementById(id).classList.add('open'); }
+  function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+  document.querySelectorAll('[data-close]').forEach(function(b){
+    b.addEventListener('click', function(){ closeModal(b.dataset.close); });
+  });
+  document.getElementById('titleClickable').addEventListener('click', function(){
+    document.getElementById('renameInput').value = appName;
+    openModal('renameModal');
+  });
+  document.getElementById('renameSave').addEventListener('click', function(){
+    var v = document.getElementById('renameInput').value.trim();
+    if(v){ applyName(v); showToast('App renamed to "'+v+'"'); }
+    closeModal('renameModal');
+  });
+  document.getElementById('installNavBtn').addEventListener('click', function(){ openModal('installModal'); });
+  document.getElementById('settingsBtn').addEventListener('click', function(){ openModal('settingsModal'); });
+  document.querySelectorAll('#langOptions button').forEach(function(b){
+    b.addEventListener('click', function(){ applyLanguage(b.dataset.lang); showToast('Voice language updated'); });
+  });
+
+  /* ---------------- Entry helpers ---------------- */
+  function addEntry(type, amount, category, miles){
+    var e = {
+      id: Date.now()+'_'+Math.random().toString(36).slice(2,7),
+      type: type,               // income | expense | mileage
+      amount: type==='mileage' ? 0 : (amount||0),
+      miles: type==='mileage' ? (miles||0) : 0,
+      category: category || 'Other',
+      ts: new Date().toISOString()
+    };
+    entries.push(e);
+    saveEntries(entries);
+    renderAll();
+    return e;
+  }
+  function deleteEntry(id){
+    entries = entries.filter(function(e){ return e.id!==id; });
+    saveEntries(entries);
+    renderAll();
+  }
+
+  function startOfWeek(d){
+    var x = new Date(d); var day = x.getDay();
+    x.setHours(0,0,0,0);
+    x.setDate(x.getDate()-day);
+    return x;
+  }
+  function startOfMonth(d){ var x=new Date(d.getFullYear(), d.getMonth(), 1); x.setHours(0,0,0,0); return x; }
+  function isSameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+  function fmtMoney(n){ var s = (n<0?'-':'') + '$' + Math.abs(n).toFixed(2); return s; }
+
+  function entriesInRange(start, end){
+    return entries.filter(function(e){ var d=new Date(e.ts); return d>=start && d<end; });
+  }
+  function summarize(list){
+    var income=0, expense=0, miles=0;
+    list.forEach(function(e){
+      if(e.type==='income') income += e.amount;
+      else if(e.type==='expense') expense += e.amount;
+      else if(e.type==='mileage') miles += e.miles;
+    });
+    return {income:income, expense:expense, miles:miles, net:income-expense};
+  }
+
+  /* ---------------- Odometer strip ---------------- */
+  function renderOdometers(){
+    var now = new Date();
+    var todayStart = new Date(now); todayStart.setHours(0,0,0,0);
+    var todayEnd = new Date(todayStart); todayEnd.setDate(todayEnd.getDate()+1);
+    var weekStart = startOfWeek(now);
+    var weekEnd = new Date(weekStart); weekEnd.setDate(weekEnd.getDate()+7);
+    var monthStart = startOfMonth(now);
+    var monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth()+1, 1);
+
+    var today = summarize(entriesInRange(todayStart, todayEnd));
+    var week = summarize(entriesInRange(weekStart, weekEnd));
+    var month = summarize(entriesInRange(monthStart, monthEnd));
+
+    document.getElementById('odoToday').textContent = fmtMoney(today.net);
+    document.getElementById('odoWeek').textContent = fmtMoney(week.net);
+    document.getElementById('odoMonth').textContent = fmtMoney(month.net);
+    document.getElementById('odoMiles').textContent = month.miles.toFixed(1);
+  }
+
+  /* ---------------- Entries list (Log tab) ---------------- */
+  function iconFor(type){
+    if(type==='income') return '↑';
+    if(type==='expense') return '↓';
+    return '🛣';
+  }
+  function renderEntriesList(){
+    var container = document.getElementById('entriesList');
+    if(entries.length===0){
+      container.innerHTML = '<div class="empty-state">No entries yet. Tap the mic and log your first income, expense, or trip.</div>';
+      return;
+    }
+    var sorted = entries.slice().sort(function(a,b){ return new Date(b.ts)-new Date(a.ts); });
+    var groups = {};
+    var order = [];
+    sorted.forEach(function(e){
+      var d = new Date(e.ts);
+      var key = d.toDateString();
+      if(!groups[key]){ groups[key]=[]; order.push(key); }
+      groups[key].push(e);
+    });
+    var html = '';
+    order.forEach(function(key){
+      var d = new Date(key);
+      var today = new Date(); today.setHours(0,0,0,0);
+      var label = isSameDay(d, new Date()) ? 'Today' : d.toLocaleDateString([], {weekday:'long', month:'short', day:'numeric'});
+      html += '<div class="day-group"><div class="day-group-title">'+label+'</div>';
+      groups[key].forEach(function(e){
+        var time = new Date(e.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        var amtText = e.type==='mileage' ? e.miles.toFixed(1)+' mi' : (e.type==='expense' ? '-' : '+') + fmtMoney(e.amount).replace('-','').replace('$','$');
+        var amtDisplay = e.type==='mileage' ? e.miles.toFixed(1)+' mi' : (e.type==='expense'?'-':'+')+'$'+e.amount.toFixed(2);
+        html += '<div class="entry">'+
+          '<div class="entry-icon '+e.type+'">'+iconFor(e.type)+'</div>'+
+          '<div class="entry-info"><div class="entry-cat">'+e.category+'</div><div class="entry-time">'+time+'</div></div>'+
+          '<div class="entry-amt '+e.type+'">'+amtDisplay+'</div>'+
+          '<button class="entry-del" data-id="'+e.id+'">✕</button>'+
+        '</div>';
+      });
+      html += '</div>';
+    });
+    container.innerHTML = html;
+    container.querySelectorAll('.entry-del').forEach(function(b){
+      b.addEventListener('click', function(){ deleteEntry(b.dataset.id); });
+    });
+  }
+
+  /* ---------------- Stats panel ---------------- */
+  var statRange = 'week';
+  document.querySelectorAll('.stat-toggle button').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.stat-toggle button').forEach(function(x){x.classList.remove('active');});
+      b.classList.add('active');
+      statRange = b.dataset.range;
+      renderStats();
+    });
+  });
+  document.getElementById('exportCsv').addEventListener('click', exportCsv);
+
+  function buildSummaryText(rangeLabel, start, end){
+    var list = entriesInRange(start, end);
+    var s = summarize(list);
+    var byCat = {};
+    list.forEach(function(e){
+      if(e.type!=='income' && e.type!=='expense') return;
+      if(!byCat[e.category]) byCat[e.category] = {income:0, expense:0};
+      if(e.type==='income') byCat[e.category].income += e.amount;
+      else byCat[e.category].expense += e.amount;
+    });
+    var lines = [];
+    lines.push(appName + ' — ' + rangeLabel);
+    lines.push(start.toLocaleDateString() + ' \u2013 ' + new Date(end - 1).toLocaleDateString());
+    lines.push('');
+    lines.push(t('incomeLabel') + ': ' + fmtMoney(s.income));
+    lines.push(t('expenseLabel') + ': ' + fmtMoney(s.expense));
+    lines.push(t('netLabel') + ': ' + fmtMoney(s.net));
+    lines.push(t('milesLabel') + ': ' + s.miles.toFixed(1));
+    lines.push(t('netPerMileLabel') + ': ' + (s.miles>0 ? fmtMoney(s.net/s.miles) : fmtMoney(0)));
+    var catKeys = Object.keys(byCat);
+    if(catKeys.length){
+      lines.push('');
+      lines.push(t('byCategoryLabel') + ':');
+      catKeys.sort(function(a,b){ return (byCat[b].income+byCat[b].expense) - (byCat[a].income+byCat[a].expense); });
+      catKeys.forEach(function(cat){
+        var c = byCat[cat];
+        var parts = [];
+        if(c.income) parts.push('+'+fmtMoney(c.income));
+        if(c.expense) parts.push('-'+fmtMoney(c.expense));
+        lines.push('  ' + cat + ': ' + parts.join(' / '));
+      });
+    }
+    return lines.join('\n');
+  }
+
+  document.getElementById('shareSummaryBtn').addEventListener('click', function(){
+    var now = new Date();
+    var start, end, rangeLabel;
+    if(statRange==='week'){
+      start = startOfWeek(now); end = new Date(start); end.setDate(end.getDate()+7);
+      rangeLabel = t('weeklySummary');
+    } else {
+      start = startOfMonth(now); end = new Date(start.getFullYear(), start.getMonth()+1, 1);
+      rangeLabel = t('monthlySummary');
+    }
+    var text = buildSummaryText(rangeLabel, start, end);
+    var title = appName + ' \u2014 ' + rangeLabel;
+
+    if(navigator.share){
+      navigator.share({ title: title, text: text }).catch(function(){ /* user cancelled, ignore */ });
+    } else {
+      var mailtoUrl = 'mailto:?subject=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(text);
+      window.location.href = mailtoUrl;
+      if(navigator.clipboard){
+        navigator.clipboard.writeText(text).then(function(){ showToast(t('copiedToClipboard')); }).catch(function(){});
+      }
+    }
+  });
+
+  function renderStats(){
+    var now = new Date();
+    var start, end, dayCount;
+    if(statRange==='week'){ start = startOfWeek(now); end = new Date(start); end.setDate(end.getDate()+7); dayCount=7; }
+    else { start = startOfMonth(now); end = new Date(start.getFullYear(), start.getMonth()+1, 1); dayCount = end.getDate()-1; dayCount = Math.round((end-start)/86400000); }
+
+    var list = entriesInRange(start, end);
+    var s = summarize(list);
+    document.getElementById('statIncome').textContent = fmtMoney(s.income);
+    document.getElementById('statExpense').textContent = fmtMoney(s.expense);
+    document.getElementById('statNet').textContent = fmtMoney(s.net);
+    document.getElementById('statMiles').textContent = s.miles.toFixed(1);
+    document.getElementById('statPerMile').textContent = (s.miles>0 ? fmtMoney(s.net/s.miles) : '$0.00') + ' / mi';
+
+    // bar chart: daily net for each day in range
+    var chart = document.getElementById('barChart');
+    chart.innerHTML = '';
+    var maxAbs = 1;
+    var days = [];
+    for(var i=0;i<dayCount;i++){
+      var dStart = new Date(start); dStart.setDate(dStart.getDate()+i);
+      var dEnd = new Date(dStart); dEnd.setDate(dEnd.getDate()+1);
+      if(dStart>now && statRange==='month') break;
+      var sum = summarize(entriesInRange(dStart, dEnd));
+      days.push({date:dStart, net:sum.net});
+      maxAbs = Math.max(maxAbs, Math.abs(sum.net));
+    }
+    days.forEach(function(d){
+      var col = document.createElement('div');
+      col.className = 'bar-col';
+      var barHeight = Math.max(2, Math.round((Math.abs(d.net)/maxAbs)*90));
+      var bar = document.createElement('div');
+      bar.className = 'bar'+(d.net<0?' neg':'');
+      bar.style.height = barHeight+'px';
+      var lbl = document.createElement('div');
+      lbl.className='bar-day-label';
+      lbl.textContent = statRange==='week' ? d.date.toLocaleDateString([],{weekday:'narrow'}) : d.date.getDate();
+      col.appendChild(bar); col.appendChild(lbl);
+      chart.appendChild(col);
+    });
+  }
+
+  function exportCsv(){
+    var rows = [['Date','Time','Type','Category','Amount','Miles']];
+    entries.slice().sort(function(a,b){return new Date(a.ts)-new Date(b.ts);}).forEach(function(e){
+      var d = new Date(e.ts);
+      rows.push([d.toLocaleDateString(), d.toLocaleTimeString(), e.type, e.category, e.amount.toFixed(2), e.miles.toFixed(1)]);
+    });
+    var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+    var blob = new Blob([csv], {type:'text/csv'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = appName.replace(/\s+/g,'_')+'_export.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  /* ---------------- Calendar panel ---------------- */
+  var calCursor = new Date(); calCursor.setDate(1);
+  var calSelected = new Date();
+
+  document.getElementById('calPrev').addEventListener('click', function(){ calCursor.setMonth(calCursor.getMonth()-1); renderCalendar(); });
+  document.getElementById('calNext').addEventListener('click', function(){ calCursor.setMonth(calCursor.getMonth()+1); renderCalendar(); });
+
+  function renderCalendar(){
+    document.getElementById('calMonthLabel').textContent = calCursor.toLocaleDateString([], {month:'long', year:'numeric'});
+    var grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+    ['S','M','T','W','T','F','S'].forEach(function(d){
+      var el = document.createElement('div'); el.className='cal-dow'; el.textContent=d; grid.appendChild(el);
+    });
+    var firstDay = new Date(calCursor.getFullYear(), calCursor.getMonth(), 1);
+    var startOffset = firstDay.getDay();
+    var daysInMonth = new Date(calCursor.getFullYear(), calCursor.getMonth()+1, 0).getDate();
+
+    var entryByDay = {};
+    entries.forEach(function(e){
+      var d = new Date(e.ts);
+      if(d.getFullYear()===calCursor.getFullYear() && d.getMonth()===calCursor.getMonth()){
+        var k = d.getDate();
+        entryByDay[k] = entryByDay[k] || {income:false, expense:false, mileage:false};
+        entryByDay[k][e.type] = true;
+      }
+    });
+
+    for(var i=0;i<startOffset;i++){
+      var empty = document.createElement('div'); empty.className='cal-day empty'; grid.appendChild(empty);
+    }
+    var now = new Date();
+    for(var day=1; day<=daysInMonth; day++){
+      var cell = document.createElement('div');
+      cell.className = 'cal-day';
+      var thisDate = new Date(calCursor.getFullYear(), calCursor.getMonth(), day);
+      if(isSameDay(thisDate, now)) cell.classList.add('today');
+      if(isSameDay(thisDate, calSelected)) cell.classList.add('selected');
+      var numSpan = document.createElement('span'); numSpan.textContent = day;
+      cell.appendChild(numSpan);
+      if(entryByDay[day]){
+        var dotRow = document.createElement('div'); dotRow.className='dot-row';
+        ['income','expense','mileage'].forEach(function(t){
+          if(entryByDay[day][t]){ var dot=document.createElement('div'); dot.className='cal-dot '+t; dotRow.appendChild(dot); }
+        });
+        cell.appendChild(dotRow);
+      }
+      (function(d){
+        cell.addEventListener('click', function(){ calSelected = d; renderCalendar(); });
+      })(thisDate);
+      grid.appendChild(cell);
+    }
+    renderCalSelectedList();
+  }
+
+  function renderCalSelectedList(){
+    var container = document.getElementById('calSelectedList');
+    var dayStart = new Date(calSelected); dayStart.setHours(0,0,0,0);
+    var dayEnd = new Date(dayStart); dayEnd.setDate(dayEnd.getDate()+1);
+    var list = entriesInRange(dayStart, dayEnd).sort(function(a,b){return new Date(a.ts)-new Date(b.ts);});
+    var label = calSelected.toLocaleDateString([], {weekday:'long', month:'long', day:'numeric'});
+    var html = '<div class="day-group-title">'+label+'</div>';
+    if(list.length===0){
+      html += '<div class="empty-state">No entries this day.</div>';
+    } else {
+      list.forEach(function(e){
+        var time = new Date(e.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        var amtDisplay = e.type==='mileage' ? e.miles.toFixed(1)+' mi' : (e.type==='expense'?'-':'+')+'$'+e.amount.toFixed(2);
+        html += '<div class="entry"><div class="entry-icon '+e.type+'">'+iconFor(e.type)+'</div>'+
+          '<div class="entry-info"><div class="entry-cat">'+e.category+'</div><div class="entry-time">'+time+'</div></div>'+
+          '<div class="entry-amt '+e.type+'">'+amtDisplay+'</div>'+
+          '<button class="entry-del" data-id="'+e.id+'">✕</button></div>';
+      });
+    }
+    container.innerHTML = html;
+    container.querySelectorAll('.entry-del').forEach(function(b){
+      b.addEventListener('click', function(){ deleteEntry(b.dataset.id); });
+    });
+  }
+
+  /* ---------------- Vehicle / Maintenance ---------------- */
+  var MAINTENANCE_ITEMS = [
+    { key:'oil', defaultInterval:5000 },
+    { key:'tires', defaultInterval:6000 },
+    { key:'air_filter', defaultInterval:15000 },
+    { key:'brake_fluid', defaultInterval:30000 },
+    { key:'trans_fluid', defaultInterval:45000 },
+    { key:'spark_plugs', defaultInterval:60000 },
+    { key:'coolant', defaultInterval:60000 },
+    { key:'timing_belt', defaultInterval:90000 }
+  ];
+
+  function ensureServiceDefaults(){
+    MAINTENANCE_ITEMS.forEach(function(item){
+      if(!vehicle.service[item.key]){
+        vehicle.service[item.key] = { lastMileage: 0, interval: item.defaultInterval };
+      }
+    });
+  }
+  ensureServiceDefaults();
+
+  function computeCurrentMileage(){
+    var baseline = vehicle.odoBaseline || 0;
+    if(!vehicle.baselineSetAt) return baseline;
+    var since = new Date(vehicle.baselineSetAt);
+    var tripMiles = 0;
+    entries.forEach(function(e){
+      if(e.type==='mileage' && new Date(e.ts) >= since) tripMiles += e.miles;
+    });
+    return baseline + tripMiles;
+  }
+
+  function renderVehicleProfile(){
+    document.getElementById('vMake').value = vehicle.make || '';
+    document.getElementById('vModel').value = vehicle.model || '';
+    document.getElementById('vYear').value = vehicle.year || '';
+    var current = Math.round(computeCurrentMileage());
+    var mileageField = document.getElementById('vCurrentMileage');
+    mileageField.value = current;
+    mileageField.dataset.original = current;
+    document.getElementById('vCurrentOdo').textContent = current.toLocaleString() + ' ' + t('milesShort');
+    renderFirstTimeMaintInputs();
+  }
+
+  function renderFirstTimeMaintInputs(){
+    var block = document.getElementById('firstTimeMaintBlock');
+    if(!block) return;
+    if(vehicle.baselineSetAt){ block.style.display = 'none'; return; }
+    block.style.display = '';
+    ensureServiceDefaults();
+    var container = document.getElementById('firstTimeMaintInputs');
+    var curVal = parseFloat(document.getElementById('vCurrentMileage').value) || 0;
+    var html = '';
+    MAINTENANCE_ITEMS.forEach(function(item){
+      var label = (t('items')[item.key]) || item.key;
+      html += '<div class="setup-row"><div class="setup-label">'+label+'</div>'+
+        '<input type="number" inputmode="numeric" class="setup-input" data-key="'+item.key+'" data-autosync="true" value="'+curVal+'"></div>';
+    });
+    container.innerHTML = html;
+    container.querySelectorAll('.setup-input').forEach(function(inp){
+      inp.addEventListener('input', function(){ inp.dataset.autosync = 'false'; });
+    });
+  }
+
+  document.getElementById('vCurrentMileage').addEventListener('input', function(){
+    if(vehicle.baselineSetAt) return; // autosync only applies during first-time setup
+    var val = parseFloat(this.value) || 0;
+    document.querySelectorAll('#firstTimeMaintInputs .setup-input').forEach(function(inp){
+      if(inp.dataset.autosync === 'true'){ inp.value = val; }
+    });
+  });
+
+  function renderMaintList(){
+    ensureServiceDefaults();
+    var container = document.getElementById('maintList');
+    if(!container) return;
+    var current = computeCurrentMileage();
+    var html = '';
+    MAINTENANCE_ITEMS.forEach(function(item){
+      var svc = vehicle.service[item.key];
+      var nextDue = svc.lastMileage + svc.interval;
+      var remaining = nextDue - current;
+      var status = 'ok', statusLabel = t('statusOk');
+      if(remaining <= 0){ status='overdue'; statusLabel=t('statusOverdue'); }
+      else if(remaining <= 500){ status='soon'; statusLabel=t('statusSoon'); }
+      var label = (t('items')[item.key]) || item.key;
+      html += '<div class="maint-item" data-key="'+item.key+'">'+
+        '<div class="maint-dot '+status+'"></div>'+
+        '<div class="maint-info">'+
+          '<div class="maint-name">'+label+'</div>'+
+          '<div class="maint-sub '+(status!=='ok'?status:'')+'">'+statusLabel+' — '+t('dueAt')+' '+nextDue.toLocaleString()+' '+t('milesShort')+'</div>'+
+        '</div>'+
+        '<button class="maint-done-btn" data-action="done" data-key="'+item.key+'">'+t('markDone')+'</button>'+
+        '<button class="maint-done-btn" data-action="edit" data-key="'+item.key+'">'+t('edit')+'</button>'+
+      '</div>';
+    });
+    container.innerHTML = html;
+    container.querySelectorAll('[data-action="done"]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var key = b.dataset.key;
+        vehicle.service[key].lastMileage = Math.round(computeCurrentMileage());
+        saveVehicle(vehicle);
+        renderMaintList();
+        showToast(t('items')[key] + ' — ' + t('markDone').toLowerCase());
+      });
+    });
+    container.querySelectorAll('[data-action="edit"]').forEach(function(b){
+      b.addEventListener('click', function(){ openMaintEdit(b.dataset.key); });
+    });
+  }
+
+  var maintEditKey = null;
+  function openMaintEdit(key){
+    maintEditKey = key;
+    var svc = vehicle.service[key];
+    document.getElementById('maintLastMileage').value = svc.lastMileage;
+    document.getElementById('maintInterval').value = svc.interval;
+    openModal('maintEditModal');
+  }
+  document.getElementById('maintEditSave').addEventListener('click', function(){
+    if(!maintEditKey) return;
+    var last = parseFloat(document.getElementById('maintLastMileage').value) || 0;
+    var interval = parseFloat(document.getElementById('maintInterval').value) || vehicle.service[maintEditKey].interval;
+    vehicle.service[maintEditKey] = { lastMileage: last, interval: interval };
+    saveVehicle(vehicle);
+    renderMaintList();
+    closeModal('maintEditModal');
+    showToast('Service updated');
+  });
+
+  document.getElementById('vehicleSave').addEventListener('click', function(){
+    vehicle.make = document.getElementById('vMake').value.trim();
+    vehicle.model = document.getElementById('vModel').value.trim();
+    vehicle.year = document.getElementById('vYear').value.trim();
+
+    var mileageField = document.getElementById('vCurrentMileage');
+    var enteredMileage = parseFloat(mileageField.value);
+    var isFirstTime = !vehicle.baselineSetAt;
+
+    if(!isNaN(enteredMileage) && enteredMileage >= 0){
+      var originalDisplayed = parseFloat(mileageField.dataset.original);
+      var changed = isNaN(originalDisplayed) || Math.round(enteredMileage) !== Math.round(originalDisplayed);
+      if(isFirstTime || changed){
+        vehicle.odoBaseline = enteredMileage;
+        vehicle.baselineSetAt = new Date().toISOString();
+      }
+    }
+
+    if(isFirstTime){
+      ensureServiceDefaults();
+      document.querySelectorAll('#firstTimeMaintInputs .setup-input').forEach(function(inp){
+        var val = parseFloat(inp.value);
+        if(!isNaN(val) && val >= 0){
+          vehicle.service[inp.dataset.key].lastMileage = val;
+        }
+      });
+    }
+
+    saveVehicle(vehicle);
+    showToast('Vehicle saved');
+    renderVehicleProfile();
+    renderMaintList();
+  });
+
+  document.getElementById('vResyncBtn').addEventListener('click', function(){
+    document.getElementById('resyncInput').value = Math.round(computeCurrentMileage());
+    openModal('resyncModal');
+  });
+  document.getElementById('resyncSave').addEventListener('click', function(){
+    var val = parseFloat(document.getElementById('resyncInput').value);
+    if(isNaN(val) || val < 0){ showToast('Enter a valid mileage'); return; }
+    vehicle.odoBaseline = val;
+    vehicle.baselineSetAt = new Date().toISOString();
+    saveVehicle(vehicle);
+    renderVehicleProfile();
+    renderMaintList();
+    closeModal('resyncModal');
+    showToast('Odometer updated');
+  });
+
+  function renderVehiclePanel(){
+    renderVehicleProfile();
+    renderMaintList();
+  }
+
+  /* ---------------- Manual form ---------------- */
+  var manualType = 'income';
+  document.getElementById('manualToggle').addEventListener('click', function(){
+    document.getElementById('manualForm').classList.toggle('open');
+  });
+  document.querySelectorAll('#typeSeg button').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('#typeSeg button').forEach(function(x){x.classList.remove('active');});
+      b.classList.add('active');
+      manualType = b.dataset.type;
+      document.getElementById('amountField').style.display = manualType==='mileage' ? 'none' : 'block';
+      document.getElementById('milesField').style.display = manualType==='mileage' ? 'block' : 'none';
+    });
+  });
+  document.getElementById('manualSave').addEventListener('click', function(){
+    var cat = document.getElementById('manualCategory').value;
+    if(manualType==='mileage'){
+      var miles = parseFloat(document.getElementById('manualMiles').value);
+      if(!miles || miles<=0){ showToast('Enter a mileage amount'); return; }
+      addEntry('mileage', 0, cat, miles);
+      document.getElementById('manualMiles').value='';
+    } else {
+      var amt = parseFloat(document.getElementById('manualAmount').value);
+      if(!amt || amt<=0){ showToast('Enter an amount'); return; }
+      addEntry(manualType, amt, cat, 0);
+      document.getElementById('manualAmount').value='';
+    }
+    showToast('Entry saved');
+  });
+
+  /* ---------------- Voice recognition ---------------- */
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var recognition = null;
+  var listening = false;
+  var micBtn = document.getElementById('micBtn');
+  var micHint = document.getElementById('micHint');
+
+  function matchCategory(text){
+    text = text.toLowerCase();
+    var words = CATEGORY_WORDS_BY_LANG[currentLang] || CATEGORY_WORDS_BY_LANG['en-US'];
+    for(var w in words){
+      if(words.hasOwnProperty(w) && text.indexOf(w)!==-1) return words[w];
+    }
+    return 'Other';
+  }
+
+  function parseVoiceCommand(raw){
+    var text = raw.toLowerCase().trim();
+    var cmd = COMMAND_WORDS_BY_LANG[currentLang] || COMMAND_WORDS_BY_LANG['en-US'];
+
+    // rename command
+    var renameMatch = text.match(cmd.rename);
+    if(renameMatch){
+      var newName = renameMatch[1].trim().replace(/\.$/,'');
+      newName = newName.replace(/\b\w/g, function(c){return c.toUpperCase();});
+      applyName(newName);
+      return 'Renamed app to "'+newName+'"';
+    }
+
+    // mileage: "log 12 miles", "drove 12 miles", "12 miles"
+    var mileMatch = text.match(cmd.mile);
+    if(mileMatch && cmd.mileTrigger.test(text)){
+      var miles = parseFloat(mileMatch[1]);
+      var cat = matchCategory(text);
+      addEntry('mileage', 0, cat, miles);
+      return 'Logged '+miles.toFixed(1)+' miles ('+cat+')';
+    }
+
+    // income / expense: look for amount + keyword
+    var amtMatch = text.match(cmd.amount);
+    var isExpense = cmd.expense.test(text);
+    var isIncome = cmd.income.test(text);
+    if(amtMatch && (isExpense || isIncome)){
+      var amount = parseFloat(amtMatch[1]);
+      var category = matchCategory(text);
+      var type = isExpense && !isIncome ? 'expense' : 'income';
+      addEntry(type, amount, category, 0);
+      return 'Logged '+(type==='expense'?'-':'+')+'$'+amount.toFixed(2)+' — '+category;
+    }
+
+    return null;
+  }
+
+  function setListening(state){
+    listening = state;
+    micBtn.classList.toggle('listening', state);
+    micHint.innerHTML = state ? 'Listening…' : t('micHintDefault');
+  }
+
+  if(SpeechRecognition){
+    recognition = new SpeechRecognition();
+    recognition.lang = currentLang;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = function(){ setListening(true); };
+    recognition.onend = function(){ setListening(false); };
+    recognition.onerror = function(ev){
+      setListening(false);
+      if(ev.error === 'not-allowed'){
+        micHint.textContent = 'Microphone access is blocked — enable it in your browser settings.';
+      } else {
+        micHint.innerHTML = 'Didn\'t catch that — tap the mic and try again.';
+      }
+    };
+    recognition.onresult = function(ev){
+      var transcript = ev.results[0][0].transcript;
+      var result = parseVoiceCommand(transcript);
+      if(result){
+        micHint.innerHTML = '<b>Heard:</b> "'+transcript+'" → '+result;
+        showToast(result);
+      } else {
+        micHint.innerHTML = '<b>Heard:</b> "'+transcript+'" — couldn\'t parse that. Try "20 dollars income doordash."';
+      }
+    };
+
+    micBtn.addEventListener('click', function(){
+      if(listening){ recognition.stop(); return; }
+      try{ recognition.start(); }catch(e){}
+    });
+  } else {
+    micHint.textContent = 'Voice entry isn\'t supported in this browser — use manual entry below.';
+    micBtn.style.opacity = '0.4';
+    micBtn.style.cursor = 'not-allowed';
+  }
+
+  /* ---------------- Render all ---------------- */
+  function renderAll(){
+    renderOdometers();
+    renderEntriesList();
+    if(document.getElementById('panel-stats').classList.contains('active')) renderStats();
+    if(document.getElementById('panel-calendar').classList.contains('active')) renderCalendar();
+    if(document.getElementById('panel-vehicle').classList.contains('active')) renderVehiclePanel();
+  }
+
+  applyLanguage(currentLang);
+  renderVehiclePanel();
+  renderAll();
+
+  // Register service worker (enables offline use + installability).
+  // Silently no-ops on file:// or if unsupported — this only works over http(s).
+  if('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(){ /* ignore */ });
+    });
+  }
+
+  if(!storageWorks){
+    showToast('Preview mode: entries won\'t be saved. Open the downloaded file directly to save data.');
+  }
+})();
+</script>
+</body>
+</html>
