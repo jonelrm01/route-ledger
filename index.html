@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Route Ledger</title>
+<title>GigHelper</title>
 <meta name="theme-color" content="#14171C">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Route Ledger">
+<meta name="apple-mobile-web-app-title" content="GigHelper">
 <link rel="apple-touch-icon" id="appleTouchIcon">
 <link rel="icon" id="favicon">
 <link rel="manifest" href="manifest.json">
@@ -81,10 +81,12 @@
 
   /* ---------- Tabs ---------- */
   .tabs{
-    display:flex; gap:6px; padding:16px 20px 0;
+    display:flex; gap:4px; padding:16px 20px 0;
+    overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
   }
+  .tabs::-webkit-scrollbar{display:none;}
   .tab{
-    padding:8px 14px; font-size:13px; font-weight:500;
+    padding:8px 12px; font-size:13px; font-weight:500; white-space:nowrap; flex-shrink:0;
     color:var(--text-muted); background:transparent; border:none;
     border-bottom:2px solid transparent; cursor:pointer;
   }
@@ -138,6 +140,14 @@
   .seg button.active[data-type="income"]{background:rgba(63,167,150,.15); border-color:var(--teal); color:var(--teal);}
   .seg button.active[data-type="expense"]{background:rgba(209,73,91,.15); border-color:var(--rose); color:var(--rose);}
   .seg button.active[data-type="mileage"]{background:rgba(232,163,61,.15); border-color:var(--amber); color:var(--amber);}
+  .stream-bar{display:flex; align-items:center; gap:8px; padding:10px 16px; overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  .stream-bar-label{font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; flex-shrink:0;}
+  .stream-chips{display:flex; gap:6px; overflow-x:auto;}
+  .stream-chip{
+    flex-shrink:0; padding:6px 12px; border-radius:999px; border:1px solid var(--hairline);
+    background:var(--bg-panel-raised); color:var(--text-muted); font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap;
+  }
+  .stream-chip.active{background:rgba(232,163,61,.15); border-color:var(--amber); color:var(--amber);}
   .field{margin-bottom:10px;}
   .field label{display:block; font-size:11px; color:var(--text-faint); margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;}
   .field input, .field select{
@@ -264,6 +274,19 @@
 
   /* ---------- Vehicle panel ---------- */
   .vehicle-card{background:var(--bg-panel); border:1px solid var(--hairline); border-radius:12px; padding:16px; margin-bottom:16px;}
+
+  /* ---------- Help / user manual accordion ---------- */
+  .help-item{background:var(--bg-panel); border:1px solid var(--hairline); border-radius:12px; margin-bottom:10px; overflow:hidden;}
+  .help-item-header{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:14px 16px; cursor:pointer; user-select:none;
+  }
+  .help-item-header .icon{font-size:18px; flex-shrink:0;}
+  .help-item-header .title{flex:1; font-size:14px; font-weight:600; color:var(--text-primary);}
+  .help-item-header .chevron{font-size:14px; color:var(--text-faint); transition:transform .15s ease; flex-shrink:0;}
+  .help-item.open .chevron{transform:rotate(90deg);}
+  .help-item-body{display:none; padding:0 16px 16px; font-size:13px; line-height:1.55; color:var(--text-muted); white-space:pre-line;}
+  .help-item.open .help-item-body{display:block;}
   .vehicle-card h4{margin:0 0 12px; font-size:14px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em;}
   .vehicle-row{display:flex; gap:8px; margin-bottom:10px;}
   .vehicle-row .field{flex:1; margin-bottom:0;}
@@ -299,6 +322,13 @@
     background:var(--bg-panel-raised); color:var(--text-muted); font-size:13px; font-weight:600; cursor:pointer;
   }
   .lang-options button.active{background:rgba(232,163,61,.15); border-color:var(--amber); color:var(--amber);}
+  .platform-row{display:flex; align-items:center; gap:10px; padding:9px 8px; border-radius:8px;}
+  .platform-row:hover{background:var(--bg-panel-raised);}
+  .platform-row input[type="checkbox"]{width:18px; height:18px; accent-color:var(--amber); flex-shrink:0;}
+  .platform-row label{font-size:14px; color:var(--text-primary);}
+  .add-platform-row{display:flex; gap:8px; margin-top:10px;}
+  .add-platform-row input{flex:1; background:var(--bg-panel-raised); border:1px solid var(--hairline); border-radius:8px; color:var(--text-primary); padding:9px 10px; font-size:14px;}
+  .add-platform-row button{background:var(--amber); color:var(--bg-deep); border:none; border-radius:8px; padding:0 14px; font-weight:700; font-size:13px;}
 
   /* ---------- First-time maintenance setup ---------- */
   .setup-row{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
@@ -308,10 +338,62 @@
 </head>
 <body>
 
+<div id="welcomeOverlay" style="position:fixed; inset:0; z-index:9999; background:var(--bg-deep); display:none; flex-direction:column; align-items:center; justify-content:flex-start; padding:24px; text-align:center; overflow-y:auto;">
+  <img src="icon-explainer.png" alt="GigHelper capabilities" style="width:min(70vw, 280px); height:auto; margin:12px 0 16px;">
+  <h1 id="welcomeTitleEl" style="font-size:20px; margin:0 0 8px; color:var(--text-primary);">Welcome to GigHelper</h1>
+  <p id="welcomeBodyEl" style="font-size:14px; color:var(--text-muted); max-width:320px; margin:0 0 20px;">Track income, expenses, mileage, and maintenance — hands-free with voice entry.</p>
+
+  <div class="lang-options" id="welcomeLangOptions" style="justify-content:center; flex-wrap:wrap; margin-bottom:24px;">
+    <button type="button" data-lang="en-US" class="active">English</button>
+    <button type="button" data-lang="es-ES">Español</button>
+    <button type="button" data-lang="it-IT">Italiano</button>
+    <button type="button" data-lang="fr-FR">Français</button>
+    <button type="button" data-lang="zh-CN">中文</button>
+  </div>
+
+  <div style="width:100%; max-width:360px; text-align:left; margin-bottom:20px;">
+    <label id="chooseCountryLbl" style="display:block; font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:4px;">Where are you based?</label>
+    <p id="chooseCountryHintEl" style="font-size:12px; color:var(--text-muted); margin:0 0 10px;">Sets your currency, mile/km units, and (in the US) IRS mileage-deduction tools. You can change this later in Settings.</p>
+    <select id="welcomeCountrySelect" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--hairline); background:var(--bg-panel-raised); color:var(--text-primary); font-size:14px; margin-bottom:10px;"></select>
+    <select id="welcomeCurrencySelect" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--hairline); background:var(--bg-panel-raised); color:var(--text-primary); font-size:14px;"></select>
+  </div>
+
+  <div style="width:100%; max-width:360px; text-align:left; margin-bottom:20px;">
+    <label id="chooseUsageLbl" style="display:block; font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:4px;">How do you use this app?</label>
+    <p id="chooseUsageHintEl" style="font-size:12px; color:var(--text-muted); margin:0 0 10px;">Select all that apply — you can add or change these later in Settings.</p>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <label style="display:flex; align-items:center; gap:8px; padding:10px; border:1px solid var(--hairline); border-radius:10px; background:var(--bg-panel-raised);">
+        <input type="checkbox" id="usagePersonal"> <span id="usagePersonalLbl">Personal spending — groceries, bills, everyday expenses</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:8px; padding:10px; border:1px solid var(--hairline); border-radius:10px; background:var(--bg-panel-raised);">
+        <input type="checkbox" id="usageGig" checked> <span id="usageGigLbl">Gig driving — DoorDash, Uber, and similar platforms</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:8px; padding:10px; border:1px solid var(--hairline); border-radius:10px; background:var(--bg-panel-raised);">
+        <input type="checkbox" id="usageSide"> <span id="usageSideLbl">A side hustle or small business</span>
+      </label>
+    </div>
+    <div id="usageSideDetails" style="display:none; margin-top:10px; padding:10px; border:1px solid var(--hairline); border-radius:10px;">
+      <label id="usageSideNameLbl" style="display:block; font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">What should we call it?</label>
+      <input type="text" id="usageSideName" placeholder="e.g. Martial Arts School, Etsy Shop..." style="width:100%; padding:9px; border-radius:8px; border:1px solid var(--hairline); background:var(--bg-panel); color:var(--text-primary); font-size:14px; margin-bottom:8px;">
+      <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-muted);">
+        <input type="checkbox" id="usageSideDrives"> <span id="usageSideDrivesLbl">I sometimes drive for this and want to track mileage</span>
+      </label>
+    </div>
+  </div>
+
+  <div style="width:100%; max-width:360px; text-align:left;" id="choosePlatformsWrap">
+    <label id="choosePlatformsLbl" style="display:block; font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:4px;">Which platforms do you work with?</label>
+    <p id="choosePlatformsHintEl" style="font-size:12px; color:var(--text-muted); margin:0 0 10px;">Check all that apply. You can add more anytime.</p>
+    <div id="welcomePlatformList" style="max-height:220px; overflow-y:auto; border:1px solid var(--hairline); border-radius:10px; padding:6px 4px; margin-bottom:20px;"></div>
+  </div>
+
+  <button id="welcomeContinueBtn" style="background:var(--amber); color:var(--bg-deep); border:none; border-radius:12px; padding:12px 28px; font-size:15px; font-weight:700; margin-bottom:16px;">Get started</button>
+</div>
+
 <header>
   <div class="header-row">
     <div class="app-title-wrap" id="titleClickable">
-      <span id="appTitle">Route Ledger</span>
+      <span id="appTitle">GigHelper</span>
       <span class="rename-pencil">✎</span>
     </div>
     <div style="display:flex; align-items:center; gap:10px;">
@@ -324,6 +406,11 @@
   </div>
 </header>
 
+<div class="stream-bar" id="streamBar">
+  <span class="stream-bar-label" id="streamBarLabel">Logging to</span>
+  <div class="stream-chips" id="streamChips"></div>
+</div>
+
 <div class="odometer-strip">
   <div class="odo-card"><div class="odo-label">Today net</div><div class="odo-value net num" id="odoToday">$0.00</div></div>
   <div class="odo-card"><div class="odo-label">Week net</div><div class="odo-value net num" id="odoWeek">$0.00</div></div>
@@ -331,11 +418,34 @@
   <div class="odo-card"><div class="odo-label">Month miles</div><div class="odo-value num" id="odoMiles" style="color:var(--text-primary)">0.0</div></div>
 </div>
 
+<div class="vehicle-card" id="backupBanner" style="display:none; border-color:var(--amber); background:rgba(232,163,61,.08); margin:0 16px 12px; align-items:center;">
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%;">
+    <div style="flex:1;">
+      <div style="font-size:13px; color:var(--text-primary); margin-bottom:2px;" id="backupBannerTitle">Back up your data</div>
+      <div style="font-size:12px; color:var(--text-muted);" id="backupBannerBody">It's been a while since your last export. Download a CSV backup so you never lose your records.</div>
+    </div>
+    <button id="backupBannerExport" style="background:var(--amber); color:var(--bg-deep); border:none; border-radius:8px; padding:8px 12px; font-size:12px; font-weight:700; flex-shrink:0;">Export now</button>
+    <button id="backupBannerDismiss" aria-label="Dismiss" style="background:none; border:none; color:var(--text-faint); font-size:16px; padding:0 2px; flex-shrink:0;">✕</button>
+  </div>
+</div>
+
+<div class="vehicle-card" id="taxBanner" style="display:none; border-color:#4fd1c5; background:rgba(79,209,197,.08); margin:0 16px 12px; align-items:center;">
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%;">
+    <div style="flex:1;">
+      <div style="font-size:13px; color:var(--text-primary); margin-bottom:2px;" id="taxBannerTitle">Quarterly estimated tax</div>
+      <div style="font-size:12px; color:var(--text-muted);" id="taxBannerBody">—</div>
+    </div>
+    <button id="taxBannerView" style="background:#4fd1c5; color:var(--bg-deep); border:none; border-radius:8px; padding:8px 12px; font-size:12px; font-weight:700; flex-shrink:0;">View summary</button>
+    <button id="taxBannerDismiss" aria-label="Dismiss" style="background:none; border:none; color:var(--text-faint); font-size:16px; padding:0 2px; flex-shrink:0;">✕</button>
+  </div>
+</div>
+
 <div class="tabs">
   <button class="tab active" data-panel="log">Log</button>
   <button class="tab" data-panel="stats">Stats</button>
   <button class="tab" data-panel="calendar">Calendar</button>
   <button class="tab" data-panel="vehicle">Vehicle</button>
+  <button class="tab" data-panel="help">Help</button>
 </div>
 
 <main>
@@ -362,16 +472,12 @@
         <input type="number" inputmode="decimal" id="manualAmount" placeholder="0.00" step="0.01">
       </div>
       <div class="field" id="milesField" style="display:none;">
-        <label>Miles</label>
+        <label id="lblMilesField">Miles</label>
         <input type="number" inputmode="decimal" id="manualMiles" placeholder="0.0" step="0.1">
       </div>
       <div class="field">
         <label>Category</label>
-        <select id="manualCategory">
-          <option>DoorDash</option><option>Uber Eats</option><option>Amazon Flex</option>
-          <option>Uber</option><option>Lyft</option><option>Gas</option><option>Maintenance</option>
-          <option>Parking / Tolls</option><option>Phone / Data</option><option>Other</option>
-        </select>
+        <select id="manualCategory"></select>
       </div>
       <button class="save-btn" id="manualSave">Save entry</button>
     </div>
@@ -381,6 +487,7 @@
 
   <!-- STATS PANEL -->
   <section class="panel" id="panel-stats">
+    <div class="stream-chips" id="statsStreamChips" style="margin-bottom:10px; display:none;"></div>
     <div class="stat-toggle">
       <button data-range="week" class="active">This week</button>
       <button data-range="month">This month</button>
@@ -390,13 +497,14 @@
       <div class="stat-card"><div class="label">Expenses</div><div class="value num" id="statExpense" style="color:var(--rose)">$0.00</div></div>
       <div class="stat-card"><div class="label">Net</div><div class="value num" id="statNet" style="color:var(--amber)">$0.00</div></div>
       <div class="stat-card"><div class="label">Miles driven</div><div class="value num" id="statMiles">0.0</div></div>
-      <div class="stat-card wide"><div class="label">Net per mile</div><div class="value num" id="statPerMile">$0.00 / mi</div></div>
+      <div class="stat-card wide"><div class="label">Net per <span id="perDistUnitLabel">mile</span></div><div class="value num" id="statPerMile">$0.00 / mi</div></div>
       <div class="stat-card wide">
         <div class="label">Daily net</div>
         <div class="bar-chart" id="barChart"></div>
       </div>
     </div>
     <button class="save-btn" id="exportCsv" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline);">Export CSV</button>
+    <button class="save-btn" id="exportTaxSummary" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline); margin-top:10px;">Export tax summary</button>
     <button class="save-btn" id="shareSummaryBtn" style="margin-top:10px;">Share summary</button>
   </section>
 
@@ -413,6 +521,16 @@
 
   <!-- VEHICLE PANEL -->
   <section class="panel" id="panel-vehicle">
+    <div class="vehicle-card" id="vehicleNudge" style="display:none; border-color:var(--amber); background:rgba(232,163,61,.08);">
+      <div style="display:flex; gap:10px; align-items:flex-start;">
+        <div style="font-size:20px; line-height:1;">🚗</div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:13px; color:var(--text-primary); margin-bottom:4px;" id="vehicleNudgeTitle">Add your vehicle for accurate maintenance tracking</div>
+          <div style="font-size:12px; color:var(--text-muted);" id="vehicleNudgeBody">Without it, we use general industry intervals. Fill in the fields below anytime — it only takes a few seconds.</div>
+        </div>
+        <button id="vehicleNudgeDismiss" aria-label="Dismiss" style="background:none; border:none; color:var(--text-faint); font-size:16px; padding:0 2px; flex-shrink:0;">✕</button>
+      </div>
+    </div>
     <div class="vehicle-card">
       <h4 id="vehicleProfileLabel">Vehicle profile</h4>
       <div class="vehicle-row">
@@ -450,6 +568,16 @@
     </div>
   </section>
 
+  <!-- HELP / USER MANUAL PANEL -->
+  <section class="panel" id="panel-help">
+    <div class="vehicle-card" id="helpIntro">
+      <h4 id="helpTitle">User guide</h4>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;" id="helpIntroBody">Shown in your app language. Tap a section to expand it.</div>
+      <button type="button" id="helpDownloadBtn" style="width:100%; background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline); border-radius:10px; padding:10px; font-size:13px; font-weight:600;">⬇ Download guide</button>
+    </div>
+    <div id="helpSections"></div>
+  </section>
+
 </main>
 
 <nav class="bottom">
@@ -482,7 +610,7 @@
       <button class="close-x" data-close="renameModal">×</button>
       <h3>Rename app</h3>
       <p>This name appears at the top of the app and on your home screen icon.</p>
-      <input type="text" id="renameInput" placeholder="e.g. Jonel's Route Ledger">
+      <input type="text" id="renameInput" placeholder="e.g. Jonel's GigHelper">
       <div class="row-btns">
         <button data-close="renameModal">Cancel</button>
         <button class="primary" id="renameSave">Save name</button>
@@ -503,13 +631,13 @@
         1. Tap the Share icon.<br>
         2. Tap <b>Add to Home Screen</b>, confirm the name, then Add.<br>
         3. Open the <b>Shortcuts</b> app → + → Add Action → "Open App" → choose this app.<br>
-        4. Tap the shortcut's settings → <b>Add to Siri</b> → record a phrase like "Open <span id="installAppNameIOS">Route Ledger</span>."<br>
-        5. Say <b>"Hey Siri, open <span id="installAppNameIOS2">Route Ledger</span>"</b> anytime.
+        4. Tap the shortcut's settings → <b>Add to Siri</b> → record a phrase like "Open <span id="installAppNameIOS">GigHelper</span>."<br>
+        5. Say <b>"Hey Siri, open <span id="installAppNameIOS2">GigHelper</span>"</b> anytime.
         <br><br>
         <b>Android (Chrome)</b><br>
         1. Tap the ⋮ menu.<br>
         2. Tap <b>Add to Home screen</b> / <b>Install app</b>, confirm the name.<br>
-        3. Say <b>"Hey Google, open <span id="installAppNameAndroid">Route Ledger</span>"</b> — Assistant can open installed home-screen apps by name.
+        3. Say <b>"Hey Google, open <span id="installAppNameAndroid">GigHelper</span>"</b> — Assistant can open installed home-screen apps by name.
       </div>
       <div class="row-btns" style="margin-top:14px;">
         <button class="primary" data-close="installModal">Got it</button>
@@ -541,8 +669,11 @@
       <button class="close-x" data-close="maintEditModal">×</button>
       <h3 id="maintEditTitle">Edit service</h3>
       <p id="maintEditSub">Set the mileage this was last done, and the interval (miles) between services.</p>
-      <input type="number" inputmode="numeric" id="maintLastMileage" placeholder="Last done at (mi)">
-      <input type="number" inputmode="numeric" id="maintInterval" placeholder="Interval (mi)">
+      <input type="number" inputmode="numeric" id="maintLastMileage" placeholder="Last done at">
+      <input type="number" inputmode="numeric" id="maintInterval" placeholder="Interval — leave blank if time-based only">
+      <label id="lblLastServiceDate" style="display:block; font-size:11px; color:var(--text-faint); margin:10px 0 4px;">Last done on (date)</label>
+      <input type="date" id="maintLastServiceDate">
+      <input type="number" inputmode="numeric" id="maintIntervalMonths" placeholder="Interval (months) — leave blank if mileage-based only" style="margin-top:8px;">
       <div class="row-btns">
         <button data-close="maintEditModal">Cancel</button>
         <button class="primary" id="maintEditSave">Save</button>
@@ -563,7 +694,77 @@
           <button type="button" data-lang="en-US">English</button>
           <button type="button" data-lang="es-ES">Español</button>
           <button type="button" data-lang="it-IT">Italiano</button>
+          <button type="button" data-lang="fr-FR">Français</button>
+          <button type="button" data-lang="zh-CN">中文</button>
         </div>
+      </div>
+      <div class="settings-section">
+        <label id="lblRegion">Country</label>
+        <select id="countrySelect" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--hairline); background:var(--bg-panel-raised); color:var(--text-primary); font-size:14px;"></select>
+      </div>
+      <div class="settings-section">
+        <label id="lblCurrency">Currency</label>
+        <select id="currencySelect" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--hairline); background:var(--bg-panel-raised); color:var(--text-primary); font-size:14px;"></select>
+      </div>
+      <div class="settings-section">
+        <label id="lblUnits">Distance units</label>
+        <div class="lang-options" id="unitOptions">
+          <button type="button" data-unit="mi">Miles</button>
+          <button type="button" data-unit="km">Kilometers</button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <label id="lblVehicleTracking">Vehicle & mileage tracking</label>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;" id="vehicleTrackingHint">Turn this off if you don't drive for any of your income sources — it hides the Vehicle tab and mileage logging.</div>
+        <div class="lang-options" id="vehicleTrackingOptions">
+          <button type="button" data-val="on" id="vehicleTrackingOnBtn">On</button>
+          <button type="button" data-val="off" id="vehicleTrackingOffBtn">Off</button>
+        </div>
+      </div>
+      <div class="settings-section" id="autoBackupSection">
+        <label id="lblAutoBackup">Auto-backup</label>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;" id="autoBackupStatus">Checking availability…</div>
+        <button type="button" id="autoBackupSetupBtn" style="width:100%; background:var(--amber); color:var(--bg-deep); border:none; border-radius:10px; padding:10px; font-size:13px; font-weight:700; margin-bottom:8px; display:none;">Set up auto-backup</button>
+        <div id="autoBackupControls" style="display:none;">
+          <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Back up</div>
+          <div class="lang-options" id="backupCadenceOptions" style="margin-bottom:8px;">
+            <button type="button" data-cadence="entry">Every entry</button>
+            <button type="button" data-cadence="daily">Daily</button>
+            <button type="button" data-cadence="weekly">Weekly</button>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button type="button" id="autoBackupNowBtn" style="flex:1; background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline); border-radius:10px; padding:9px; font-size:12px; font-weight:600;">Back up now</button>
+            <button type="button" id="autoBackupDisableBtn" style="flex:1; background:none; color:var(--text-muted); border:1px solid var(--hairline); border-radius:10px; padding:9px; font-size:12px;">Turn off</button>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <label id="lblStreams">Streams</label>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;" id="streamsHint">Separate buckets for tracking different income sources — gig work, a side business, personal spending — each with its own stats.</div>
+        <div id="settingsStreamList" style="max-height:160px; overflow-y:auto; border:1px solid var(--hairline); border-radius:10px; padding:6px 4px; margin-bottom:4px;"></div>
+        <div class="add-platform-row">
+          <input type="text" id="newStreamInput" placeholder="e.g. Martial Arts School, Personal...">
+          <button type="button" id="addStreamBtn">Add</button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <label id="lblPlatforms">Platforms</label>
+        <div id="settingsPlatformList" style="max-height:160px; overflow-y:auto; border:1px solid var(--hairline); border-radius:10px; padding:6px 4px; margin-bottom:4px;"></div>
+        <div class="add-platform-row">
+          <input type="text" id="newPlatformInput" placeholder="e.g. Roadie, Shipt...">
+          <button type="button" id="addPlatformBtn">Add</button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <label id="lblNotifications">Notifications</label>
+        <button type="button" class="save-btn" id="enableMaintNotifBtn" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline);">Enable maintenance alerts</button>
+        <div style="font-size:11px; color:var(--text-faint); margin-top:6px;" id="maintNotifStatus"></div>
+      </div>
+      <div class="settings-section">
+        <label id="lblSupport">Support</label>
+        <button type="button" class="save-btn" id="reportProblemBtn" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline);">Report a problem</button>
+        <button type="button" class="save-btn" id="privacyPolicyBtn" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline); margin-top:8px;">Privacy policy</button>
+        <button type="button" class="save-btn" id="termsOfServiceBtn" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline); margin-top:8px;">Terms of service</button>
       </div>
       <div class="row-btns">
         <button class="primary" data-close="settingsModal" id="settingsDone">Done</button>
@@ -578,11 +779,35 @@
 (function(){
   "use strict";
 
+  /* ---------------- Error logging ---------------- */
+  function logClientError(message, source, lineno){
+    try{
+      var raw = localStorage.getItem(ERROR_LOG_KEY_STATIC);
+      var log = raw ? JSON.parse(raw) : [];
+      log.push({ t: new Date().toISOString(), msg: String(message), src: source || '', line: lineno || '' });
+      if(log.length > 20) log = log.slice(log.length - 20);
+      localStorage.setItem(ERROR_LOG_KEY_STATIC, JSON.stringify(log));
+    }catch(e){ /* storage unavailable — nothing we can do */ }
+  }
+  var ERROR_LOG_KEY_STATIC = 'routeLedger.errorLog.v1';
+  window.addEventListener('error', function(ev){
+    logClientError(ev.message, ev.filename, ev.lineno);
+  });
+  window.addEventListener('unhandledrejection', function(ev){
+    logClientError('Unhandled promise rejection: ' + (ev.reason && ev.reason.message ? ev.reason.message : ev.reason), '', '');
+  });
+
   /* ---------------- Storage ---------------- */
   var STORAGE_KEY = 'routeLedger.entries.v1';
   var NAME_KEY = 'routeLedger.appName.v1';
   var VEHICLE_KEY = 'routeLedger.vehicle.v1';
   var LANG_KEY = 'routeLedger.lang.v1';
+  var PLATFORMS_KEY = 'routeLedger.platforms.v1';
+  var STREAMS_KEY = 'routeLedger.streams.v1';
+  var COUNTRY_KEY = 'routeLedger.country.v1';
+  var CURRENCY_KEY = 'routeLedger.currency.v1';
+  var UNIT_KEY = 'routeLedger.unit.v1';
+  var ONBOARDED_REGION_KEY = 'routeLedger.regionOnboarded.v1';
   var storageWorks = true;
   try{
     var storageTestKey='__t__'; localStorage.setItem(storageTestKey,'1'); localStorage.removeItem(storageTestKey);
@@ -600,8 +825,8 @@
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); }catch(e){}
   }
   function loadName(){
-    if(!storageWorks) return window.__memName || 'Route Ledger';
-    try{ return localStorage.getItem(NAME_KEY) || 'Route Ledger'; }catch(e){ return 'Route Ledger'; }
+    if(!storageWorks) return window.__memName || 'GigHelper';
+    try{ return localStorage.getItem(NAME_KEY) || 'GigHelper'; }catch(e){ return 'GigHelper'; }
   }
   function saveName(n){
     if(!storageWorks){ window.__memName = n; return; }
@@ -627,11 +852,174 @@
     if(!storageWorks){ window.__memLang = l; return; }
     try{ localStorage.setItem(LANG_KEY, l); }catch(e){}
   }
+  var COMMON_PLATFORMS = ['DoorDash','Uber Eats','Uber','Lyft','Amazon Flex','Grubhub','Instacart','Shipt','Spark Driver (Walmart)','Postmates'];
+  var DEFAULT_PLATFORMS = ['DoorDash','Uber Eats','Amazon Flex','Uber','Lyft'];
+  var FIXED_CATEGORIES = ['Gas','Maintenance','Parking / Tolls','Phone / Data'];
+  function loadPlatforms(){
+    if(!storageWorks) return window.__memPlatforms || DEFAULT_PLATFORMS.slice();
+    try{
+      var raw = localStorage.getItem(PLATFORMS_KEY);
+      return raw ? JSON.parse(raw) : DEFAULT_PLATFORMS.slice();
+    }catch(e){ return DEFAULT_PLATFORMS.slice(); }
+  }
+  function savePlatforms(list){
+    if(!storageWorks){ window.__memPlatforms = list; return; }
+    try{ localStorage.setItem(PLATFORMS_KEY, JSON.stringify(list)); }catch(e){}
+  }
+
+  // Streams: separate income/expense "buckets" a person can be tagging entries
+  // under at once — e.g. Gig Driving, a side business, Personal spending.
+  // Every user starts with one default stream so existing single-stream
+  // behavior (and existing entries) keeps working unchanged.
+  var DEFAULT_STREAMS = ['Gig Driving'];
+  function loadStreams(){
+    if(!storageWorks) return window.__memStreams || DEFAULT_STREAMS.slice();
+    try{
+      var raw = localStorage.getItem(STREAMS_KEY);
+      return raw ? JSON.parse(raw) : DEFAULT_STREAMS.slice();
+    }catch(e){ return DEFAULT_STREAMS.slice(); }
+  }
+  function saveStreams(list){
+    if(!storageWorks){ window.__memStreams = list; return; }
+    try{ localStorage.setItem(STREAMS_KEY, JSON.stringify(list)); }catch(e){}
+  }
+
+  // Active Stream — whichever stream is currently "selected" as the logging
+  // context. New entries (manual or voice) default to this until switched.
+  // Persists across sessions so reopening the app keeps you in the same context.
+  var ACTIVE_STREAM_KEY = 'routeLedger.activeStream.v1';
+  function loadActiveStream(){
+    if(!storageWorks) return window.__memActiveStream || null;
+    try{ return localStorage.getItem(ACTIVE_STREAM_KEY) || null; }catch(e){ return null; }
+  }
+  function saveActiveStream(name){
+    if(!storageWorks){ window.__memActiveStream = name; return; }
+    try{ localStorage.setItem(ACTIVE_STREAM_KEY, name); }catch(e){}
+  }
+
+  // Whether vehicle/mileage tracking is relevant to this user at all — set
+  // during onboarding based on whether they drive for gig work or a side
+  // hustle. Defaults to true so existing installs (all gig-focused before
+  // this) keep seeing the Vehicle tab exactly as before.
+  var VEHICLE_TRACKING_KEY = 'routeLedger.vehicleTrackingEnabled.v1';
+  function loadVehicleTrackingEnabled(){
+    if(!storageWorks) return (window.__memVehicleTracking !== undefined) ? window.__memVehicleTracking : true;
+    try{
+      var raw = localStorage.getItem(VEHICLE_TRACKING_KEY);
+      return raw===null ? true : raw==='1';
+    }catch(e){ return true; }
+  }
+  function saveVehicleTrackingEnabled(val){
+    if(!storageWorks){ window.__memVehicleTracking = val; return; }
+    try{ localStorage.setItem(VEHICLE_TRACKING_KEY, val ? '1' : '0'); }catch(e){}
+  }
+
+  /* ---------------- Region / currency / units ---------------- */
+  // Curated, not exhaustive — covers the markets GigHelper is launching in.
+  // Each country carries a default currency + distance unit; both are
+  // editable independently afterward (someone might want USD prices but km).
+  var COUNTRIES = [
+    {code:'US', name:'United States', currency:'USD', unit:'mi'},
+    {code:'CA', name:'Canada', currency:'CAD', unit:'km'},
+    {code:'MX', name:'Mexico', currency:'MXN', unit:'km'},
+    {code:'GB', name:'United Kingdom', currency:'GBP', unit:'mi'},
+    {code:'IE', name:'Ireland', currency:'EUR', unit:'km'},
+    {code:'ES', name:'Spain', currency:'EUR', unit:'km'},
+    {code:'IT', name:'Italy', currency:'EUR', unit:'km'},
+    {code:'FR', name:'France', currency:'EUR', unit:'km'},
+    {code:'DE', name:'Germany', currency:'EUR', unit:'km'},
+    {code:'PT', name:'Portugal', currency:'EUR', unit:'km'},
+    {code:'CN', name:'China', currency:'CNY', unit:'km'},
+    {code:'AU', name:'Australia', currency:'AUD', unit:'km'},
+    {code:'NZ', name:'New Zealand', currency:'NZD', unit:'km'},
+    {code:'BR', name:'Brazil', currency:'BRL', unit:'km'},
+    {code:'AR', name:'Argentina', currency:'ARS', unit:'km'},
+    {code:'CO', name:'Colombia', currency:'COP', unit:'km'},
+    {code:'IN', name:'India', currency:'INR', unit:'km'},
+    {code:'OTHER', name:'Other / not listed', currency:'USD', unit:'km'}
+  ];
+  var CURRENCIES = [
+    {code:'USD', symbol:'$', name:'US Dollar'},
+    {code:'CAD', symbol:'CA$', name:'Canadian Dollar'},
+    {code:'MXN', symbol:'MX$', name:'Mexican Peso'},
+    {code:'GBP', symbol:'£', name:'British Pound'},
+    {code:'EUR', symbol:'€', name:'Euro'},
+    {code:'CNY', symbol:'¥', name:'Chinese Yuan'},
+    {code:'AUD', symbol:'A$', name:'Australian Dollar'},
+    {code:'NZD', symbol:'NZ$', name:'New Zealand Dollar'},
+    {code:'BRL', symbol:'R$', name:'Brazilian Real'},
+    {code:'ARS', symbol:'AR$', name:'Argentine Peso'},
+    {code:'COP', symbol:'CO$', name:'Colombian Peso'},
+    {code:'INR', symbol:'₹', name:'Indian Rupee'}
+  ];
+  function findCountry(code){
+    for(var i=0;i<COUNTRIES.length;i++){ if(COUNTRIES[i].code===code) return COUNTRIES[i]; }
+    return COUNTRIES[0];
+  }
+  function findCurrency(code){
+    for(var i=0;i<CURRENCIES.length;i++){ if(CURRENCIES[i].code===code) return CURRENCIES[i]; }
+    return CURRENCIES[0];
+  }
+  function loadCountry(){
+    if(!storageWorks) return window.__memCountry || 'US';
+    try{ return localStorage.getItem(COUNTRY_KEY) || 'US'; }catch(e){ return 'US'; }
+  }
+  function saveCountry(c){
+    if(!storageWorks){ window.__memCountry = c; return; }
+    try{ localStorage.setItem(COUNTRY_KEY, c); }catch(e){}
+  }
+  function loadCurrency(){
+    if(!storageWorks) return window.__memCurrency || 'USD';
+    try{ return localStorage.getItem(CURRENCY_KEY) || 'USD'; }catch(e){ return 'USD'; }
+  }
+  function saveCurrency(c){
+    if(!storageWorks){ window.__memCurrency = c; return; }
+    try{ localStorage.setItem(CURRENCY_KEY, c); }catch(e){}
+  }
+  function loadUnit(){
+    if(!storageWorks) return window.__memUnit || 'mi';
+    try{ return localStorage.getItem(UNIT_KEY) || 'mi'; }catch(e){ return 'mi'; }
+  }
+  function saveUnit(u){
+    if(!storageWorks){ window.__memUnit = u; return; }
+    try{ localStorage.setItem(UNIT_KEY, u); }catch(e){}
+  }
 
   var entries = loadEntries();
+  var streams = loadStreams();
+  var activeStream = loadActiveStream();
+  if(!activeStream || streams.indexOf(activeStream)===-1){ activeStream = streams[0] || DEFAULT_STREAMS[0]; }
+  var vehicleTrackingEnabled = loadVehicleTrackingEnabled();
+  // Migration: entries logged before Streams existed have no e.stream field.
+  // Tag them with the default stream once, on first load, so every entry is
+  // always groupable by stream — old and new — without a "missing stream" case.
+  (function migrateEntryStreams(){
+    var changed = false;
+    entries.forEach(function(e){
+      if(!e.stream){ e.stream = DEFAULT_STREAMS[0]; changed = true; }
+    });
+    if(changed) saveEntries(entries);
+  })();
   var appName = loadName();
   var vehicle = loadVehicle();
   var currentLang = loadLang();
+  var currentCountry = loadCountry();
+  var currentCurrency = loadCurrency();
+  var currentUnit = loadUnit();
+  var MI_TO_KM = 1.60934;
+  var KM_TO_MI = 1/MI_TO_KM;
+
+  // All distances are stored internally in miles (unchanged schema), so
+  // switching units is non-destructive and applies to past entries too —
+  // no separate conversion pass or mixed-unit history to worry about.
+  function distUnitLabel(){ return currentUnit === 'km' ? 'km' : 'mi'; }
+  function milesToDisplay(miles){ return currentUnit === 'km' ? miles * MI_TO_KM : miles; }
+  function displayToMiles(val){ return currentUnit === 'km' ? val * KM_TO_MI : val; }
+  function fmtDist(miles, decimals){
+    var d = (decimals === undefined) ? 1 : decimals;
+    return milesToDisplay(miles).toFixed(d) + ' ' + distUnitLabel();
+  }
+  function currencySymbol(){ return findCurrency(currentCurrency).symbol; }
 
   /* ---------------- App name / icon ---------------- */
   function applyName(name){
@@ -674,15 +1062,27 @@
       resyncLink: 'Update actual odometer reading', maintenance: 'Maintenance',
       maintDisclaimer: "These are general industry-standard intervals, not manufacturer-specific figures. Check your owner's manual for your vehicle's exact schedule, and tap a service to update it when you know the real interval.",
       resyncTitle: 'Update odometer', resyncSub: "Enter your vehicle's actual current mileage from the dashboard. Future trip miles you log will be added on top of this number.",
-      maintEditTitle: 'Edit service', maintEditSub: 'Set the mileage this was last done, and the interval (miles) between services.',
       markDone: 'Mark done', edit: 'Edit',
       statusOk: 'OK', statusSoon: 'due soon', statusOverdue: 'overdue',
       dueAt: 'next due at', milesShort: 'mi',
-      items: { oil:'Oil change', tires:'Tire rotation', air_filter:'Air filter', brake_fluid:'Brake fluid',
-        trans_fluid:'Transmission fluid', spark_plugs:'Spark plugs', coolant:'Coolant flush', timing_belt:'Timing belt' },
+      items: { oil:'Oil change', tires:'Tire rotation', air_filter:'Air filter', cabin_air_filter:'Cabin air filter', brake_fluid:'Brake fluid',
+        brake_pads:'Brake pads', trans_fluid:'Transmission fluid', spark_plugs:'Spark plugs', coolant:'Coolant flush',
+        battery:'Battery', wiper_blades:'Wiper blades', timing_belt:'Timing belt' },
+      maintEditTitle: 'Edit service', maintEditSub: 'Set mileage-based tracking, time-based tracking, or both — leave either interval blank to track by just one.',
+      lastServiceDateLabel: 'Last done on (date)',
       shareSummary: 'Share summary', weeklySummary: 'Weekly summary', monthlySummary: 'Monthly summary',
+      allStreamsLabel: 'All streams',
       incomeLabel: 'Income', expenseLabel: 'Expenses', netLabel: 'Net', milesLabel: 'Miles driven',
-      netPerMileLabel: 'Net per mile', byCategoryLabel: 'By category', copiedToClipboard: 'Summary copied to clipboard'
+      netPerMileLabel: 'Net per mile', byCategoryLabel: 'By category', copiedToClipboard: 'Summary copied to clipboard',
+      welcomeTitle: 'Welcome to GigHelper', welcomeBody: 'Track income, expenses, mileage, and maintenance — hands-free with voice entry.',
+      getStarted: 'Get started', choosePlatforms: 'Which platforms do you work with?', addPlatform: 'Add platform',
+      addPlatformPlaceholder: 'e.g. Roadie, Shipt...', platformAdded: 'Platform added', platformsLabel: 'Platforms',
+      choosePlatformsHint: 'Check all that apply. You can add more anytime.',
+      chooseUsage: 'How do you use this app?', chooseUsageHint: 'Select all that apply — you can add or change these later in Settings.',
+      usagePersonalOpt: 'Personal spending — groceries, bills, everyday expenses', usageGigOpt: 'Gig driving — DoorDash, Uber, and similar platforms', usageSideOpt: 'A side hustle or small business',
+      usageSideNameLabel: 'What should we call it?', usageSideNamePlaceholder: 'e.g. Martial Arts School, Etsy Shop...', usageSideDrivesOpt: 'I sometimes drive for this and want to track mileage',
+      vehicleTrackingLabel: 'Vehicle & mileage tracking', vehicleTrackingHintText: 'Turn this off if you don\'t drive for any of your income sources — it hides the Vehicle tab and mileage logging.',
+      onLabel: 'On', offLabel: 'Off'
     },
     'es-ES': {
       micHintDefault: 'Toca y di una entrada, o <b>"llama a esta app [nombre]"</b> para renombrarla.',
@@ -695,15 +1095,27 @@
       resyncLink: 'Actualizar lectura real del odómetro', maintenance: 'Mantenimiento',
       maintDisclaimer: 'Estos son intervalos generales de la industria, no cifras específicas del fabricante. Consulta el manual de tu vehículo para el programa exacto, y toca un servicio para actualizarlo cuando conozcas el intervalo real.',
       resyncTitle: 'Actualizar odómetro', resyncSub: 'Ingresa el kilometraje real actual de tu vehículo desde el tablero. Las millas de viajes futuros se sumarán a este número.',
-      maintEditTitle: 'Editar servicio', maintEditSub: 'Indica el kilometraje del último servicio y el intervalo (millas) entre servicios.',
+      maintEditTitle: 'Editar servicio', maintEditSub: 'Configura seguimiento por kilometraje, por tiempo, o ambos — deja un intervalo en blanco para usar solo uno.',
+      lastServiceDateLabel: 'Última vez (fecha)',
       markDone: 'Marcar hecho', edit: 'Editar',
       statusOk: 'bien', statusSoon: 'pronto', statusOverdue: 'atrasado',
       dueAt: 'próximo a', milesShort: 'mi',
-      items: { oil:'Cambio de aceite', tires:'Rotación de llantas', air_filter:'Filtro de aire', brake_fluid:'Líquido de frenos',
-        trans_fluid:'Líquido de transmisión', spark_plugs:'Bujías', coolant:'Cambio de refrigerante', timing_belt:'Correa de distribución' },
+      items: { oil:'Cambio de aceite', tires:'Rotación de llantas', air_filter:'Filtro de aire', cabin_air_filter:'Filtro de habitáculo', brake_fluid:'Líquido de frenos',
+        brake_pads:'Pastillas de freno', trans_fluid:'Líquido de transmisión', spark_plugs:'Bujías', coolant:'Cambio de refrigerante',
+        battery:'Batería', wiper_blades:'Escobillas del limpiaparabrisas', timing_belt:'Correa de distribución' },
       shareSummary: 'Compartir resumen', weeklySummary: 'Resumen semanal', monthlySummary: 'Resumen mensual',
+      allStreamsLabel: 'Todas las fuentes',
       incomeLabel: 'Ingresos', expenseLabel: 'Gastos', netLabel: 'Neto', milesLabel: 'Millas recorridas',
-      netPerMileLabel: 'Neto por milla', byCategoryLabel: 'Por categoría', copiedToClipboard: 'Resumen copiado al portapapeles'
+      netPerMileLabel: 'Neto por milla', byCategoryLabel: 'Por categoría', copiedToClipboard: 'Resumen copiado al portapapeles',
+      welcomeTitle: 'Bienvenido a GigHelper', welcomeBody: 'Registra ingresos, gastos, millaje y mantenimiento — con entrada de voz manos libres.',
+      getStarted: 'Comenzar', choosePlatforms: '¿Con qué plataformas trabajas?', addPlatform: 'Añadir plataforma',
+      addPlatformPlaceholder: 'p. ej. Roadie, Shipt...', platformAdded: 'Plataforma añadida', platformsLabel: 'Plataformas',
+      choosePlatformsHint: 'Marca todas las que apliquen. Puedes añadir más en cualquier momento.',
+      chooseUsage: '¿Cómo usas esta aplicación?', chooseUsageHint: 'Selecciona todas las que apliquen — puedes añadir o cambiar esto después en Ajustes.',
+      usagePersonalOpt: 'Gastos personales — comida, facturas, gastos cotidianos', usageGigOpt: 'Conducir para apps de reparto — DoorDash, Uber y similares', usageSideOpt: 'Un negocio propio o actividad secundaria',
+      usageSideNameLabel: '¿Cómo lo llamamos?', usageSideNamePlaceholder: 'ej. Escuela de Artes Marciales, Tienda Etsy...', usageSideDrivesOpt: 'A veces conduzco para esto y quiero registrar el kilometraje',
+      vehicleTrackingLabel: 'Seguimiento de vehículo y kilometraje', vehicleTrackingHintText: 'Desactívalo si no conduces para ninguna de tus fuentes de ingresos — oculta la pestaña Vehículo y el registro de millas.',
+      onLabel: 'Activado', offLabel: 'Desactivado'
     },
     'it-IT': {
       micHintDefault: 'Tocca e pronuncia una voce, oppure <b>"chiama questa app [nome]"</b> per rinominarla.',
@@ -716,33 +1128,276 @@
       resyncLink: "Aggiorna la lettura reale del contachilometri", maintenance: 'Manutenzione',
       maintDisclaimer: "Questi sono intervalli generici del settore, non dati specifici del costruttore. Controlla il libretto del tuo veicolo per il programma esatto, e tocca un intervento per aggiornarlo quando conosci l'intervallo reale.",
       resyncTitle: 'Aggiorna contachilometri', resyncSub: 'Inserisci il chilometraggio reale attuale del tuo veicolo dal cruscotto. I chilometri dei viaggi futuri si aggiungeranno a questo numero.',
-      maintEditTitle: 'Modifica intervento', maintEditSub: "Imposta il chilometraggio dell'ultimo intervento e l'intervallo (miglia) tra un intervento e l'altro.",
+      maintEditTitle: 'Modifica intervento', maintEditSub: "Imposta il monitoraggio per chilometraggio, per tempo, o entrambi — lascia un intervallo vuoto per usarne solo uno.",
+      lastServiceDateLabel: 'Ultima volta (data)',
       markDone: 'Segna fatto', edit: 'Modifica',
       statusOk: 'ok', statusSoon: 'a breve', statusOverdue: 'in ritardo',
       dueAt: 'prossimo a', milesShort: 'mi',
-      items: { oil:"Cambio olio", tires:'Rotazione gomme', air_filter:'Filtro aria', brake_fluid:'Liquido freni',
-        trans_fluid:'Liquido cambio', spark_plugs:'Candele', coolant:'Cambio refrigerante', timing_belt:'Cinghia distribuzione' },
+      items: { oil:"Cambio olio", tires:'Rotazione gomme', air_filter:'Filtro aria', cabin_air_filter:'Filtro abitacolo', brake_fluid:'Liquido freni',
+        brake_pads:'Pastiglie freni', trans_fluid:'Liquido cambio', spark_plugs:'Candele', coolant:'Cambio refrigerante',
+        battery:'Batteria', wiper_blades:'Spazzole tergicristallo', timing_belt:'Cinghia distribuzione' },
       shareSummary: 'Condividi riepilogo', weeklySummary: 'Riepilogo settimanale', monthlySummary: 'Riepilogo mensile',
+      allStreamsLabel: 'Tutti i flussi',
       incomeLabel: 'Entrate', expenseLabel: 'Spese', netLabel: 'Netto', milesLabel: 'Miglia percorse',
-      netPerMileLabel: 'Netto per miglio', byCategoryLabel: 'Per categoria', copiedToClipboard: 'Riepilogo copiato negli appunti'
+      netPerMileLabel: 'Netto per miglio', byCategoryLabel: 'Per categoria', copiedToClipboard: 'Riepilogo copiato negli appunti',
+      welcomeTitle: 'Benvenuto in GigHelper', welcomeBody: 'Traccia entrate, spese, chilometraggio e manutenzione — a mani libere con la voce.',
+      getStarted: 'Inizia', choosePlatforms: 'Con quali piattaforme lavori?', addPlatform: 'Aggiungi piattaforma',
+      addPlatformPlaceholder: 'es. Roadie, Shipt...', platformAdded: 'Piattaforma aggiunta', platformsLabel: 'Piattaforme',
+      choosePlatformsHint: 'Seleziona tutte quelle pertinenti. Puoi aggiungerne altre in qualsiasi momento.',
+      chooseUsage: 'Come usi questa app?', chooseUsageHint: 'Seleziona tutte quelle pertinenti — puoi aggiungerle o modificarle dopo nelle Impostazioni.',
+      usagePersonalOpt: 'Spese personali — spesa, bollette, spese quotidiane', usageGigOpt: 'Guida per app di consegne — DoorDash, Uber e simili', usageSideOpt: 'Un\'attività secondaria o piccola impresa',
+      usageSideNameLabel: 'Come la chiamiamo?', usageSideNamePlaceholder: 'es. Scuola di Arti Marziali, Negozio Etsy...', usageSideDrivesOpt: 'A volte guido per questa attività e voglio tracciare il chilometraggio',
+      vehicleTrackingLabel: 'Monitoraggio veicolo e chilometraggio', vehicleTrackingHintText: 'Disattivalo se non guidi per nessuna delle tue fonti di reddito — nasconde la scheda Veicolo e la registrazione del chilometraggio.',
+      onLabel: 'Attivo', offLabel: 'Disattivo'
+    },
+    'fr-FR': {
+      micHintDefault: 'Appuyez et dites une entrée, ou <b>"appelle cette app [nom]"</b> pour la renommer.',
+      micExamples: '"20 dollars revenu doordash" · "8 dollars dépense essence" · "enregistre 12 miles"',
+      settingsTitle: 'Paramètres', voiceLang: 'Langue vocale',
+      vehicleProfile: 'Profil du véhicule', make: 'Marque', model: 'Modèle', year: 'Année',
+      currentMileage: 'Kilométrage actuel',
+      firstTimeMaintIntro: "Quand chacun de ces éléments a-t-il été fait pour la dernière fois ? Laissez tel quel si vous n'êtes pas sûr — nous supposerons que cela correspond à votre kilométrage actuel.",
+      currentOdo: 'Compteur actuel (estimé)', estimatedSub: 'Basé sur le kilométrage de départ + trajets enregistrés',
+      resyncLink: 'Mettre à jour le relevé réel du compteur', maintenance: 'Entretien',
+      maintDisclaimer: "Ce sont des intervalles standards du secteur, pas des chiffres spécifiques au fabricant. Consultez le manuel de votre véhicule pour le calendrier exact, et touchez un service pour le mettre à jour lorsque vous connaissez l'intervalle réel.",
+      resyncTitle: 'Mettre à jour le compteur', resyncSub: 'Entrez le kilométrage réel actuel de votre véhicule depuis le tableau de bord. Les kilomètres des futurs trajets s\'ajouteront à ce nombre.',
+      maintEditTitle: "Modifier l'entretien", maintEditSub: "Configurez le suivi par kilométrage, par durée, ou les deux — laissez un intervalle vide pour n'en utiliser qu'un seul.",
+      lastServiceDateLabel: 'Dernière fois (date)',
+      markDone: 'Marquer fait', edit: 'Modifier',
+      statusOk: 'ok', statusSoon: 'bientôt', statusOverdue: 'en retard',
+      dueAt: 'prochain à', milesShort: 'mi',
+      items: { oil:'Vidange', tires:'Rotation des pneus', air_filter:'Filtre à air', cabin_air_filter:'Filtre habitacle', brake_fluid:'Liquide de frein',
+        brake_pads:'Plaquettes de frein', trans_fluid:'Liquide de transmission', spark_plugs:'Bougies', coolant:'Vidange du liquide de refroidissement',
+        battery:'Batterie', wiper_blades:'Balais d\'essuie-glace', timing_belt:'Courroie de distribution' },
+      shareSummary: 'Partager le résumé', weeklySummary: 'Résumé hebdomadaire', monthlySummary: 'Résumé mensuel',
+      allStreamsLabel: 'Tous les flux',
+      incomeLabel: 'Revenus', expenseLabel: 'Dépenses', netLabel: 'Net', milesLabel: 'Miles parcourus',
+      netPerMileLabel: 'Net par mile', byCategoryLabel: 'Par catégorie', copiedToClipboard: 'Résumé copié dans le presse-papiers',
+      welcomeTitle: 'Bienvenue sur GigHelper', welcomeBody: 'Suivez revenus, dépenses, kilométrage et entretien — mains libres avec la saisie vocale.',
+      getStarted: 'Commencer', choosePlatforms: 'Avec quelles plateformes travaillez-vous ?', addPlatform: 'Ajouter une plateforme',
+      addPlatformPlaceholder: 'ex. Roadie, Shipt...', platformAdded: 'Plateforme ajoutée', platformsLabel: 'Plateformes',
+      choosePlatformsHint: 'Cochez toutes celles qui s\'appliquent. Vous pouvez en ajouter d\'autres à tout moment.',
+      chooseUsage: 'Comment utilisez-vous cette application ?', chooseUsageHint: 'Sélectionnez toutes celles qui s\'appliquent — vous pourrez les modifier plus tard dans les Paramètres.',
+      usagePersonalOpt: 'Dépenses personnelles — courses, factures, dépenses quotidiennes', usageGigOpt: 'Conduite pour une appli de livraison — DoorDash, Uber et similaires', usageSideOpt: 'Une activité secondaire ou une petite entreprise',
+      usageSideNameLabel: 'Comment l\'appelle-t-on ?', usageSideNamePlaceholder: 'ex. École d\'Arts Martiaux, Boutique Etsy...', usageSideDrivesOpt: 'Je conduis parfois pour cette activité et je veux suivre le kilométrage',
+      vehicleTrackingLabel: 'Suivi véhicule et kilométrage', vehicleTrackingHintText: 'Désactivez si vous ne conduisez pour aucune de vos sources de revenus — cela masque l\'onglet Véhicule et l\'enregistrement du kilométrage.',
+      onLabel: 'Activé', offLabel: 'Désactivé'
+    },
+    'zh-CN': {
+      micHintDefault: '点击并说出一条记录，或说 <b>"把这个应用叫做[名字]"</b> 来重命名。',
+      micExamples: '"20美元收入doordash" · "8美元支出汽油" · "记录12英里"',
+      settingsTitle: '设置', voiceLang: '语音语言',
+      vehicleProfile: '车辆信息', make: '品牌', model: '型号', year: '年份',
+      currentMileage: '当前里程',
+      firstTimeMaintIntro: '这些项目上次是什么时候做的？如果不确定就保持原样——我们会假设它与您当前的里程相符。',
+      currentOdo: '当前里程表（估算）', estimatedSub: '基于起始里程 + 已记录行程',
+      resyncLink: '更新实际里程表读数', maintenance: '保养',
+      maintDisclaimer: '这些是行业通用的间隔标准，并非制造商专属数据。请查阅您车辆的车主手册以获取准确的保养计划，并在了解实际间隔后点击某项服务进行更新。',
+      resyncTitle: '更新里程表', resyncSub: '请输入仪表盘上显示的车辆实际当前里程。之后记录的行程里程将累加到此数字上。',
+      maintEditTitle: '编辑保养项目', maintEditSub: '设置按里程、按时间或两者结合的追踪方式——留空其中一项即可仅按另一项追踪。',
+      lastServiceDateLabel: '上次日期',
+      markDone: '标记完成', edit: '编辑',
+      statusOk: '正常', statusSoon: '即将到期', statusOverdue: '已逾期',
+      dueAt: '下次于', milesShort: '英里',
+      items: { oil:'机油更换', tires:'轮胎换位', air_filter:'空气滤清器', cabin_air_filter:'车内空调滤芯', brake_fluid:'刹车油',
+        brake_pads:'刹车片', trans_fluid:'变速箱油', spark_plugs:'火花塞', coolant:'冷却液更换',
+        battery:'电瓶', wiper_blades:'雨刷', timing_belt:'正时皮带' },
+      shareSummary: '分享摘要', weeklySummary: '每周摘要', monthlySummary: '每月摘要',
+      allStreamsLabel: '所有来源',
+      incomeLabel: '收入', expenseLabel: '支出', netLabel: '净额', milesLabel: '行驶英里数',
+      netPerMileLabel: '每英里净额', byCategoryLabel: '按类别', copiedToClipboard: '摘要已复制到剪贴板',
+      welcomeTitle: '欢迎使用 GigHelper', welcomeBody: '记录收入、支出、里程和保养 — 支持免提语音输入。',
+      getStarted: '开始使用', choosePlatforms: '您在哪些平台工作？', addPlatform: '添加平台',
+      addPlatformPlaceholder: '例如 Roadie、Shipt...', platformAdded: '平台已添加', platformsLabel: '平台',
+      choosePlatformsHint: '勾选所有适用项。您可以随时添加更多。',
+      chooseUsage: '您如何使用此应用？', chooseUsageHint: '请勾选所有适用项 — 之后可以在设置中添加或更改。',
+      usagePersonalOpt: '个人开支 —— 日常用品、账单、日常花销', usageGigOpt: '网约车/外卖配送 —— DoorDash、Uber 等平台', usageSideOpt: '副业或小型业务',
+      usageSideNameLabel: '要如何称呼它？', usageSideNamePlaceholder: '例如：武术学校、Etsy 商店……', usageSideDrivesOpt: '我有时会为此驾车，需要记录里程',
+      vehicleTrackingLabel: '车辆与里程追踪', vehicleTrackingHintText: '如果您的任何收入来源都不涉及驾车，可以关闭此项 —— 这会隐藏"车辆"标签页和里程记录功能。',
+      onLabel: '开启', offLabel: '关闭'
     }
   };
 
   var CATEGORY_WORDS_BY_LANG = {
     'en-US': {'doordash':'DoorDash','uber eats':'Uber Eats','ubereats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','gas':'Gas','fuel':'Gas','maintenance':'Maintenance','repair':'Maintenance','parking':'Parking / Tolls','tolls':'Parking / Tolls','toll':'Parking / Tolls','phone':'Phone / Data','data':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart'},
     'es-ES': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','gasolina':'Gas','combustible':'Gas','mantenimiento':'Maintenance','reparación':'Maintenance','estacionamiento':'Parking / Tolls','peaje':'Parking / Tolls','peajes':'Parking / Tolls','teléfono':'Phone / Data','datos':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart'},
-    'it-IT': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','benzina':'Gas','carburante':'Gas','manutenzione':'Maintenance','riparazione':'Maintenance','parcheggio':'Parking / Tolls','pedaggio':'Parking / Tolls','pedaggi':'Parking / Tolls','telefono':'Phone / Data','dati':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart'}
+    'it-IT': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','benzina':'Gas','carburante':'Gas','manutenzione':'Maintenance','riparazione':'Maintenance','parcheggio':'Parking / Tolls','pedaggio':'Parking / Tolls','pedaggi':'Parking / Tolls','telefono':'Phone / Data','dati':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart'},
+    'fr-FR': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','essence':'Gas','carburant':'Gas','entretien':'Maintenance','réparation':'Maintenance','stationnement':'Parking / Tolls','péage':'Parking / Tolls','péages':'Parking / Tolls','téléphone':'Phone / Data','données':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart'},
+    'zh-CN': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','汽油':'Gas','燃油':'Gas','保养':'Maintenance','维修':'Maintenance','停车':'Parking / Tolls','过路费':'Parking / Tolls','收费':'Parking / Tolls','电话':'Phone / Data','数据':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart'}
   };
 
   var COMMAND_WORDS_BY_LANG = {
-    'en-US': { rename:/(?:call this app|rename (?:the )?app to|name this app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miles|mile|mi)\b/, mileTrigger:/mile|drove|drive|trip|log/, amount:/(\d+(?:\.\d+)?)\s*(?:dollars?|bucks|\$)?/, expense:/expense|spent|paid|cost|gas|fuel|maintenance|repair|parking|toll/, income:/income|earned|made|got paid|payout|tip/ },
-    'es-ES': { rename:/(?:llama a esta app|renombra la app a|nombra esta app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:millas|milla)\b/, mileTrigger:/milla|conduje|conducir|viaje|registra/, amount:/(\d+(?:\.\d+)?)\s*(?:dólares|pesos|d[oó]lares)?/, expense:/gasto|gaste|gast[eé]|pagu[eé]|costo|gasolina|combustible|mantenimiento|reparaci[oó]n|estacionamiento|peaje/, income:/ingreso|gan[eé]|me pagaron|pago|propina/ },
-    'it-IT': { rename:/(?:chiama questa app|rinomina l'app in|rinomina questa app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miglia|miglio)\b/, mileTrigger:/miglia|guidato|guidare|viaggio|registra/, amount:/(\d+(?:\.\d+)?)\s*(?:dollari|euro)?/, expense:/spesa|speso|pagato|costo|benzina|carburante|manutenzione|riparazione|parcheggio|pedaggio/, income:/entrata|guadagnato|pagato ricevuto|mancia/ }
+    'en-US': { rename:/(?:call this app|rename (?:the )?app to|name this app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miles|mile|mi)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:kilometers?|kilometres?|km)\b/, mileTrigger:/mile|drove|drive|trip|log/, amount:/(\d+(?:\.\d+)?)\s*(?:dollars?|bucks|\$)?/, expense:/expense|spent|paid|cost|gas|fuel|maintenance|repair|parking|toll/, income:/income|earned|made|got paid|payout|tip/ },
+    'es-ES': { rename:/(?:llama a esta app|renombra la app a|nombra esta app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:millas|milla)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:kil[oó]metros|km)\b/, mileTrigger:/milla|conduje|conducir|viaje|registra/, amount:/(\d+(?:\.\d+)?)\s*(?:dólares|pesos|d[oó]lares)?/, expense:/gasto|gaste|gast[eé]|pagu[eé]|costo|gasolina|combustible|mantenimiento|reparaci[oó]n|estacionamiento|peaje/, income:/ingreso|gan[eé]|me pagaron|pago|propina/ },
+    'it-IT': { rename:/(?:chiama questa app|rinomina l'app in|rinomina questa app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miglia|miglio)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:chilometri|km)\b/, mileTrigger:/miglia|guidato|guidare|viaggio|registra/, amount:/(\d+(?:\.\d+)?)\s*(?:dollari|euro)?/, expense:/spesa|speso|pagato|costo|benzina|carburante|manutenzione|riparazione|parcheggio|pedaggio/, income:/entrata|guadagnato|pagato ricevuto|mancia/ },
+    'fr-FR': { rename:/(?:appelle cette app|renomme l'app en|nomme cette app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miles|mile|mi)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:kilomètres|km)\b/, mileTrigger:/mile|conduit|conduire|trajet|enregistre/, amount:/(\d+(?:\.\d+)?)\s*(?:dollars?|euros?|\$)?/, expense:/dépense|dépensé|payé|coût|essence|carburant|entretien|réparation|stationnement|péage/, income:/revenu|gagné|payé reçu|pourboire/ },
+    'zh-CN': { rename:/(?:把这个应用叫做|重命名应用为|把应用改名为)\s*(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:英里|里)/, mileKm:/(\d+(?:\.\d+)?)\s*(?:公里|千米)/, mileTrigger:/英里|开车|行程|记录/, amount:/(\d+(?:\.\d+)?)\s*(?:美元|元|块)?/, expense:/支出|花了|付了|费用|汽油|燃油|保养|维修|停车|过路费/, income:/收入|赚了|收到|小费/ }
+  };
+
+  var NAV_WORDS_BY_LANG = {
+    'en-US': { log:/(?:open|go to|show)\s+log|log tab/, stats:/(?:open|go to|show)\s+stats|stats tab/, calendar:/(?:open|go to|show)\s+calendar|calendar tab/, vehicle:/(?:open|go to|show)\s+vehicle|vehicle tab/ },
+    'es-ES': { log:/(?:abrir|ir a|mostrar)\s+(?:el\s+)?registro|pestaña de registro/, stats:/(?:abrir|ir a|mostrar)\s+(?:las\s+)?estadísticas|pestaña de estadísticas/, calendar:/(?:abrir|ir a|mostrar)\s+(?:el\s+)?calendario|pestaña de calendario/, vehicle:/(?:abrir|ir a|mostrar)\s+(?:el\s+)?vehículo|pestaña de vehículo/ },
+    'it-IT': { log:/(?:apri|vai a|mostra)\s+(?:il\s+)?registro|scheda registro/, stats:/(?:apri|vai a|mostra)\s+(?:le\s+)?statistiche|scheda statistiche/, calendar:/(?:apri|vai a|mostra)\s+(?:il\s+)?calendario|scheda calendario/, vehicle:/(?:apri|vai a|mostra)\s+(?:il\s+)?veicolo|scheda veicolo/ },
+    'fr-FR': { log:/(?:ouvre|va à|montre)\s+(?:le\s+)?journal|onglet journal/, stats:/(?:ouvre|va à|montre)\s+(?:les\s+)?statistiques|onglet statistiques/, calendar:/(?:ouvre|va à|montre)\s+(?:le\s+)?calendrier|onglet calendrier/, vehicle:/(?:ouvre|va à|montre)\s+(?:le\s+)?véhicule|onglet véhicule/ },
+    'zh-CN': { log:/打开记录|切换到记录|记录标签/, stats:/打开统计|切换到统计|统计标签/, calendar:/打开日历|切换到日历|日历标签/, vehicle:/打开车辆|切换到车辆|车辆标签/ }
+  };
+
+  var NAV_LABELS = {
+    'en-US': { log:'Log', stats:'Stats', calendar:'Calendar', vehicle:'Vehicle' },
+    'es-ES': { log:'Registro', stats:'Estadísticas', calendar:'Calendario', vehicle:'Vehículo' },
+    'it-IT': { log:'Registro', stats:'Statistiche', calendar:'Calendario', vehicle:'Veicolo' },
+    'fr-FR': { log:'Journal', stats:'Statistiques', calendar:'Calendrier', vehicle:'Véhicule' },
+    'zh-CN': { log:'记录', stats:'统计', calendar:'日历', vehicle:'车辆' }
   };
 
   function t(key){
     var dict = I18N[currentLang] || I18N['en-US'];
     return dict[key] !== undefined ? dict[key] : (I18N['en-US'][key] || '');
+  }
+
+  /* ---------------- Help / user manual ---------------- */
+  var HELP_CONTENT = {
+    'en-US': {
+      intro: 'Shown in your app language. Tap a section to expand it.',
+      downloadLabel: '⬇ Download guide',
+      fileTitle: 'GigHelper — User Guide',
+      title: 'User guide',
+      sections: [
+        { icon:'👋', title:'Getting started', body:'When you first open GigHelper, you\'ll pick your language, country, and platforms (DoorDash, Uber, etc.). Your country sets your default currency and whether you see miles or kilometers — you can change any of these later in Settings.' },
+        { icon:'🗂️', title:'Streams — tracking more than one income source', body:'If you have more than one income source — gig driving, a side business, or just your personal spending — add a Stream for each one in Settings. Once you have two or more, a "Logging to" bar appears at the top of the Log tab; tap a stream there to switch which one new entries go to. Everything you log by voice or by hand is tagged with whatever stream is active, so your Stats and exports can be viewed per stream or all together. One exception: the tax summary export requires picking one specific stream (not "All streams") if you have more than one, so personal spending never ends up in a business tax report.' },
+        { icon:'🎙️', title:'Logging by voice', body:'Tap the microphone and say what happened — for example "20 dollars income doordash", "8 dollars expense gas", or "log 12 miles". You can also say spelled-out numbers like "twenty dollars" and kilometers like "10 kilometers". Works in English, Spanish, Italian, French, and Chinese — switch the voice language in Settings.' },
+        { icon:'✏️', title:'Logging manually', body:'Tap the + button to add an income, expense, or mileage entry by hand — useful if it\'s noisy, you\'re not comfortable speaking the entry aloud, or you just prefer typing.' },
+        { icon:'📊', title:'Stats & Calendar', body:'The Stats tab shows your income, expenses, and net earnings per mile (or km) for the day, week, or month. The Calendar tab lets you tap any date to see everything logged that day.' },
+        { icon:'🚗', title:'Vehicle & maintenance', body:'Add your vehicle\'s make, model, and current mileage in the Vehicle tab. GigHelper tracks common maintenance items (oil changes, tires, brakes, and more) by mileage and/or time, and can send you a notification when something\'s due.' },
+        { icon:'💾', title:'Backing up your data', body:'Your entries live only on this device unless you back them up. In Settings, set up auto-backup to save automatically to a file you choose (for example, inside your Google Drive or OneDrive folder) — available in Chrome and Edge. You can also export a CSV manually anytime.' },
+        { icon:'🌍', title:'Currency, units & region', body:'In Settings, set your country, currency, and whether distances show in miles or kilometers. Changing these doesn\'t alter your past entries — they\'re stored consistently and simply displayed in whichever unit you\'ve chosen.' },
+        { icon:'🧾', title:'Tax tools (US only)', body:'If your country is set to United States, GigHelper reminds you about quarterly estimated tax deadlines and can export a tax summary using the IRS standard mileage deduction. These tools are hidden for other countries since they\'re specific to US tax rules.' },
+        { icon:'✂️', title:'Renaming the app', body:'Say "call this app [name]" to the microphone, or change it directly in Settings.' }
+      ]
+    },
+    'es-ES': {
+      intro: 'Se muestra en el idioma de tu app. Toca una sección para expandirla.',
+      downloadLabel: '⬇ Descargar guía',
+      fileTitle: 'GigHelper — Guía del usuario',
+      title: 'Guía del usuario',
+      sections: [
+        { icon:'👋', title:'Primeros pasos', body:'Al abrir GigHelper por primera vez, elegirás tu idioma, país y plataformas (DoorDash, Uber, etc.). Tu país define tu moneda predeterminada y si ves millas o kilómetros — puedes cambiar todo esto después en Ajustes.' },
+        { icon:'🗂️', title:'Fuentes — seguimiento de más de una fuente de ingresos', body:'Si tienes más de una fuente de ingresos — conducir para apps de reparto, un negocio propio, o simplemente tus gastos personales — añade una Fuente para cada una en Ajustes. Cuando tengas dos o más, aparecerá una barra "Registrando en" en la parte superior de la pestaña Registro; toca una fuente ahí para cambiar a cuál se asignan los nuevos registros. Todo lo que registres por voz o a mano se etiqueta con la fuente activa, así que tus Estadísticas y exportaciones se pueden ver por fuente o todas juntas. Una excepción: la exportación del resumen de impuestos requiere elegir una fuente específica (no "Todas las fuentes") si tienes más de una, para que tus gastos personales nunca terminen en un informe de impuestos de negocio.' },
+        { icon:'🎙️', title:'Registrar por voz', body:'Toca el micrófono y di lo que pasó — por ejemplo "20 dólares ingreso doordash", "8 dólares gasto gasolina", o "registra 12 millas". También puedes decir números escritos como "veinte dólares" y kilómetros como "10 kilómetros". Funciona en inglés, español, italiano, francés y chino — cambia el idioma de voz en Ajustes.' },
+        { icon:'✏️', title:'Registrar manualmente', body:'Toca el botón + para añadir un ingreso, gasto o kilometraje a mano — útil si hay ruido, no te sientes cómodo hablando en voz alta, o simplemente prefieres escribir.' },
+        { icon:'📊', title:'Estadísticas y calendario', body:'La pestaña Estadísticas muestra tus ingresos, gastos y ganancia neta por milla (o km) del día, semana o mes. La pestaña Calendario te deja tocar cualquier fecha para ver todo lo registrado ese día.' },
+        { icon:'🚗', title:'Vehículo y mantenimiento', body:'Añade la marca, modelo y kilometraje actual de tu vehículo en la pestaña Vehículo. GigHelper rastrea el mantenimiento común (cambios de aceite, llantas, frenos y más) por kilometraje y/o tiempo, y puede avisarte cuando algo esté por vencer.' },
+        { icon:'💾', title:'Respaldar tus datos', body:'Tus registros solo viven en este dispositivo a menos que los respaldes. En Ajustes, activa el respaldo automático para guardar en un archivo que elijas (por ejemplo, dentro de tu carpeta de Google Drive o OneDrive) — disponible en Chrome y Edge. También puedes exportar un CSV manualmente cuando quieras.' },
+        { icon:'🌍', title:'Moneda, unidades y región', body:'En Ajustes, configura tu país, moneda y si las distancias se muestran en millas o kilómetros. Cambiar esto no altera tus registros pasados — se guardan de forma consistente y solo se muestran en la unidad que elijas.' },
+        { icon:'🧾', title:'Herramientas fiscales (solo EE. UU.)', body:'Si tu país está configurado como Estados Unidos, GigHelper te recuerda las fechas límite de impuestos estimados trimestrales y puede exportar un resumen fiscal usando la deducción estándar del IRS por milla. Estas herramientas están ocultas para otros países porque son específicas de las reglas fiscales de EE. UU.' },
+        { icon:'✂️', title:'Renombrar la app', body:'Dile al micrófono "llama a esta app [nombre]", o cámbialo directamente en Ajustes.' }
+      ]
+    },
+    'it-IT': {
+      intro: 'Mostrato nella lingua della tua app. Tocca una sezione per espanderla.',
+      downloadLabel: '⬇ Scarica la guida',
+      fileTitle: 'GigHelper — Guida utente',
+      title: 'Guida utente',
+      sections: [
+        { icon:'👋', title:'Per iniziare', body:'Alla prima apertura di GigHelper, sceglierai lingua, paese e piattaforme (DoorDash, Uber, ecc.). Il tuo paese imposta la valuta predefinita e se vedi miglia o chilometri — puoi cambiare tutto questo dopo nelle Impostazioni.' },
+        { icon:'🗂️', title:'Flussi — monitorare più di una fonte di reddito', body:'Se hai più di una fonte di reddito — guida per app di consegne, un\'attività secondaria, o semplicemente le tue spese personali — aggiungi un Flusso per ciascuna in Impostazioni. Quando ne hai due o più, in cima alla scheda Registro apparirà una barra "Registrazione su"; tocca un flusso lì per cambiare a quale vengono assegnate le nuove voci. Tutto ciò che registri, a voce o manualmente, viene etichettato con il flusso attivo, così le tue Statistiche ed esportazioni si possono vedere per flusso o tutte insieme. Un\'eccezione: l\'esportazione del riepilogo fiscale richiede di scegliere un flusso specifico (non "Tutti i flussi") se ne hai più di uno, così le spese personali non finiscono mai in un rendiconto fiscale aziendale.' },
+        { icon:'🎙️', title:'Registrare con la voce', body:'Tocca il microfono e di\' cosa è successo — ad esempio "20 dollari entrata doordash", "8 dollari spesa benzina", o "registra 12 miglia". Puoi anche dire numeri scritti come "venti dollari" e chilometri come "10 chilometri". Funziona in inglese, spagnolo, italiano, francese e cinese — cambia la lingua vocale nelle Impostazioni.' },
+        { icon:'✏️', title:'Registrare manualmente', body:'Tocca il pulsante + per aggiungere entrata, spesa o chilometraggio a mano — utile se c\'è rumore, non ti senti a tuo agio a parlare ad alta voce, o preferisci semplicemente digitare.' },
+        { icon:'📊', title:'Statistiche e calendario', body:'La scheda Statistiche mostra entrate, spese e guadagno netto per miglio (o km) del giorno, settimana o mese. La scheda Calendario ti permette di toccare qualsiasi data per vedere tutto ciò che è stato registrato quel giorno.' },
+        { icon:'🚗', title:'Veicolo e manutenzione', body:'Aggiungi marca, modello e chilometraggio attuale del tuo veicolo nella scheda Veicolo. GigHelper traccia la manutenzione comune (cambio olio, gomme, freni e altro) per chilometraggio e/o tempo, e può avvisarti quando qualcosa è in scadenza.' },
+        { icon:'💾', title:'Backup dei tuoi dati', body:'I tuoi dati vivono solo su questo dispositivo a meno che tu non li salvi altrove. Nelle Impostazioni, attiva il backup automatico per salvare in un file a tua scelta (ad esempio, dentro la tua cartella Google Drive o OneDrive) — disponibile su Chrome ed Edge. Puoi anche esportare un CSV manualmente in qualsiasi momento.' },
+        { icon:'🌍', title:'Valuta, unità e regione', body:'Nelle Impostazioni, imposta il tuo paese, la valuta e se le distanze sono mostrate in miglia o chilometri. Cambiare questi valori non altera i dati passati — sono salvati in modo coerente e vengono semplicemente mostrati nell\'unità scelta.' },
+        { icon:'🧾', title:'Strumenti fiscali (solo USA)', body:'Se il tuo paese è impostato su Stati Uniti, GigHelper ti ricorda le scadenze fiscali trimestrali stimate e può esportare un riepilogo fiscale usando la deduzione chilometrica standard dell\'IRS. Questi strumenti sono nascosti per gli altri paesi perché specifici delle regole fiscali statunitensi.' },
+        { icon:'✂️', title:'Rinominare l\'app', body:'Di\' al microfono "chiama questa app [nome]", oppure cambialo direttamente nelle Impostazioni.' }
+      ]
+    },
+    'fr-FR': {
+      intro: 'Affiché dans la langue de votre application. Touchez une section pour la développer.',
+      downloadLabel: '⬇ Télécharger le guide',
+      fileTitle: 'GigHelper — Guide de l\'utilisateur',
+      title: 'Guide de l\'utilisateur',
+      sections: [
+        { icon:'👋', title:'Premiers pas', body:'À la première ouverture de GigHelper, vous choisirez votre langue, pays et plateformes (DoorDash, Uber, etc.). Votre pays définit votre devise par défaut et si vous voyez des miles ou des kilomètres — vous pouvez tout modifier plus tard dans les Paramètres.' },
+        { icon:'🗂️', title:'Flux — suivre plusieurs sources de revenus', body:'Si vous avez plusieurs sources de revenus — conduite pour une appli de livraison, une activité secondaire, ou simplement vos dépenses personnelles — ajoutez un Flux pour chacune dans Paramètres. Dès que vous en avez deux ou plus, une barre "Enregistrement dans" apparaît en haut de l\'onglet Journal ; touchez un flux pour changer celui auquel les nouvelles entrées sont attribuées. Tout ce que vous enregistrez, à la voix ou manuellement, est étiqueté avec le flux actif, afin que vos Statistiques et exports puissent être consultés par flux ou tous ensemble. Une exception : l\'export du résumé fiscal exige de choisir un flux précis (pas "Tous les flux") si vous en avez plusieurs, afin que vos dépenses personnelles ne se retrouvent jamais dans un rapport fiscal professionnel.' },
+        { icon:'🎙️', title:'Enregistrer à la voix', body:'Touchez le micro et dites ce qui s\'est passé — par exemple "20 dollars revenu doordash", "8 dollars dépense essence", ou "enregistre 12 miles". Vous pouvez aussi dire des nombres en toutes lettres comme "vingt dollars" et des kilomètres comme "10 kilomètres". Fonctionne en anglais, espagnol, italien, français et chinois — changez la langue vocale dans les Paramètres.' },
+        { icon:'✏️', title:'Enregistrer manuellement', body:'Touchez le bouton + pour ajouter un revenu, une dépense ou un kilométrage à la main — utile en cas de bruit, si vous n\'êtes pas à l\'aise pour parler à voix haute, ou si vous préférez simplement taper.' },
+        { icon:'📊', title:'Statistiques et calendrier', body:'L\'onglet Statistiques affiche vos revenus, dépenses et gain net par mile (ou km) du jour, de la semaine ou du mois. L\'onglet Calendrier vous permet de toucher n\'importe quelle date pour voir tout ce qui a été enregistré ce jour-là.' },
+        { icon:'🚗', title:'Véhicule et entretien', body:'Ajoutez la marque, le modèle et le kilométrage actuel de votre véhicule dans l\'onglet Véhicule. GigHelper suit l\'entretien courant (vidanges, pneus, freins, et plus) selon le kilométrage et/ou le temps, et peut vous notifier quand quelque chose arrive à échéance.' },
+        { icon:'💾', title:'Sauvegarder vos données', body:'Vos données ne vivent que sur cet appareil à moins de les sauvegarder. Dans les Paramètres, activez la sauvegarde automatique pour enregistrer dans un fichier de votre choix (par exemple, dans votre dossier Google Drive ou OneDrive) — disponible sur Chrome et Edge. Vous pouvez aussi exporter un CSV manuellement à tout moment.' },
+        { icon:'🌍', title:'Devise, unités et région', body:'Dans les Paramètres, définissez votre pays, votre devise et si les distances s\'affichent en miles ou en kilomètres. Ce changement n\'altère pas vos données passées — elles sont enregistrées de façon cohérente et simplement affichées dans l\'unité choisie.' },
+        { icon:'🧾', title:'Outils fiscaux (États-Unis uniquement)', body:'Si votre pays est défini sur États-Unis, GigHelper vous rappelle les échéances fiscales trimestrielles estimées et peut exporter un résumé fiscal utilisant la déduction kilométrique standard de l\'IRS. Ces outils sont masqués pour les autres pays car spécifiques aux règles fiscales américaines.' },
+        { icon:'✂️', title:'Renommer l\'application', body:'Dites au micro "appelle cette app [nom]", ou changez-le directement dans les Paramètres.' }
+      ]
+    },
+    'zh-CN': {
+      intro: '以您的应用语言显示。点按某个部分可展开。',
+      downloadLabel: '⬇ 下载指南',
+      fileTitle: 'GigHelper — 用户指南',
+      title: '用户指南',
+      sections: [
+        { icon:'👋', title:'快速开始', body:'首次打开 GigHelper 时，您将选择语言、国家和平台（DoorDash、Uber 等）。您的国家决定默认货币，以及显示英里还是公里 — 之后都可以在设置中更改。' },
+        { icon:'🗂️', title:'收入来源 — 追踪多个收入来源', body:'如果您有不止一个收入来源 —— 网约车/外卖配送、副业，或只是个人日常开支 —— 可以在设置中为每一个添加一个"收入来源"。当您有两个或更多来源时，记录标签页顶部会出现一个"记录到"栏；点击其中一个来源即可切换新记录归属的来源。无论是语音还是手动记录，都会标记为当前激活的来源，因此您的统计和导出数据既可以按来源单独查看，也可以合并查看。但有一个例外：如果您有多个收入来源，导出税务摘要时必须选择一个具体来源（而不是"所有来源"），这样可以确保个人开支永远不会出现在商业税务报告中。' },
+        { icon:'🎙️', title:'语音记录', body:'点按麦克风并说出发生的事情 — 例如"20美元收入doordash"、"8美元支出汽油"或"记录12英里"。您也可以说出数字词，如"二十美元"，以及公里，如"10公里"。支持英语、西班牙语、意大利语、法语和中文 — 可在设置中切换语音语言。' },
+        { icon:'✏️', title:'手动记录', body:'点按 + 按钮手动添加收入、支出或里程 — 在环境嘈杂、不方便说话或您只是更喜欢打字时很有用。' },
+        { icon:'📊', title:'统计与日历', body:'"统计"选项卡显示您当天、当周或当月的收入、支出和每英里（或公里）净收益。"日历"选项卡让您点按任意日期查看当天记录的所有内容。' },
+        { icon:'🚗', title:'车辆与保养', body:'在"车辆"选项卡中添加您车辆的品牌、型号和当前里程。GigHelper 会按里程和/或时间跟踪常见保养项目（换机油、轮胎、刹车等），并在到期时提醒您。' },
+        { icon:'💾', title:'备份您的数据', body:'除非您进行备份，否则您的记录仅保存在此设备上。在设置中，开启自动备份，将数据保存到您选择的文件中（例如您的 Google Drive 或 OneDrive 文件夹内）— 该功能适用于 Chrome 和 Edge。您也可以随时手动导出 CSV 文件。' },
+        { icon:'🌍', title:'货币、单位与地区', body:'在设置中，设置您的国家、货币，以及距离显示为英里还是公里。更改这些设置不会改变您过去的记录 — 数据的存储方式始终一致，只是按您选择的单位显示。' },
+        { icon:'🧾', title:'税务工具（仅限美国）', body:'如果您的国家设置为美国，GigHelper 会提醒您季度预估税的截止日期，并可使用 IRS 标准里程扣除额导出税务摘要。其他国家/地区因涉及美国特定税务规则而不显示这些工具。' },
+        { icon:'✂️', title:'重命名应用', body:'对麦克风说"把这个应用叫做[名称]"，或直接在设置中更改。' }
+      ]
+    }
+  };
+
+  function renderHelpPanel(){
+    var content = HELP_CONTENT[currentLang] || HELP_CONTENT['en-US'];
+    var titleEl = document.getElementById('helpTitle');
+    var introEl = document.getElementById('helpIntroBody');
+    var downloadBtn = document.getElementById('helpDownloadBtn');
+    if(titleEl) titleEl.textContent = content.title;
+    if(introEl) introEl.textContent = content.intro;
+    if(downloadBtn) downloadBtn.textContent = content.downloadLabel;
+    var container = document.getElementById('helpSections');
+    if(!container) return;
+    // preserve which sections were open across a language switch / re-render
+    var openTitles = {};
+    container.querySelectorAll('.help-item.open .title').forEach(function(el){ openTitles[el.textContent] = true; });
+    container.innerHTML = '';
+    content.sections.forEach(function(sec, i){
+      var item = document.createElement('div');
+      item.className = 'help-item';
+      var wasOpen = openTitles[sec.title] || (Object.keys(openTitles).length === 0 && i === 0 && container.dataset.firstRender !== 'done');
+      if(wasOpen) item.classList.add('open');
+      item.innerHTML =
+        '<div class="help-item-header">' +
+          '<div class="icon">'+sec.icon+'</div>' +
+          '<div class="title">'+sec.title+'</div>' +
+          '<div class="chevron">›</div>' +
+        '</div>' +
+        '<div class="help-item-body">'+sec.body+'</div>';
+      item.querySelector('.help-item-header').addEventListener('click', function(){
+        item.classList.toggle('open');
+      });
+      container.appendChild(item);
+    });
+    container.dataset.firstRender = 'done';
+  }
+
+  function downloadHelpGuide(){
+    var content = HELP_CONTENT[currentLang] || HELP_CONTENT['en-US'];
+    var lines = [content.fileTitle, ''];
+    content.sections.forEach(function(sec){
+      lines.push(sec.icon + '  ' + sec.title);
+      lines.push(sec.body);
+      lines.push('');
+    });
+    var blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = appName.replace(/\s+/g,'_') + '_user_guide_' + currentLang + '.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   function applyLanguage(lang){
@@ -754,6 +1409,14 @@
     });
     document.getElementById('settingsTitle').textContent = t('settingsTitle');
     document.getElementById('lblVoiceLang').textContent = t('voiceLang');
+    var lblVehicleTracking = document.getElementById('lblVehicleTracking');
+    var vehicleTrackingHint = document.getElementById('vehicleTrackingHint');
+    var vtOnBtn = document.getElementById('vehicleTrackingOnBtn');
+    var vtOffBtn = document.getElementById('vehicleTrackingOffBtn');
+    if(lblVehicleTracking) lblVehicleTracking.textContent = t('vehicleTrackingLabel');
+    if(vehicleTrackingHint) vehicleTrackingHint.textContent = t('vehicleTrackingHintText');
+    if(vtOnBtn) vtOnBtn.textContent = t('onLabel');
+    if(vtOffBtn) vtOffBtn.textContent = t('offLabel');
     document.getElementById('lblMake').textContent = t('make');
     document.getElementById('lblModel').textContent = t('model');
     document.getElementById('lblYear').textContent = t('year');
@@ -769,6 +1432,8 @@
     document.getElementById('resyncSub').textContent = t('resyncSub');
     document.getElementById('maintEditTitle').textContent = t('maintEditTitle');
     document.getElementById('maintEditSub').textContent = t('maintEditSub');
+    var lblLastServiceDate = document.getElementById('lblLastServiceDate');
+    if(lblLastServiceDate) lblLastServiceDate.textContent = t('lastServiceDateLabel');
     if(!listening){
       micHint.innerHTML = t('micHintDefault');
     }
@@ -776,6 +1441,7 @@
     document.getElementById('shareSummaryBtn').textContent = t('shareSummary');
     renderMaintList();
     renderFirstTimeMaintInputs();
+    renderHelpPanel();
   }
 
   /* ---------------- Toast ---------------- */
@@ -798,14 +1464,14 @@
   setInterval(tickClock, 1000);
 
   /* ---------------- Tabs ---------------- */
-  var panels = ['log','stats','calendar','vehicle'];
+  var panels = ['log','stats','calendar','vehicle','help'];
   function showPanel(name){
     panels.forEach(function(p){
       document.getElementById('panel-'+p).classList.toggle('active', p===name);
     });
     document.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('active', b.dataset.panel===name); });
     document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.panel===name); });
-    if(name==='stats') renderStats();
+    if(name==='stats'){ renderStatsStreamChips(); renderStats(); }
     if(name==='calendar') renderCalendar();
     if(name==='log') renderEntriesList();
     if(name==='vehicle') renderVehiclePanel();
@@ -835,18 +1501,20 @@
   });
 
   /* ---------------- Entry helpers ---------------- */
-  function addEntry(type, amount, category, miles){
+  function addEntry(type, amount, category, miles, stream){
     var e = {
       id: Date.now()+'_'+Math.random().toString(36).slice(2,7),
       type: type,               // income | expense | mileage
       amount: type==='mileage' ? 0 : (amount||0),
       miles: type==='mileage' ? (miles||0) : 0,
       category: category || 'Other',
+      stream: stream || activeStream || streams[0] || DEFAULT_STREAMS[0],
       ts: new Date().toISOString()
     };
     entries.push(e);
     saveEntries(entries);
     renderAll();
+    maybeAutoBackup(true);
     return e;
   }
   function deleteEntry(id){
@@ -863,7 +1531,7 @@
   }
   function startOfMonth(d){ var x=new Date(d.getFullYear(), d.getMonth(), 1); x.setHours(0,0,0,0); return x; }
   function isSameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
-  function fmtMoney(n){ var s = (n<0?'-':'') + '$' + Math.abs(n).toFixed(2); return s; }
+  function fmtMoney(n){ var s = (n<0?'-':'') + currencySymbol() + Math.abs(n).toFixed(2); return s; }
 
   function entriesInRange(start, end){
     return entries.filter(function(e){ var d=new Date(e.ts); return d>=start && d<end; });
@@ -876,6 +1544,44 @@
       else if(e.type==='mileage') miles += e.miles;
     });
     return {income:income, expense:expense, miles:miles, net:income-expense};
+  }
+
+  /* ---------------- IRS standard mileage rate ---------------- */
+  // Business-use standard mileage rate, cents/mile, by effective date. Update yearly (and mid-year, if the IRS issues an off-cycle adjustment).
+  var MILEAGE_RATE_TABLE = [
+    { from: new Date(2025,0,1),  rate: 0.70  },
+    { from: new Date(2026,0,1),  rate: 0.725 },
+    { from: new Date(2026,6,1),  rate: 0.76  }
+  ];
+  function getMileageRate(date){
+    var rate = MILEAGE_RATE_TABLE[0].rate;
+    for(var i=0;i<MILEAGE_RATE_TABLE.length;i++){
+      if(date >= MILEAGE_RATE_TABLE[i].from) rate = MILEAGE_RATE_TABLE[i].rate;
+    }
+    return rate;
+  }
+  function mileageDeduction(list){
+    var total = 0;
+    list.forEach(function(e){
+      if(e.type==='mileage') total += e.miles * getMileageRate(new Date(e.ts));
+    });
+    return total;
+  }
+
+  /* ---------------- Quarterly estimated tax ---------------- */
+  function quarterlyTaxDeadlines(year){
+    return [
+      { label:'Q1', dueDate: new Date(year,3,15),  periodStart: new Date(year,0,1),  periodEnd: new Date(year,3,1) },
+      { label:'Q2', dueDate: new Date(year,5,15),  periodStart: new Date(year,3,1),  periodEnd: new Date(year,5,1) },
+      { label:'Q3', dueDate: new Date(year,8,15),  periodStart: new Date(year,5,1),  periodEnd: new Date(year,8,1) },
+      { label:'Q4', dueDate: new Date(year+1,0,15),periodStart: new Date(year,8,1),  periodEnd: new Date(year+1,0,1) }
+    ];
+  }
+  function upcomingQuarterlyDeadline(){
+    var now = new Date();
+    var candidates = quarterlyTaxDeadlines(now.getFullYear()).concat(quarterlyTaxDeadlines(now.getFullYear()-1));
+    var upcoming = candidates.filter(function(q){ return q.dueDate >= now; }).sort(function(a,b){ return a.dueDate-b.dueDate; });
+    return upcoming[0] || null;
   }
 
   /* ---------------- Odometer strip ---------------- */
@@ -895,7 +1601,7 @@
     document.getElementById('odoToday').textContent = fmtMoney(today.net);
     document.getElementById('odoWeek').textContent = fmtMoney(week.net);
     document.getElementById('odoMonth').textContent = fmtMoney(month.net);
-    document.getElementById('odoMiles').textContent = month.miles.toFixed(1);
+    document.getElementById('odoMiles').textContent = milesToDisplay(month.miles).toFixed(1);
   }
 
   /* ---------------- Entries list (Log tab) ---------------- */
@@ -927,8 +1633,8 @@
       html += '<div class="day-group"><div class="day-group-title">'+label+'</div>';
       groups[key].forEach(function(e){
         var time = new Date(e.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        var amtText = e.type==='mileage' ? e.miles.toFixed(1)+' mi' : (e.type==='expense' ? '-' : '+') + fmtMoney(e.amount).replace('-','').replace('$','$');
-        var amtDisplay = e.type==='mileage' ? e.miles.toFixed(1)+' mi' : (e.type==='expense'?'-':'+')+'$'+e.amount.toFixed(2);
+        var amtText = e.type==='mileage' ? fmtDist(e.miles) : (e.type==='expense' ? '-' : '+') + fmtMoney(e.amount).replace('-','');
+        var amtDisplay = e.type==='mileage' ? fmtDist(e.miles) : (e.type==='expense'?'-':'+')+currencySymbol()+e.amount.toFixed(2);
         html += '<div class="entry">'+
           '<div class="entry-icon '+e.type+'">'+iconFor(e.type)+'</div>'+
           '<div class="entry-info"><div class="entry-cat">'+e.category+'</div><div class="entry-time">'+time+'</div></div>'+
@@ -946,6 +1652,39 @@
 
   /* ---------------- Stats panel ---------------- */
   var statRange = 'week';
+  // 'all' = every stream combined (today's behavior). Any other value narrows
+  // every stat, the bar chart, and the share summary to just that stream.
+  var statStreamFilter = 'all';
+  function renderStatsStreamChips(){
+    var box = document.getElementById('statsStreamChips');
+    if(!box) return;
+    // Same as the Log tab bar: nothing to filter when there's only one stream.
+    if(streams.length <= 1){ box.style.display = 'none'; return; }
+    box.style.display = 'flex';
+    box.innerHTML = '';
+    if(statStreamFilter!=='all' && streams.indexOf(statStreamFilter)===-1){ statStreamFilter = 'all'; }
+    var allChip = document.createElement('button');
+    allChip.type = 'button';
+    allChip.className = 'stream-chip' + (statStreamFilter==='all' ? ' active' : '');
+    allChip.textContent = t('allStreamsLabel');
+    allChip.addEventListener('click', function(){ statStreamFilter = 'all'; renderStatsStreamChips(); renderStats(); });
+    box.appendChild(allChip);
+    streams.forEach(function(s){
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'stream-chip' + (s===statStreamFilter ? ' active' : '');
+      chip.textContent = s;
+      chip.addEventListener('click', function(){ statStreamFilter = s; renderStatsStreamChips(); renderStats(); });
+      box.appendChild(chip);
+    });
+  }
+  // Applies the current Stats-tab stream filter on top of any other list of
+  // entries (e.g. already narrowed to a date range). Kept separate from
+  // entriesInRange so the Log tab / Calendar / exports are unaffected.
+  function applyStatStreamFilter(list){
+    if(statStreamFilter==='all') return list;
+    return list.filter(function(e){ return (e.stream || DEFAULT_STREAMS[0]) === statStreamFilter; });
+  }
   document.querySelectorAll('.stat-toggle button').forEach(function(b){
     b.addEventListener('click', function(){
       document.querySelectorAll('.stat-toggle button').forEach(function(x){x.classList.remove('active');});
@@ -957,7 +1696,7 @@
   document.getElementById('exportCsv').addEventListener('click', exportCsv);
 
   function buildSummaryText(rangeLabel, start, end){
-    var list = entriesInRange(start, end);
+    var list = applyStatStreamFilter(entriesInRange(start, end));
     var s = summarize(list);
     var byCat = {};
     list.forEach(function(e){
@@ -973,7 +1712,7 @@
     lines.push(t('incomeLabel') + ': ' + fmtMoney(s.income));
     lines.push(t('expenseLabel') + ': ' + fmtMoney(s.expense));
     lines.push(t('netLabel') + ': ' + fmtMoney(s.net));
-    lines.push(t('milesLabel') + ': ' + s.miles.toFixed(1));
+    lines.push(t('milesLabel') + ': ' + milesToDisplay(s.miles).toFixed(1) + ' ' + distUnitLabel());
     lines.push(t('netPerMileLabel') + ': ' + (s.miles>0 ? fmtMoney(s.net/s.miles) : fmtMoney(0)));
     var catKeys = Object.keys(byCat);
     if(catKeys.length){
@@ -1021,13 +1760,15 @@
     if(statRange==='week'){ start = startOfWeek(now); end = new Date(start); end.setDate(end.getDate()+7); dayCount=7; }
     else { start = startOfMonth(now); end = new Date(start.getFullYear(), start.getMonth()+1, 1); dayCount = end.getDate()-1; dayCount = Math.round((end-start)/86400000); }
 
-    var list = entriesInRange(start, end);
+    var list = applyStatStreamFilter(entriesInRange(start, end));
     var s = summarize(list);
     document.getElementById('statIncome').textContent = fmtMoney(s.income);
     document.getElementById('statExpense').textContent = fmtMoney(s.expense);
     document.getElementById('statNet').textContent = fmtMoney(s.net);
-    document.getElementById('statMiles').textContent = s.miles.toFixed(1);
-    document.getElementById('statPerMile').textContent = (s.miles>0 ? fmtMoney(s.net/s.miles) : '$0.00') + ' / mi';
+    document.getElementById('statMiles').textContent = milesToDisplay(s.miles).toFixed(1);
+    document.getElementById('statPerMile').textContent = (s.miles>0 ? fmtMoney(s.net/milesToDisplay(s.miles)) : (currencySymbol()+'0.00')) + ' / ' + distUnitLabel();
+    var perDistLbl = document.getElementById('perDistUnitLabel');
+    if(perDistLbl) perDistLbl.textContent = currentUnit==='km' ? 'kilometer' : 'mile';
 
     // bar chart: daily net for each day in range
     var chart = document.getElementById('barChart');
@@ -1038,7 +1779,7 @@
       var dStart = new Date(start); dStart.setDate(dStart.getDate()+i);
       var dEnd = new Date(dStart); dEnd.setDate(dEnd.getDate()+1);
       if(dStart>now && statRange==='month') break;
-      var sum = summarize(entriesInRange(dStart, dEnd));
+      var sum = summarize(applyStatStreamFilter(entriesInRange(dStart, dEnd)));
       days.push({date:dStart, net:sum.net});
       maxAbs = Math.max(maxAbs, Math.abs(sum.net));
     }
@@ -1058,19 +1799,350 @@
   }
 
   function exportCsv(){
-    var rows = [['Date','Time','Type','Category','Amount','Miles']];
+    var rows = [['Date','Time','Type','Stream','Category','Amount ('+currentCurrency+')','Distance ('+distUnitLabel()+')']];
     entries.slice().sort(function(a,b){return new Date(a.ts)-new Date(b.ts);}).forEach(function(e){
       var d = new Date(e.ts);
-      rows.push([d.toLocaleDateString(), d.toLocaleTimeString(), e.type, e.category, e.amount.toFixed(2), e.miles.toFixed(1)]);
+      rows.push([d.toLocaleDateString(), d.toLocaleTimeString(), e.type, (e.stream||DEFAULT_STREAMS[0]), e.category, e.amount.toFixed(2), milesToDisplay(e.miles).toFixed(1)]);
     });
     var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
-    var blob = new Blob([csv], {type:'text/csv'});
+    var blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url; a.download = appName.replace(/\s+/g,'_')+'_export.csv';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    try{ localStorage.setItem('gh_last_export', String(Date.now())); }catch(e){}
+    var banner = document.getElementById('backupBanner');
+    if(banner) banner.style.display = 'none';
+    updateAutoBackupStatusUi();
   }
+
+  /* ---------------- Auto-backup (bring-your-own-cloud) ----------------
+     Uses the File System Access API to write straight to a file the user
+     picks once — including a folder that's already synced by Google
+     Drive/OneDrive/Dropbox on their machine, so backups reach the cloud
+     without us running a backend or holding their financial data. Only
+     Chrome/Edge/Android Chrome support this; other browsers keep the
+     manual export banner as their backup path. The handle itself can't go
+     in localStorage, so it lives in a tiny IndexedDB store instead. */
+  var fsAccessSupported = (typeof window.showSaveFilePicker === 'function');
+  var BACKUP_CADENCE_KEY = 'routeLedger.backupCadence.v1';
+  var DB_NAME = 'routeLedgerFiles', DB_STORE = 'handles', DB_KEY = 'backupFile';
+
+  function idbOpen(){
+    return new Promise(function(resolve, reject){
+      if(!('indexedDB' in window)){ reject(new Error('no indexedDB')); return; }
+      var req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = function(){ req.result.createObjectStore(DB_STORE); };
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = function(){ reject(req.error); };
+    });
+  }
+  function idbGetHandle(){
+    return idbOpen().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx = db.transaction(DB_STORE, 'readonly');
+        var req = tx.objectStore(DB_STORE).get(DB_KEY);
+        req.onsuccess = function(){ resolve(req.result || null); };
+        req.onerror = function(){ reject(req.error); };
+      });
+    }).catch(function(){ return null; });
+  }
+  function idbSetHandle(handle){
+    return idbOpen().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx = db.transaction(DB_STORE, 'readwrite');
+        tx.objectStore(DB_STORE).put(handle, DB_KEY);
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(){ reject(tx.error); };
+      });
+    });
+  }
+  function idbClearHandle(){
+    return idbOpen().then(function(db){
+      return new Promise(function(resolve){
+        var tx = db.transaction(DB_STORE, 'readwrite');
+        tx.objectStore(DB_STORE).delete(DB_KEY);
+        tx.oncomplete = function(){ resolve(); };
+        tx.onerror = function(){ resolve(); };
+      });
+    }).catch(function(){});
+  }
+
+  function loadBackupCadence(){
+    try{ return localStorage.getItem(BACKUP_CADENCE_KEY) || 'daily'; }catch(e){ return 'daily'; }
+  }
+  function saveBackupCadence(c){
+    try{ localStorage.setItem(BACKUP_CADENCE_KEY, c); }catch(e){}
+  }
+
+  function csvContent(){
+    var rows = [['Date','Time','Type','Category','Amount ('+currentCurrency+')','Distance ('+distUnitLabel()+')']];
+    entries.slice().sort(function(a,b){return new Date(a.ts)-new Date(b.ts);}).forEach(function(e){
+      var d = new Date(e.ts);
+      rows.push([d.toLocaleDateString(), d.toLocaleTimeString(), e.type, e.category, e.amount.toFixed(2), milesToDisplay(e.miles).toFixed(1)]);
+    });
+    return '\uFEFF' + rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+  }
+
+  function setupAutoBackup(){
+    if(!fsAccessSupported){ showToast('Auto-backup needs Chrome or Edge — use manual export instead'); return; }
+    window.showSaveFilePicker({
+      suggestedName: appName.replace(/\s+/g,'_')+'_backup.csv',
+      types: [{ description: 'CSV file', accept: {'text/csv': ['.csv']} }]
+    }).then(function(handle){
+      return idbSetHandle(handle).then(function(){ return performAutoBackup(true); });
+    }).then(function(ok){
+      if(ok){ showToast('Auto-backup set up'); }
+      updateAutoBackupStatusUi();
+    }).catch(function(err){
+      if(err && err.name !== 'AbortError'){ showToast('Could not set up auto-backup'); }
+    });
+  }
+
+  function performAutoBackup(isFirstRun){
+    return idbGetHandle().then(function(handle){
+      if(!handle) return false;
+      return handle.queryPermission({mode:'readwrite'}).then(function(perm){
+        var permPromise = (perm === 'granted') ? Promise.resolve('granted')
+          : (isFirstRun ? handle.requestPermission({mode:'readwrite'}) : Promise.resolve(perm));
+        return permPromise.then(function(finalPerm){
+          if(finalPerm !== 'granted') return false;
+          return handle.createWritable().then(function(writable){
+            return writable.write(csvContent()).then(function(){
+              return writable.close();
+            });
+          }).then(function(){
+            try{ localStorage.setItem('gh_last_export', String(Date.now())); }catch(e){}
+            var banner = document.getElementById('backupBanner');
+            if(banner) banner.style.display = 'none';
+            return true;
+          });
+        });
+      });
+    }).catch(function(){ return false; });
+  }
+
+  function backupIsDue(){
+    var cadence = loadBackupCadence();
+    if(cadence === 'entry') return true; // caller only invokes this path right after a new entry
+    var lastExport = 0;
+    try{ lastExport = parseInt(localStorage.getItem('gh_last_export') || '0', 10); }catch(e){}
+    var hoursSince = (Date.now() - lastExport) / (1000*60*60);
+    return cadence === 'weekly' ? hoursSince >= 24*7 : hoursSince >= 24;
+  }
+
+  function maybeAutoBackup(afterEntry){
+    idbGetHandle().then(function(handle){
+      if(!handle) return;
+      var cadence = loadBackupCadence();
+      var due = afterEntry ? (cadence === 'entry' || backupIsDue()) : backupIsDue();
+      if(due) performAutoBackup(false).then(updateAutoBackupStatusUi);
+    });
+  }
+
+  function updateAutoBackupStatusUi(){
+    var statusEl = document.getElementById('autoBackupStatus');
+    var setupBtn = document.getElementById('autoBackupSetupBtn');
+    var controls = document.getElementById('autoBackupControls');
+    if(!statusEl) return;
+    if(!fsAccessSupported){
+      statusEl.textContent = 'Not available in this browser — use manual export below, or open in Chrome/Edge for automatic backups.';
+      if(setupBtn) setupBtn.style.display = 'none';
+      if(controls) controls.style.display = 'none';
+      return;
+    }
+    idbGetHandle().then(function(handle){
+      if(!handle){
+        statusEl.textContent = 'Pick a file (e.g. inside your Google Drive or OneDrive folder) and GigHelper will keep it updated automatically.';
+        if(setupBtn) setupBtn.style.display = 'block';
+        if(controls) controls.style.display = 'none';
+        return;
+      }
+      if(setupBtn) setupBtn.style.display = 'none';
+      if(controls) controls.style.display = 'block';
+      var cadence = loadBackupCadence();
+      document.querySelectorAll('#backupCadenceOptions button').forEach(function(b){
+        b.classList.toggle('active', b.dataset.cadence === cadence);
+      });
+      var lastExport = 0;
+      try{ lastExport = parseInt(localStorage.getItem('gh_last_export') || '0', 10); }catch(e){}
+      var when = lastExport ? new Date(lastExport).toLocaleString() : 'never';
+      handle.queryPermission({mode:'readwrite'}).then(function(perm){
+        if(perm === 'granted'){
+          statusEl.textContent = 'Backing up to "' + handle.name + '" — last backup ' + when + '.';
+        } else {
+          statusEl.textContent = 'Backup file needs re-authorization — tap "Back up now" to reconnect.';
+        }
+      });
+    });
+  }
+
+  function exportTaxSummary(){
+    if(currentCountry !== 'US'){
+      showToast('Tax summary export is US-specific (IRS mileage rate) — not available for your region');
+      return;
+    }
+    // With multiple streams active, a combined tax summary risks mixing
+    // non-business spending (e.g. a "Personal" stream) into what looks like
+    // a Schedule-C report. Rather than guess which streams are "business,"
+    // require picking one specific stream via the Stats filter first —
+    // single-stream users (the common case) never see this and export
+    // exactly as before.
+    if(streams.length > 1 && statStreamFilter==='all'){
+      showToast('Select a specific stream above (not "All streams") before exporting a tax summary — this keeps personal spending out of it');
+      return;
+    }
+    var now = new Date();
+    var yearStart = new Date(now.getFullYear(), 0, 1);
+    var list = applyStatStreamFilter(entriesInRange(yearStart, new Date(now.getFullYear()+1, 0, 1)));
+
+    var incomeByCat = {}, expenseByCat = {};
+    var grossIncome = 0, otherExpenses = 0;
+    list.forEach(function(e){
+      if(e.type==='income'){ incomeByCat[e.category]=(incomeByCat[e.category]||0)+e.amount; grossIncome+=e.amount; }
+      else if(e.type==='expense'){ expenseByCat[e.category]=(expenseByCat[e.category]||0)+e.amount; otherExpenses+=e.amount; }
+    });
+
+    // mileage, split by rate period so a mid-year rate change is shown clearly
+    var mileageEntries = list.filter(function(e){ return e.type==='mileage'; });
+    var rateGroups = {};
+    mileageEntries.forEach(function(e){
+      var rate = getMileageRate(new Date(e.ts));
+      var key = rate.toFixed(3);
+      if(!rateGroups[key]) rateGroups[key] = {rate:rate, miles:0};
+      rateGroups[key].miles += e.miles;
+    });
+    var totalMiles = mileageEntries.reduce(function(s,e){return s+e.miles;},0);
+    var totalMileageDeduction = mileageDeduction(list);
+    var netProfitEstimate = grossIncome - otherExpenses - totalMileageDeduction;
+
+    var lines = [];
+    var streamSuffix = (streams.length > 1 && statStreamFilter!=='all') ? ' — ' + statStreamFilter : '';
+    lines.push(appName + ' — Tax Summary' + streamSuffix);
+    lines.push(yearStart.toLocaleDateString() + ' to ' + now.toLocaleDateString());
+    lines.push('');
+    lines.push('This is an informational summary only, not tax advice. Verify all figures and consult a tax professional before filing.');
+    lines.push('');
+    lines.push('GROSS INCOME');
+    Object.keys(incomeByCat).sort().forEach(function(cat){
+      lines.push('  ' + cat + ': ' + fmtMoney(incomeByCat[cat]));
+    });
+    lines.push('  Total gross income: ' + fmtMoney(grossIncome));
+    lines.push('');
+    lines.push('BUSINESS EXPENSES (excl. mileage)');
+    if(Object.keys(expenseByCat).length===0){ lines.push('  (none logged)'); }
+    Object.keys(expenseByCat).sort().forEach(function(cat){
+      lines.push('  ' + cat + ': ' + fmtMoney(expenseByCat[cat]));
+    });
+    lines.push('  Total other expenses: ' + fmtMoney(otherExpenses));
+    lines.push('');
+    lines.push('MILEAGE DEDUCTION (IRS standard mileage rate)');
+    if(totalMiles===0){ lines.push('  (no mileage logged)'); }
+    Object.keys(rateGroups).sort().forEach(function(key){
+      var g = rateGroups[key];
+      lines.push('  ' + g.miles.toFixed(1) + ' mi @ ' + (g.rate*100).toFixed(1) + '¢/mi = ' + fmtMoney(g.miles*g.rate));
+    });
+    lines.push('  Total miles: ' + totalMiles.toFixed(1));
+    lines.push('  Estimated mileage deduction: ' + fmtMoney(totalMileageDeduction));
+    lines.push('');
+    lines.push('ESTIMATED NET PROFIT');
+    lines.push('  Gross income − other expenses − mileage deduction');
+    lines.push('  = ' + fmtMoney(netProfitEstimate));
+    lines.push('');
+    lines.push('Note: rates reflect IRS-published standard mileage rates and may include a mid-year adjustment. This summary loosely follows Schedule C categories (gross receipts, car/truck expenses, other business expenses) for your own organization — it is not a substitute for filing guidance.');
+
+    var text = lines.join('\n');
+    var title = appName + ' — Tax Summary' + streamSuffix + ' ' + now.getFullYear();
+    if(navigator.share){
+      navigator.share({ title: title, text: text }).catch(function(){});
+    }else{
+      var blob = new Blob([text], {type:'text/plain'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = appName.replace(/\s+/g,'_')+'_tax_summary_'+(streams.length>1 && statStreamFilter!=='all' ? statStreamFilter.replace(/\s+/g,'_')+'_' : '')+now.getFullYear()+'.txt';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  }
+  var exportTaxSummaryBtn = document.getElementById('exportTaxSummary');
+  if(exportTaxSummaryBtn) exportTaxSummaryBtn.addEventListener('click', exportTaxSummary);
+
+  /* ---------------- Backup reminder ---------------- */
+  function checkBackupReminder(){
+    var banner = document.getElementById('backupBanner');
+    if(!banner || entries.length === 0) return;
+    idbGetHandle().then(function(handle){
+      if(handle){ banner.style.display = 'none'; return; } // auto-backup active — banner not needed
+      var lastExport = 0;
+      try{ lastExport = parseInt(localStorage.getItem('gh_last_export') || '0', 10); }catch(e){}
+      var daysSince = (Date.now() - lastExport) / (1000*60*60*24);
+      var shouldRemind = (lastExport === 0 && entries.length >= 10) || (lastExport > 0 && daysSince >= 14);
+      var dismissed = false;
+      try{ dismissed = localStorage.getItem('gh_backup_dismissed_at') && ((Date.now() - parseInt(localStorage.getItem('gh_backup_dismissed_at'),10)) < 1000*60*60*24*7); }catch(e){}
+      if(shouldRemind && !dismissed){
+        var titleEl = document.getElementById('backupBannerTitle');
+        var bodyEl = document.getElementById('backupBannerBody');
+        if(lastExport > 0 && daysSince >= 30){
+          if(titleEl) titleEl.textContent = 'Your data isn\'t backed up';
+          if(bodyEl) bodyEl.textContent = 'It\'s been over a month since your last export (' + Math.floor(daysSince) + ' days) — your income and mileage records aren\'t protected against a lost or reset device.';
+        } else {
+          if(titleEl) titleEl.textContent = 'Back up your data';
+          if(bodyEl) bodyEl.textContent = fsAccessSupported
+            ? 'It\'s been a while since your last export. Set up auto-backup in Settings, or export a CSV now.'
+            : 'It\'s been a while since your last export. Download a CSV backup so you never lose your records.';
+        }
+        banner.style.display = 'flex';
+      } else {
+        banner.style.display = 'none';
+      }
+    });
+  }
+
+  /* ---------------- Quarterly estimated tax reminder ---------------- */
+  function checkTaxReminder(){
+    var banner = document.getElementById('taxBanner');
+    if(!banner) return;
+    if(currentCountry !== 'US'){ banner.style.display = 'none'; return; } // IRS quarterly estimated tax is a US-specific construct
+    if(entries.length === 0) return;
+    var q = upcomingQuarterlyDeadline();
+    if(!q){ banner.style.display = 'none'; return; }
+    var now = new Date();
+    var daysUntil = Math.ceil((q.dueDate - now) / (1000*60*60*24));
+    var withinWindow = daysUntil <= 21 && daysUntil >= 0;
+
+    var dismissKey = 'gh_tax_dismissed_' + q.label + '_' + q.dueDate.getFullYear();
+    var dismissed = false;
+    try{ dismissed = !!localStorage.getItem(dismissKey); }catch(e){}
+
+    if(!withinWindow || dismissed){ banner.style.display = 'none'; return; }
+
+    var periodList = entriesInRange(q.periodStart, q.periodEnd < now ? q.periodEnd : now);
+    var s = summarize(periodList);
+    var mileageDed = mileageDeduction(periodList);
+    var netEstimate = s.net - mileageDed;
+    var setAsideLow = netEstimate * 0.25;
+    var setAsideHigh = netEstimate * 0.30;
+
+    document.getElementById('taxBannerBody').textContent =
+      q.label + ' estimated tax is due ' + q.dueDate.toLocaleDateString() + ' (' + daysUntil + ' day' + (daysUntil===1?'':'s') + '). ' +
+      'Net so far this period: ' + fmtMoney(netEstimate) + '. Consider setting aside ' + fmtMoney(setAsideLow) + '–' + fmtMoney(setAsideHigh) + '.';
+    banner.style.display = 'flex';
+  }
+
+  var taxBannerDismiss = document.getElementById('taxBannerDismiss');
+  if(taxBannerDismiss){
+    taxBannerDismiss.addEventListener('click', function(){
+      var q = upcomingQuarterlyDeadline();
+      if(q){
+        try{ localStorage.setItem('gh_tax_dismissed_' + q.label + '_' + q.dueDate.getFullYear(), '1'); }catch(e){}
+      }
+      var banner = document.getElementById('taxBanner');
+      if(banner) banner.style.display = 'none';
+    });
+  }
+  var taxBannerView = document.getElementById('taxBannerView');
+  if(taxBannerView) taxBannerView.addEventListener('click', exportTaxSummary);
 
   /* ---------------- Calendar panel ---------------- */
   var calCursor = new Date(); calCursor.setDate(1);
@@ -1139,7 +2211,7 @@
     } else {
       list.forEach(function(e){
         var time = new Date(e.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        var amtDisplay = e.type==='mileage' ? e.miles.toFixed(1)+' mi' : (e.type==='expense'?'-':'+')+'$'+e.amount.toFixed(2);
+        var amtDisplay = e.type==='mileage' ? fmtDist(e.miles) : (e.type==='expense'?'-':'+')+currencySymbol()+e.amount.toFixed(2);
         html += '<div class="entry"><div class="entry-icon '+e.type+'">'+iconFor(e.type)+'</div>'+
           '<div class="entry-info"><div class="entry-cat">'+e.category+'</div><div class="entry-time">'+time+'</div></div>'+
           '<div class="entry-amt '+e.type+'">'+amtDisplay+'</div>'+
@@ -1154,24 +2226,71 @@
 
   /* ---------------- Vehicle / Maintenance ---------------- */
   var MAINTENANCE_ITEMS = [
-    { key:'oil', defaultInterval:5000 },
-    { key:'tires', defaultInterval:6000 },
-    { key:'air_filter', defaultInterval:15000 },
-    { key:'brake_fluid', defaultInterval:30000 },
-    { key:'trans_fluid', defaultInterval:45000 },
-    { key:'spark_plugs', defaultInterval:60000 },
-    { key:'coolant', defaultInterval:60000 },
-    { key:'timing_belt', defaultInterval:90000 }
+    { key:'oil', defaultInterval:5000, defaultIntervalMonths:6 },
+    { key:'tires', defaultInterval:6000, defaultIntervalMonths:null },
+    { key:'air_filter', defaultInterval:15000, defaultIntervalMonths:12 },
+    { key:'cabin_air_filter', defaultInterval:15000, defaultIntervalMonths:12 },
+    { key:'brake_fluid', defaultInterval:30000, defaultIntervalMonths:24 },
+    { key:'brake_pads', defaultInterval:40000, defaultIntervalMonths:null },
+    { key:'trans_fluid', defaultInterval:45000, defaultIntervalMonths:null },
+    { key:'spark_plugs', defaultInterval:60000, defaultIntervalMonths:null },
+    { key:'coolant', defaultInterval:60000, defaultIntervalMonths:60 },
+    { key:'battery', defaultInterval:null, defaultIntervalMonths:48 },
+    { key:'wiper_blades', defaultInterval:null, defaultIntervalMonths:12 },
+    { key:'timing_belt', defaultInterval:90000, defaultIntervalMonths:96 }
   ];
 
   function ensureServiceDefaults(){
     MAINTENANCE_ITEMS.forEach(function(item){
       if(!vehicle.service[item.key]){
-        vehicle.service[item.key] = { lastMileage: 0, interval: item.defaultInterval };
+        vehicle.service[item.key] = {
+          lastMileage: 0,
+          interval: item.defaultInterval,
+          lastServiceDate: vehicle.baselineSetAt || new Date().toISOString(),
+          intervalMonths: item.defaultIntervalMonths
+        };
+      }else{
+        // backfill fields for items that existed before time-based tracking was added
+        var svc = vehicle.service[item.key];
+        if(svc.lastServiceDate === undefined) svc.lastServiceDate = vehicle.baselineSetAt || new Date().toISOString();
+        if(svc.intervalMonths === undefined) svc.intervalMonths = item.defaultIntervalMonths;
       }
     });
   }
   ensureServiceDefaults();
+
+  function monthsBetween(fromDate, toDate){
+    return (toDate.getFullYear()-fromDate.getFullYear())*12 + (toDate.getMonth()-fromDate.getMonth()) + (toDate.getDate()-fromDate.getDate())/30;
+  }
+
+  // Returns { status: 'ok'|'soon'|'overdue', nextDueMileage, nextDueDate, byMileage, byDate }
+  // for an item that may be tracked by mileage, by time, or both — whichever is more urgent wins.
+  function maintItemStatus(item, svc, currentMileage){
+    var now = new Date();
+    var result = { status:'ok', nextDueMileage:null, nextDueDate:null, byMileage:false, byDate:false };
+    var worstRank = 0; // 0=ok, 1=soon, 2=overdue
+    function rank(s){ return s==='overdue'?2:(s==='soon'?1:0); }
+
+    if(svc.interval){
+      var nextDueMileage = svc.lastMileage + svc.interval;
+      var remainingMiles = nextDueMileage - currentMileage;
+      var s = remainingMiles<=0 ? 'overdue' : (remainingMiles<=500 ? 'soon' : 'ok');
+      result.nextDueMileage = nextDueMileage;
+      if(rank(s) > worstRank){ worstRank = rank(s); result.byMileage = true; }
+    }
+    if(svc.intervalMonths){
+      var lastDate = new Date(svc.lastServiceDate || now);
+      var nextDueDate = new Date(lastDate);
+      nextDueDate.setMonth(nextDueDate.getMonth() + svc.intervalMonths);
+      var remainingDays = Math.round((nextDueDate - now) / (1000*60*60*24));
+      var sd = remainingDays<=0 ? 'overdue' : (remainingDays<=30 ? 'soon' : 'ok');
+      result.nextDueDate = nextDueDate;
+      if(rank(sd) > worstRank){ worstRank = rank(sd); result.byMileage = false; result.byDate = true; }
+      else if(rank(sd) === worstRank && sd !== 'ok'){ result.byDate = true; }
+    }
+    result.status = worstRank===2 ? 'overdue' : (worstRank===1 ? 'soon' : 'ok');
+    return result;
+  }
 
   function computeCurrentMileage(){
     var baseline = vehicle.odoBaseline || 0;
@@ -1189,10 +2308,11 @@
     document.getElementById('vModel').value = vehicle.model || '';
     document.getElementById('vYear').value = vehicle.year || '';
     var current = Math.round(computeCurrentMileage());
+    var currentDisplayed = Math.round(milesToDisplay(current));
     var mileageField = document.getElementById('vCurrentMileage');
-    mileageField.value = current;
-    mileageField.dataset.original = current;
-    document.getElementById('vCurrentOdo').textContent = current.toLocaleString() + ' ' + t('milesShort');
+    mileageField.value = currentDisplayed;
+    mileageField.dataset.original = currentDisplayed;
+    document.getElementById('vCurrentOdo').textContent = currentDisplayed.toLocaleString() + ' ' + distUnitLabel();
     renderFirstTimeMaintInputs();
   }
 
@@ -1206,6 +2326,7 @@
     var curVal = parseFloat(document.getElementById('vCurrentMileage').value) || 0;
     var html = '';
     MAINTENANCE_ITEMS.forEach(function(item){
+      if(!item.defaultInterval) return; // time-only items (battery, wipers) aren't mileage-tracked; skip in mileage setup
       var label = (t('items')[item.key]) || item.key;
       html += '<div class="setup-row"><div class="setup-label">'+label+'</div>'+
         '<input type="number" inputmode="numeric" class="setup-input" data-key="'+item.key+'" data-autosync="true" value="'+curVal+'"></div>';
@@ -1224,6 +2345,102 @@
     });
   });
 
+  /* ---------------- Maintenance notifications ---------------- */
+  // Fires a real system notification (not just the in-app banner) when the app is opened/foregrounded,
+  // if any maintenance item is due or overdue. Works on iOS/Android/desktop since it only needs the
+  // Notification API — no server, no background wake-up (checks happen on open, not on a schedule).
+  function checkMaintenanceNotifications(){
+    if(!('Notification' in window)) return;
+    if(Notification.permission !== 'granted') return;
+
+    ensureServiceDefaults();
+    var current = computeCurrentMileage();
+    var due = [];
+    MAINTENANCE_ITEMS.forEach(function(item){
+      var svc = vehicle.service[item.key];
+      var r = maintItemStatus(item, svc, current);
+      if(r.status === 'overdue'){
+        due.push({ key:item.key, label:(t('items')[item.key])||item.key, overdue:true });
+      }else if(r.status === 'soon'){
+        due.push({ key:item.key, label:(t('items')[item.key])||item.key, overdue:false });
+      }
+    });
+    if(due.length === 0) return;
+
+    // avoid re-notifying for the same items within 24h
+    var todayKey = new Date().toDateString();
+    var lastNotifiedKey = '', lastNotifiedItems = [];
+    try{
+      lastNotifiedKey = localStorage.getItem('gh_maint_notif_day') || '';
+      lastNotifiedItems = JSON.parse(localStorage.getItem('gh_maint_notif_items') || '[]');
+    }catch(e){}
+    var dueKeys = due.map(function(d){ return d.key; }).sort();
+    var sameAsLast = lastNotifiedKey === todayKey && JSON.stringify(dueKeys) === JSON.stringify(lastNotifiedItems.sort());
+    if(sameAsLast) return;
+
+    var overdueCount = due.filter(function(d){ return d.overdue; }).length;
+    var title = appName + ' — Maintenance';
+    var body;
+    if(due.length === 1){
+      body = due[0].label + (due[0].overdue ? ' is overdue.' : ' is due soon.');
+    }else{
+      body = due.length + ' items need attention' + (overdueCount>0 ? ' (' + overdueCount + ' overdue)' : '') + ': ' + due.map(function(d){return d.label;}).join(', ');
+    }
+
+    try{
+      if(navigator.serviceWorker && navigator.serviceWorker.ready){
+        navigator.serviceWorker.ready.then(function(reg){
+          reg.showNotification(title, { body: body, icon: 'icon-192.png', badge: 'icon-192.png' });
+        }).catch(function(){ new Notification(title, { body: body, icon: 'icon-192.png' }); });
+      }else{
+        new Notification(title, { body: body, icon: 'icon-192.png' });
+      }
+      localStorage.setItem('gh_maint_notif_day', todayKey);
+      localStorage.setItem('gh_maint_notif_items', JSON.stringify(dueKeys));
+    }catch(e){ /* notification failed silently — in-app maintenance list still shows status */ }
+  }
+
+  function requestMaintenanceNotifyPermission(){
+    if(!('Notification' in window)) return;
+    if(Notification.permission === 'default'){
+      Notification.requestPermission().then(function(){
+        checkMaintenanceNotifications();
+        updateMaintNotifStatus();
+      });
+    }
+  }
+
+  function updateMaintNotifStatus(){
+    var statusEl = document.getElementById('maintNotifStatus');
+    var btn = document.getElementById('enableMaintNotifBtn');
+    if(!statusEl || !btn) return;
+    if(!('Notification' in window)){
+      statusEl.textContent = 'Not supported on this browser.';
+      btn.disabled = true; btn.style.opacity = '0.5';
+      return;
+    }
+    if(Notification.permission === 'granted'){
+      statusEl.textContent = 'Enabled — you\'ll get an alert when a maintenance item is due or overdue, next time you open the app.';
+      btn.textContent = 'Notifications enabled';
+      btn.disabled = true; btn.style.opacity = '0.7';
+    }else if(Notification.permission === 'denied'){
+      statusEl.textContent = 'Blocked in your browser/device settings. Re-enable it there to turn this on.';
+      btn.disabled = true; btn.style.opacity = '0.5';
+    }else{
+      statusEl.textContent = 'Get a system notification for maintenance due dates when you open the app.';
+      btn.disabled = false; btn.style.opacity = '1';
+    }
+  }
+
+  var enableMaintNotifBtn = document.getElementById('enableMaintNotifBtn');
+  if(enableMaintNotifBtn){
+    enableMaintNotifBtn.addEventListener('click', requestMaintenanceNotifyPermission);
+  }
+
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'visible') checkMaintenanceNotifications();
+  });
+
   function renderMaintList(){
     ensureServiceDefaults();
     var container = document.getElementById('maintList');
@@ -1232,17 +2449,22 @@
     var html = '';
     MAINTENANCE_ITEMS.forEach(function(item){
       var svc = vehicle.service[item.key];
-      var nextDue = svc.lastMileage + svc.interval;
-      var remaining = nextDue - current;
-      var status = 'ok', statusLabel = t('statusOk');
-      if(remaining <= 0){ status='overdue'; statusLabel=t('statusOverdue'); }
-      else if(remaining <= 500){ status='soon'; statusLabel=t('statusSoon'); }
+      var r = maintItemStatus(item, svc, current);
+      var statusLabel = r.status==='overdue' ? t('statusOverdue') : (r.status==='soon' ? t('statusSoon') : t('statusOk'));
       var label = (t('items')[item.key]) || item.key;
+      var dueText;
+      if(r.byDate && r.nextDueDate){
+        dueText = t('dueAt') + ' ' + r.nextDueDate.toLocaleDateString();
+      }else if(r.nextDueMileage){
+        dueText = t('dueAt') + ' ' + Math.round(milesToDisplay(r.nextDueMileage)).toLocaleString() + ' ' + distUnitLabel();
+      }else{
+        dueText = '';
+      }
       html += '<div class="maint-item" data-key="'+item.key+'">'+
-        '<div class="maint-dot '+status+'"></div>'+
+        '<div class="maint-dot '+r.status+'"></div>'+
         '<div class="maint-info">'+
           '<div class="maint-name">'+label+'</div>'+
-          '<div class="maint-sub '+(status!=='ok'?status:'')+'">'+statusLabel+' — '+t('dueAt')+' '+nextDue.toLocaleString()+' '+t('milesShort')+'</div>'+
+          '<div class="maint-sub '+(r.status!=='ok'?r.status:'')+'">'+statusLabel+' — '+dueText+'</div>'+
         '</div>'+
         '<button class="maint-done-btn" data-action="done" data-key="'+item.key+'">'+t('markDone')+'</button>'+
         '<button class="maint-done-btn" data-action="edit" data-key="'+item.key+'">'+t('edit')+'</button>'+
@@ -1253,6 +2475,7 @@
       b.addEventListener('click', function(){
         var key = b.dataset.key;
         vehicle.service[key].lastMileage = Math.round(computeCurrentMileage());
+        vehicle.service[key].lastServiceDate = new Date().toISOString();
         saveVehicle(vehicle);
         renderMaintList();
         showToast(t('items')[key] + ' — ' + t('markDone').toLowerCase());
@@ -1267,15 +2490,25 @@
   function openMaintEdit(key){
     maintEditKey = key;
     var svc = vehicle.service[key];
-    document.getElementById('maintLastMileage').value = svc.lastMileage;
-    document.getElementById('maintInterval').value = svc.interval;
+    document.getElementById('maintLastMileage').value = Math.round(milesToDisplay(svc.lastMileage));
+    document.getElementById('maintInterval').value = svc.interval ? Math.round(milesToDisplay(svc.interval)) : '';
+    var monthsField = document.getElementById('maintIntervalMonths');
+    var lastDateField = document.getElementById('maintLastServiceDate');
+    if(monthsField) monthsField.value = svc.intervalMonths || '';
+    if(lastDateField) lastDateField.value = (svc.lastServiceDate || '').slice(0,10);
     openModal('maintEditModal');
   }
   document.getElementById('maintEditSave').addEventListener('click', function(){
     if(!maintEditKey) return;
-    var last = parseFloat(document.getElementById('maintLastMileage').value) || 0;
-    var interval = parseFloat(document.getElementById('maintInterval').value) || vehicle.service[maintEditKey].interval;
-    vehicle.service[maintEditKey] = { lastMileage: last, interval: interval };
+    var last = displayToMiles(parseFloat(document.getElementById('maintLastMileage').value) || 0);
+    var intervalRaw = document.getElementById('maintInterval').value;
+    var interval = intervalRaw === '' ? null : (displayToMiles(parseFloat(intervalRaw)) || vehicle.service[maintEditKey].interval);
+    var monthsField = document.getElementById('maintIntervalMonths');
+    var lastDateField = document.getElementById('maintLastServiceDate');
+    var monthsRaw = monthsField ? monthsField.value : '';
+    var intervalMonths = monthsRaw === '' ? null : (parseFloat(monthsRaw) || null);
+    var lastServiceDate = (lastDateField && lastDateField.value) ? new Date(lastDateField.value).toISOString() : (vehicle.service[maintEditKey].lastServiceDate || new Date().toISOString());
+    vehicle.service[maintEditKey] = { lastMileage: last, interval: interval, intervalMonths: intervalMonths, lastServiceDate: lastServiceDate };
     saveVehicle(vehicle);
     renderMaintList();
     closeModal('maintEditModal');
@@ -1295,7 +2528,7 @@
       var originalDisplayed = parseFloat(mileageField.dataset.original);
       var changed = isNaN(originalDisplayed) || Math.round(enteredMileage) !== Math.round(originalDisplayed);
       if(isFirstTime || changed){
-        vehicle.odoBaseline = enteredMileage;
+        vehicle.odoBaseline = displayToMiles(enteredMileage);
         vehicle.baselineSetAt = new Date().toISOString();
       }
     }
@@ -1305,7 +2538,7 @@
       document.querySelectorAll('#firstTimeMaintInputs .setup-input').forEach(function(inp){
         var val = parseFloat(inp.value);
         if(!isNaN(val) && val >= 0){
-          vehicle.service[inp.dataset.key].lastMileage = val;
+          vehicle.service[inp.dataset.key].lastMileage = displayToMiles(val);
         }
       });
     }
@@ -1314,7 +2547,17 @@
     showToast('Vehicle saved');
     renderVehicleProfile();
     renderMaintList();
+    updateVehicleNudge();
   });
+
+  var vehicleNudgeDismissBtn = document.getElementById('vehicleNudgeDismiss');
+  if(vehicleNudgeDismissBtn){
+    vehicleNudgeDismissBtn.addEventListener('click', function(){
+      try{ localStorage.setItem('gh_vehicle_nudge_dismissed', '1'); }catch(e){}
+      var nudge = document.getElementById('vehicleNudge');
+      if(nudge) nudge.style.display = 'none';
+    });
+  }
 
   document.getElementById('vResyncBtn').addEventListener('click', function(){
     document.getElementById('resyncInput').value = Math.round(computeCurrentMileage());
@@ -1335,6 +2578,16 @@
   function renderVehiclePanel(){
     renderVehicleProfile();
     renderMaintList();
+    updateVehicleNudge();
+  }
+
+  function updateVehicleNudge(){
+    var nudge = document.getElementById('vehicleNudge');
+    if(!nudge) return;
+    var hasVehicleInfo = !!(vehicle.make || vehicle.model || vehicle.year);
+    var dismissed = false;
+    try{ dismissed = !!localStorage.getItem('gh_vehicle_nudge_dismissed'); }catch(e){}
+    nudge.style.display = (!hasVehicleInfo && !dismissed) ? 'block' : 'none';
   }
 
   /* ---------------- Manual form ---------------- */
@@ -1354,9 +2607,9 @@
   document.getElementById('manualSave').addEventListener('click', function(){
     var cat = document.getElementById('manualCategory').value;
     if(manualType==='mileage'){
-      var miles = parseFloat(document.getElementById('manualMiles').value);
-      if(!miles || miles<=0){ showToast('Enter a mileage amount'); return; }
-      addEntry('mileage', 0, cat, miles);
+      var milesEntered = parseFloat(document.getElementById('manualMiles').value);
+      if(!milesEntered || milesEntered<=0){ showToast('Enter a mileage amount'); return; }
+      addEntry('mileage', 0, cat, displayToMiles(milesEntered));
       document.getElementById('manualMiles').value='';
     } else {
       var amt = parseFloat(document.getElementById('manualAmount').value);
@@ -1380,12 +2633,96 @@
     for(var w in words){
       if(words.hasOwnProperty(w) && text.indexOf(w)!==-1) return words[w];
     }
+    // fallback: check user's own platform list (covers custom/added platforms by name)
+    var platforms = loadPlatforms();
+    for(var i=0;i<platforms.length;i++){
+      if(text.indexOf(platforms[i].toLowerCase())!==-1) return platforms[i];
+    }
     return 'Other';
+  }
+
+  // Chrome's speech recognizer frequently transcribes small numbers as words
+  // ("twenty dollars") instead of digits, especially under ~30. Since the
+  // amount/mileage regexes only match digits, those entries were silently
+  // dropped. Normalize spelled-out numbers to digits before parsing.
+  var EN_ONES = {zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,
+    eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19};
+  var EN_TENS = {twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
+
+  function wordsToDigitsEN(text){
+    var words = text.split(/\s+/);
+    var out = [];
+    var i = 0;
+    while(i < words.length){
+      var w = words[i].replace(/[.,!?]/g,'');
+      if(EN_TENS.hasOwnProperty(w)){
+        var val = EN_TENS[w];
+        var next = (words[i+1]||'').replace(/[.,!?]/g,'');
+        if(EN_ONES.hasOwnProperty(next) && EN_ONES[next] < 10){ val += EN_ONES[next]; i++; }
+        out.push(String(val)); i++; continue;
+      }
+      if(EN_ONES.hasOwnProperty(w)){
+        var val2 = EN_ONES[w];
+        var next2 = (words[i+1]||'').replace(/[.,!?]/g,'');
+        if(next2 === 'hundred'){
+          val2 *= 100; i++;
+          var next3 = (words[i+1]||'').replace(/[.,!?]/g,'');
+          if(EN_TENS.hasOwnProperty(next3)){
+            val2 += EN_TENS[next3]; i++;
+            var next4 = (words[i+1]||'').replace(/[.,!?]/g,'');
+            if(EN_ONES.hasOwnProperty(next4) && EN_ONES[next4] < 10){ val2 += EN_ONES[next4]; i++; }
+          } else if(EN_ONES.hasOwnProperty(next3) && EN_ONES[next3] < 10){
+            val2 += EN_ONES[next3]; i++;
+          }
+        }
+        out.push(String(val2)); i++; continue;
+      }
+      out.push(words[i]); i++;
+    }
+    return out.join(' ');
+  }
+
+  // Basic single-word number fallback for the other supported languages
+  // (compounds like French's "quatre-vingts" are out of scope for now —
+  // this covers the common single-word amounts people actually speak).
+  var NUMBER_WORDS_BASIC = {
+    'es-ES': {cero:0,uno:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,
+      once:11,doce:12,trece:13,catorce:14,quince:15,dieciséis:16,diecisiete:17,dieciocho:18,diecinueve:19,
+      veinte:20,treinta:30,cuarenta:40,cincuenta:50,sesenta:60,setenta:70,ochenta:80,noventa:90,cien:100},
+    'it-IT': {zero:0,uno:1,due:2,tre:3,quattro:4,cinque:5,sei:6,sette:7,otto:8,nove:9,dieci:10,
+      undici:11,dodici:12,tredici:13,quattordici:14,quindici:15,sedici:16,diciassette:17,diciotto:18,diciannove:19,
+      venti:20,trenta:30,quaranta:40,cinquanta:50,sessanta:60,settanta:70,ottanta:80,novanta:90,cento:100},
+    'fr-FR': {zéro:0,un:1,deux:2,trois:3,quatre:4,cinq:5,six:6,sept:7,huit:8,neuf:9,dix:10,
+      onze:11,douze:12,treize:13,quatorze:14,quinze:15,seize:16,vingt:20,trente:30,quarante:40,
+      cinquante:50,soixante:60,cent:100},
+    'zh-CN': {零:0,一:1,二:2,两:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9,十:10,
+      二十:20,三十:30,四十:40,五十:50,六十:60,七十:70,八十:80,九十:90,百:100}
+  };
+  function wordsToDigitsBasic(text, lang){
+    var map = NUMBER_WORDS_BASIC[lang];
+    if(!map) return text;
+    var words = text.split(/\s+/);
+    return words.map(function(w){
+      var clean = w.replace(/[.,!?]/g,'');
+      return map.hasOwnProperty(clean) ? String(map[clean]) : w;
+    }).join(' ');
   }
 
   function parseVoiceCommand(raw){
     var text = raw.toLowerCase().trim();
+    if(currentLang === 'en-US'){ text = wordsToDigitsEN(text); }
+    else { text = wordsToDigitsBasic(text, currentLang); }
     var cmd = COMMAND_WORDS_BY_LANG[currentLang] || COMMAND_WORDS_BY_LANG['en-US'];
+    var nav = NAV_WORDS_BY_LANG[currentLang] || NAV_WORDS_BY_LANG['en-US'];
+    var navLabels = NAV_LABELS[currentLang] || NAV_LABELS['en-US'];
+
+    // tab navigation: "open stats", "go to vehicle", etc.
+    for(var panelName in nav){
+      if(nav.hasOwnProperty(panelName) && nav[panelName].test(text)){
+        showPanel(panelName);
+        return navLabels[panelName];
+      }
+    }
 
     // rename command
     var renameMatch = text.match(cmd.rename);
@@ -1396,13 +2733,22 @@
       return 'Renamed app to "'+newName+'"';
     }
 
-    // mileage: "log 12 miles", "drove 12 miles", "12 miles"
+    // mileage: "log 12 miles", "drove 12 miles", "12 miles", or "12 km"/"12 kilometers"
     var mileMatch = text.match(cmd.mile);
+    var mileKmMatch = cmd.mileKm ? text.match(cmd.mileKm) : null;
     if(mileMatch && cmd.mileTrigger.test(text)){
       var miles = parseFloat(mileMatch[1]);
       var cat = matchCategory(text);
       addEntry('mileage', 0, cat, miles);
-      return 'Logged '+miles.toFixed(1)+' miles ('+cat+')';
+      return 'Logged '+fmtDist(miles)+' ('+cat+')';
+    }
+    if(mileKmMatch){
+      // the km unit word itself is enough signal — no separate trigger needed
+      var km = parseFloat(mileKmMatch[1]);
+      var milesFromKm = km * KM_TO_MI;
+      var catKm = matchCategory(text);
+      addEntry('mileage', 0, catKm, milesFromKm);
+      return 'Logged '+fmtDist(milesFromKm)+' ('+catKm+')';
     }
 
     // income / expense: look for amount + keyword
@@ -1414,7 +2760,7 @@
       var category = matchCategory(text);
       var type = isExpense && !isIncome ? 'expense' : 'income';
       addEntry(type, amount, category, 0);
-      return 'Logged '+(type==='expense'?'-':'+')+'$'+amount.toFixed(2)+' — '+category;
+      return 'Logged '+(type==='expense'?'-':'+')+currencySymbol()+amount.toFixed(2)+' — '+category;
     }
 
     return null;
@@ -1472,9 +2818,524 @@
     if(document.getElementById('panel-vehicle').classList.contains('active')) renderVehiclePanel();
   }
 
+  /* ---------------- Platforms / categories ---------------- */
+  function rebuildCategorySelect(){
+    var sel = document.getElementById('manualCategory');
+    if(!sel) return;
+    var prev = sel.value;
+    sel.innerHTML = '';
+    var platforms = loadPlatforms();
+    platforms.forEach(function(p){
+      var o = document.createElement('option'); o.textContent = p; sel.appendChild(o);
+    });
+    FIXED_CATEGORIES.forEach(function(c){
+      var o = document.createElement('option'); o.textContent = c; sel.appendChild(o);
+    });
+    var other = document.createElement('option'); other.textContent = 'Other'; sel.appendChild(other);
+    if(prev && Array.prototype.some.call(sel.options, function(o){ return o.textContent===prev; })){
+      sel.value = prev;
+    }
+  }
+
+  /* ---------------- Region / currency / units UI ---------------- */
+  function populateCountrySelect(selectEl, selectedCode){
+    if(!selectEl) return;
+    selectEl.innerHTML = '';
+    COUNTRIES.forEach(function(c){
+      var opt = document.createElement('option');
+      opt.value = c.code; opt.textContent = c.name;
+      if(c.code === selectedCode) opt.selected = true;
+      selectEl.appendChild(opt);
+    });
+  }
+  function populateCurrencySelect(selectEl, selectedCode){
+    if(!selectEl) return;
+    selectEl.innerHTML = '';
+    CURRENCIES.forEach(function(c){
+      var opt = document.createElement('option');
+      opt.value = c.code; opt.textContent = c.symbol + ' ' + c.code + ' — ' + c.name;
+      if(c.code === selectedCode) opt.selected = true;
+      selectEl.appendChild(opt);
+    });
+  }
+  function applyRegionSettings(country, currency, unit){
+    currentCountry = country; currentCurrency = currency; currentUnit = unit;
+    saveCountry(country); saveCurrency(currency); saveUnit(unit);
+    document.querySelectorAll('#unitOptions button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.unit === unit);
+    });
+    renderAll();
+    checkTaxReminder();
+    updateTaxUiVisibility();
+  }
+  function updateTaxUiVisibility(){
+    // The IRS mileage deduction / quarterly estimated tax tooling only applies in the US.
+    var exportBtn = document.getElementById('exportTaxSummary');
+    if(exportBtn) exportBtn.style.display = (currentCountry === 'US') ? '' : 'none';
+    if(currentCountry !== 'US'){
+      var banner = document.getElementById('taxBanner');
+      if(banner) banner.style.display = 'none';
+    }
+  }
+
+  function updateVehicleUiVisibility(){
+    // Someone doing pure personal budgeting (or a non-driving side hustle)
+    // never needs mileage/vehicle tooling in front of them. Hide the whole
+    // surface rather than leaving it empty — an unused tab is still clutter.
+    document.querySelectorAll('[data-panel="vehicle"]').forEach(function(el){
+      el.style.display = vehicleTrackingEnabled ? '' : 'none';
+    });
+    var mileageTypeBtn = document.querySelector('.seg button[data-type="mileage"]');
+    if(mileageTypeBtn) mileageTypeBtn.style.display = vehicleTrackingEnabled ? '' : 'none';
+    if(!vehicleTrackingEnabled){
+      var banner = document.getElementById('taxBanner');
+      if(banner) banner.style.display = 'none';
+      var exportBtn = document.getElementById('exportTaxSummary');
+      if(exportBtn) exportBtn.style.display = 'none';
+      // If the (now-hidden) Vehicle tab happened to be active, fall back to Log.
+      if(document.getElementById('panel-vehicle').classList.contains('active')) showPanel('log');
+    }else{
+      updateTaxUiVisibility();
+    }
+  }
+
+  var countrySelectEl = document.getElementById('countrySelect');
+  var currencySelectEl = document.getElementById('currencySelect');
+  populateCountrySelect(countrySelectEl, currentCountry);
+  populateCurrencySelect(currencySelectEl, currentCurrency);
+  document.querySelectorAll('#unitOptions button').forEach(function(b){
+    b.classList.toggle('active', b.dataset.unit === currentUnit);
+    b.addEventListener('click', function(){
+      applyRegionSettings(currentCountry, currentCurrency, b.dataset.unit);
+      showToast('Units updated');
+    });
+  });
+  function renderVehicleTrackingToggle(){
+    var onBtn = document.getElementById('vehicleTrackingOnBtn');
+    var offBtn = document.getElementById('vehicleTrackingOffBtn');
+    if(onBtn) onBtn.classList.toggle('active', vehicleTrackingEnabled);
+    if(offBtn) offBtn.classList.toggle('active', !vehicleTrackingEnabled);
+  }
+  document.querySelectorAll('#vehicleTrackingOptions button').forEach(function(b){
+    b.addEventListener('click', function(){
+      vehicleTrackingEnabled = (b.dataset.val === 'on');
+      saveVehicleTrackingEnabled(vehicleTrackingEnabled);
+      renderVehicleTrackingToggle();
+      updateVehicleUiVisibility();
+      showToast(vehicleTrackingEnabled ? 'Vehicle tracking turned on' : 'Vehicle tracking turned off');
+    });
+  });
+  renderVehicleTrackingToggle();
+  if(countrySelectEl){
+    countrySelectEl.addEventListener('change', function(){
+      var country = findCountry(this.value);
+      // Changing country re-defaults currency + units, but the person can still override either afterward.
+      populateCurrencySelect(currencySelectEl, country.currency);
+      applyRegionSettings(country.code, country.currency, country.unit);
+      showToast('Region updated');
+    });
+  }
+  if(currencySelectEl){
+    currencySelectEl.addEventListener('change', function(){
+      applyRegionSettings(currentCountry, this.value, currentUnit);
+      showToast('Currency updated');
+    });
+  }
+
+  function renderWelcomePlatformList(){
+    var box = document.getElementById('welcomePlatformList');
+    if(!box) return;
+    box.innerHTML = '';
+    COMMON_PLATFORMS.forEach(function(p, i){
+      var row = document.createElement('div'); row.className = 'platform-row';
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.id = 'wp_'+i;
+      cb.checked = DEFAULT_PLATFORMS.indexOf(p) !== -1;
+      cb.dataset.platform = p;
+      var lbl = document.createElement('label'); lbl.htmlFor = 'wp_'+i; lbl.textContent = p;
+      row.appendChild(cb); row.appendChild(lbl);
+      box.appendChild(row);
+    });
+  }
+
+  function renderSettingsPlatformList(){
+    var box = document.getElementById('settingsPlatformList');
+    if(!box) return;
+    box.innerHTML = '';
+    var platforms = loadPlatforms();
+    platforms.forEach(function(p){
+      var row = document.createElement('div'); row.className = 'platform-row';
+      row.style.justifyContent = 'space-between';
+      var lbl = document.createElement('label'); lbl.textContent = p; lbl.style.flex = '1';
+      var rm = document.createElement('button'); rm.type = 'button'; rm.textContent = '×';
+      rm.style.cssText = 'background:none; border:none; color:var(--text-muted); font-size:16px; padding:2px 8px; cursor:pointer;';
+      rm.addEventListener('click', function(){
+        var list = loadPlatforms().filter(function(x){ return x!==p; });
+        savePlatforms(list);
+        renderSettingsPlatformList();
+        rebuildCategorySelect();
+      });
+      row.appendChild(lbl); row.appendChild(rm);
+      box.appendChild(row);
+    });
+  }
+
+  function renderStreamBar(){
+    var bar = document.getElementById('streamBar');
+    var box = document.getElementById('streamChips');
+    if(!bar || !box) return;
+    // Single-stream users (the common case today — just Gig Driving) never
+    // need to think about this; only show the selector once there's an
+    // actual choice to make.
+    if(streams.length <= 1){ bar.style.display = 'none'; return; }
+    bar.style.display = 'flex';
+    box.innerHTML = '';
+    streams.forEach(function(s){
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'stream-chip' + (s===activeStream ? ' active' : '');
+      chip.textContent = s;
+      chip.addEventListener('click', function(){
+        activeStream = s;
+        saveActiveStream(activeStream);
+        renderStreamBar();
+      });
+      box.appendChild(chip);
+    });
+  }
+
+  function renderSettingsStreamList(){
+    var box = document.getElementById('settingsStreamList');
+    if(!box) return;
+    box.innerHTML = '';
+    streams.forEach(function(s){
+      var row = document.createElement('div'); row.className = 'platform-row';
+      row.style.justifyContent = 'space-between';
+      var lbl = document.createElement('label'); lbl.textContent = s; lbl.style.flex = '1';
+      row.appendChild(lbl);
+      // Keep at least one stream — removing the last one would orphan every entry.
+      if(streams.length > 1){
+        var rm = document.createElement('button'); rm.type = 'button'; rm.textContent = '×';
+        rm.style.cssText = 'background:none; border:none; color:var(--text-muted); font-size:16px; padding:2px 8px; cursor:pointer;';
+        rm.addEventListener('click', function(){
+          streams = streams.filter(function(x){ return x!==s; });
+          saveStreams(streams);
+          if(activeStream===s){
+            activeStream = streams[0];
+            saveActiveStream(activeStream);
+          }
+          renderSettingsStreamList();
+          renderStreamBar();
+          renderStatsStreamChips();
+          showToast('Stream removed');
+        });
+        row.appendChild(rm);
+      }
+      box.appendChild(row);
+    });
+  }
+
+  var addStreamBtn = document.getElementById('addStreamBtn');
+  if(addStreamBtn){
+    addStreamBtn.addEventListener('click', function(){
+      var input = document.getElementById('newStreamInput');
+      var name = normalizePlatformName(input.value || '');
+      if(!name) return;
+      var existsInList = streams.some(function(x){ return x.toLowerCase()===name.toLowerCase(); });
+      if(existsInList){
+        input.value = ''; showToast('Stream already exists'); return;
+      }
+      streams.push(name);
+      saveStreams(streams);
+      input.value = '';
+      renderSettingsStreamList();
+      renderStreamBar();
+      renderStatsStreamChips();
+      showToast('Stream added');
+    });
+  }
+
+  function normalizePlatformName(raw){
+    var trimmed = raw.trim().replace(/\s+/g, ' ');
+    if(!trimmed) return '';
+    // Title-case each word, but preserve words that are already all-caps (e.g. "DHL")
+    return trimmed.split(' ').map(function(w){
+      if(w === w.toUpperCase() && w.length > 1) return w;
+      return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    }).join(' ');
+  }
+
+  var addPlatformBtn = document.getElementById('addPlatformBtn');
+  if(addPlatformBtn){
+    addPlatformBtn.addEventListener('click', function(){
+      var input = document.getElementById('newPlatformInput');
+      var name = normalizePlatformName(input.value || '');
+      if(!name) return;
+      var list = loadPlatforms();
+      var existsInList = list.some(function(x){ return x.toLowerCase()===name.toLowerCase(); });
+      var existsInCommon = COMMON_PLATFORMS.some(function(x){ return x.toLowerCase()===name.toLowerCase() && list.indexOf(x)===-1; });
+      if(existsInList){
+        input.value = ''; showToast(t('platformAdded')); return;
+      }
+      // If it matches a known common platform's canonical spelling, use that spelling instead
+      var canonical = COMMON_PLATFORMS.filter(function(x){ return x.toLowerCase()===name.toLowerCase(); })[0];
+      list.push(canonical || name);
+      savePlatforms(list);
+      input.value = '';
+      renderSettingsPlatformList();
+      rebuildCategorySelect();
+      showToast(t('platformAdded'));
+    });
+  }
+
+  /* ---------------- Report a problem / Privacy policy ---------------- */
+  var reportProblemBtn = document.getElementById('reportProblemBtn');
+  if(reportProblemBtn){
+    reportProblemBtn.addEventListener('click', function(){
+      var errors = [];
+      try{ errors = JSON.parse(localStorage.getItem(ERROR_LOG_KEY_STATIC) || '[]'); }catch(e){}
+      var lines = [];
+      lines.push('GigHelper diagnostic report');
+      lines.push('Generated: ' + new Date().toISOString());
+      lines.push('App name: ' + appName);
+      lines.push('Language: ' + currentLang);
+      lines.push('Entries logged: ' + entries.length);
+      lines.push('User agent: ' + navigator.userAgent);
+      lines.push('');
+      lines.push('Recent errors (' + errors.length + '):');
+      if(errors.length === 0){
+        lines.push('(none recorded)');
+      }else{
+        errors.forEach(function(e){
+          lines.push('- [' + e.t + '] ' + e.msg + (e.src ? ' (' + e.src + ':' + e.line + ')' : ''));
+        });
+      }
+      var text = lines.join('\n');
+
+      if(navigator.share){
+        navigator.share({ title: 'GigHelper diagnostic report', text: text }).catch(function(){});
+      }else{
+        var blob = new Blob([text], {type:'text/plain'});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = 'gighelper_diagnostic_report.txt';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    });
+  }
+
+  var privacyPolicyBtn = document.getElementById('privacyPolicyBtn');
+  if(privacyPolicyBtn){
+    privacyPolicyBtn.addEventListener('click', function(){
+      window.open('privacy-policy.html', '_blank');
+    });
+  }
+
+  var termsOfServiceBtn = document.getElementById('termsOfServiceBtn');
+  if(termsOfServiceBtn){
+    termsOfServiceBtn.addEventListener('click', function(){
+      window.open('terms-of-service.html', '_blank');
+    });
+  }
+
+  function updateWelcomeTexts(){
+    var titleEl = document.getElementById('welcomeTitleEl');
+    var bodyEl = document.getElementById('welcomeBodyEl');
+    var choosePlatformsLbl = document.getElementById('choosePlatformsLbl');
+    var choosePlatformsHintEl = document.getElementById('choosePlatformsHintEl');
+    var continueBtn = document.getElementById('welcomeContinueBtn');
+    if(titleEl) titleEl.textContent = t('welcomeTitle');
+    if(bodyEl) bodyEl.textContent = t('welcomeBody');
+    if(choosePlatformsLbl) choosePlatformsLbl.textContent = t('choosePlatforms');
+    if(choosePlatformsHintEl) choosePlatformsHintEl.textContent = t('choosePlatformsHint');
+    var chooseUsageLbl = document.getElementById('chooseUsageLbl');
+    var chooseUsageHintEl = document.getElementById('chooseUsageHintEl');
+    if(chooseUsageLbl) chooseUsageLbl.textContent = t('chooseUsage');
+    if(chooseUsageHintEl) chooseUsageHintEl.textContent = t('chooseUsageHint');
+    var usagePersonalLbl = document.getElementById('usagePersonalLbl');
+    var usageGigLbl = document.getElementById('usageGigLbl');
+    var usageSideLbl = document.getElementById('usageSideLbl');
+    var usageSideNameLbl = document.getElementById('usageSideNameLbl');
+    var usageSideNameInput = document.getElementById('usageSideName');
+    var usageSideDrivesLbl = document.getElementById('usageSideDrivesLbl');
+    if(usagePersonalLbl) usagePersonalLbl.textContent = t('usagePersonalOpt');
+    if(usageGigLbl) usageGigLbl.textContent = t('usageGigOpt');
+    if(usageSideLbl) usageSideLbl.textContent = t('usageSideOpt');
+    if(usageSideNameLbl) usageSideNameLbl.textContent = t('usageSideNameLabel');
+    if(usageSideNameInput) usageSideNameInput.placeholder = t('usageSideNamePlaceholder');
+    if(usageSideDrivesLbl) usageSideDrivesLbl.textContent = t('usageSideDrivesOpt');
+    if(continueBtn) continueBtn.textContent = t('getStarted');
+    var lblPlatforms = document.getElementById('lblPlatforms');
+    if(lblPlatforms) lblPlatforms.textContent = t('platformsLabel');
+    var newPlatformInput = document.getElementById('newPlatformInput');
+    if(newPlatformInput) newPlatformInput.placeholder = t('addPlatformPlaceholder');
+    var addBtn = document.getElementById('addPlatformBtn');
+    if(addBtn) addBtn.textContent = t('addPlatform');
+  }
+
+  document.querySelectorAll('#welcomeLangOptions button').forEach(function(b){
+    b.addEventListener('click', function(){
+      applyLanguage(b.dataset.lang);
+      document.querySelectorAll('#welcomeLangOptions button').forEach(function(x){
+        x.classList.toggle('active', x.dataset.lang===b.dataset.lang);
+      });
+      updateWelcomeTexts();
+    });
+  });
+
+  rebuildCategorySelect();
   applyLanguage(currentLang);
+  updateWelcomeTexts();
+  renderSettingsPlatformList();
+  renderSettingsStreamList();
+  renderStreamBar();
+  renderStatsStreamChips();
   renderVehiclePanel();
   renderAll();
+  updateTaxUiVisibility();
+  updateVehicleUiVisibility();
+  checkBackupReminder();
+  checkTaxReminder();
+  checkMaintenanceNotifications();
+  updateMaintNotifStatus();
+
+  var backupExportBtn = document.getElementById('backupBannerExport');
+  if(backupExportBtn) backupExportBtn.addEventListener('click', exportCsv);
+  var backupDismissBtn = document.getElementById('backupBannerDismiss');
+  if(backupDismissBtn){
+    backupDismissBtn.addEventListener('click', function(){
+      try{ localStorage.setItem('gh_backup_dismissed_at', String(Date.now())); }catch(e){}
+      var banner = document.getElementById('backupBanner');
+      if(banner) banner.style.display = 'none';
+    });
+  }
+
+  updateAutoBackupStatusUi();
+  maybeAutoBackup(false);
+  var helpDownloadBtn = document.getElementById('helpDownloadBtn');
+  if(helpDownloadBtn) helpDownloadBtn.addEventListener('click', downloadHelpGuide);
+  var autoBackupSetupBtn = document.getElementById('autoBackupSetupBtn');
+  if(autoBackupSetupBtn) autoBackupSetupBtn.addEventListener('click', setupAutoBackup);
+  var autoBackupNowBtn = document.getElementById('autoBackupNowBtn');
+  if(autoBackupNowBtn){
+    autoBackupNowBtn.addEventListener('click', function(){
+      performAutoBackup(true).then(function(ok){
+        showToast(ok ? 'Backed up' : 'Backup failed — try setting it up again');
+        updateAutoBackupStatusUi();
+      });
+    });
+  }
+  var autoBackupDisableBtn = document.getElementById('autoBackupDisableBtn');
+  if(autoBackupDisableBtn){
+    autoBackupDisableBtn.addEventListener('click', function(){
+      idbClearHandle().then(function(){
+        showToast('Auto-backup turned off');
+        updateAutoBackupStatusUi();
+        checkBackupReminder();
+      });
+    });
+  }
+  document.querySelectorAll('#backupCadenceOptions button').forEach(function(b){
+    b.addEventListener('click', function(){
+      saveBackupCadence(b.dataset.cadence);
+      document.querySelectorAll('#backupCadenceOptions button').forEach(function(x){
+        x.classList.toggle('active', x===b);
+      });
+      showToast('Backup schedule updated');
+    });
+  });
+
+  // Welcome screen: show once on first launch (per device), then stay dismissed.
+  var welcomeCountrySelectEl = document.getElementById('welcomeCountrySelect');
+  var welcomeCurrencySelectEl = document.getElementById('welcomeCurrencySelect');
+  try{
+    if(!localStorage.getItem('gh_welcome_seen')){
+      var wo = document.getElementById('welcomeOverlay');
+      if(wo) wo.style.display = 'flex';
+      renderWelcomePlatformList();
+      document.querySelectorAll('#welcomeLangOptions button').forEach(function(x){
+        x.classList.toggle('active', x.dataset.lang===currentLang);
+      });
+      populateCountrySelect(welcomeCountrySelectEl, currentCountry);
+      populateCurrencySelect(welcomeCurrencySelectEl, currentCurrency);
+      if(welcomeCountrySelectEl){
+        welcomeCountrySelectEl.addEventListener('change', function(){
+          var country = findCountry(this.value);
+          populateCurrencySelect(welcomeCurrencySelectEl, country.currency);
+        });
+      }
+    }
+  }catch(e){}
+  // Usage question: toggle conditional sections based on what's checked.
+  var usagePersonalEl = document.getElementById('usagePersonal');
+  var usageGigEl = document.getElementById('usageGig');
+  var usageSideEl = document.getElementById('usageSide');
+  var usageSideDetailsEl = document.getElementById('usageSideDetails');
+  var choosePlatformsWrapEl = document.getElementById('choosePlatformsWrap');
+  function refreshUsageConditionals(){
+    if(choosePlatformsWrapEl) choosePlatformsWrapEl.style.display = (usageGigEl && usageGigEl.checked) ? '' : 'none';
+    if(usageSideDetailsEl) usageSideDetailsEl.style.display = (usageSideEl && usageSideEl.checked) ? 'block' : 'none';
+  }
+  [usagePersonalEl, usageGigEl, usageSideEl].forEach(function(el){
+    if(el) el.addEventListener('change', refreshUsageConditionals);
+  });
+  refreshUsageConditionals();
+
+  var welcomeBtn = document.getElementById('welcomeContinueBtn');
+  if(welcomeBtn){
+    welcomeBtn.addEventListener('click', function(){
+      var wantsGig = !!(usageGigEl && usageGigEl.checked);
+      var wantsSide = !!(usageSideEl && usageSideEl.checked);
+      var wantsPersonal = !!(usagePersonalEl && usagePersonalEl.checked);
+      var sideDrives = !!(document.getElementById('usageSideDrives') && document.getElementById('usageSideDrives').checked);
+      // Nobody checked anything — don't strand the user with zero streams;
+      // fall back to the original single-stream Gig Driving experience.
+      if(!wantsGig && !wantsSide && !wantsPersonal){ wantsGig = true; }
+
+      if(wantsGig){
+        var checked = [];
+        document.querySelectorAll('#welcomePlatformList input[type="checkbox"]').forEach(function(cb){
+          if(cb.checked) checked.push(cb.dataset.platform);
+        });
+        savePlatforms(checked);
+      }else{
+        savePlatforms([]);
+      }
+      rebuildCategorySelect();
+      renderSettingsPlatformList();
+
+      var builtStreams = [];
+      if(wantsGig) builtStreams.push(DEFAULT_STREAMS[0]);
+      if(wantsSide){
+        var sideNameRaw = document.getElementById('usageSideName') ? document.getElementById('usageSideName').value : '';
+        var sideName = normalizePlatformName(sideNameRaw) || 'Side Hustle';
+        if(builtStreams.indexOf(sideName)===-1) builtStreams.push(sideName);
+      }
+      if(wantsPersonal && builtStreams.indexOf('Personal')===-1) builtStreams.push('Personal');
+      if(builtStreams.length===0) builtStreams = DEFAULT_STREAMS.slice();
+      streams = builtStreams;
+      saveStreams(streams);
+      activeStream = streams[0];
+      saveActiveStream(activeStream);
+      renderSettingsStreamList();
+      renderStreamBar();
+      renderStatsStreamChips();
+
+      vehicleTrackingEnabled = wantsGig || (wantsSide && sideDrives);
+      saveVehicleTrackingEnabled(vehicleTrackingEnabled);
+      updateVehicleUiVisibility();
+
+      if(welcomeCountrySelectEl && welcomeCurrencySelectEl){
+        var chosenCountry = findCountry(welcomeCountrySelectEl.value);
+        applyRegionSettings(chosenCountry.code, welcomeCurrencySelectEl.value, chosenCountry.unit);
+        populateCountrySelect(countrySelectEl, chosenCountry.code);
+        populateCurrencySelect(currencySelectEl, welcomeCurrencySelectEl.value);
+      }
+      var wo = document.getElementById('welcomeOverlay');
+      if(wo) wo.style.display = 'none';
+      try{ localStorage.setItem('gh_welcome_seen', '1'); }catch(e){}
+    });
+  }
 
   // Register service worker (enables offline use + installability).
   // Silently no-ops on file:// or if unsupported — this only works over http(s).

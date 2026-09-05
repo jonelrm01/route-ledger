@@ -1,7 +1,7 @@
 {
-  "name": "Route Ledger",
-  "short_name": "Route Ledger",
-  "description": "Track gig-work income, expenses, mileage, and vehicle maintenance — with voice entry in English, Spanish, or Italian.",
+  "name": "GigHelper",
+  "short_name": "GigHelper",
+  "description": "Track gig-work income, expenses, mileage, and vehicle maintenance — with voice entry in English, Spanish, Italian, French, or Chinese.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
