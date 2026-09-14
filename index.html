@@ -78,6 +78,9 @@
   .odo-value.income{color:var(--teal);}
   .odo-value.expense{color:var(--rose);}
   .odo-value.net{color:var(--amber);}
+  .odo-sub{font-size:10.5px; margin-top:3px; display:flex; gap:8px; font-family:'JetBrains Mono',monospace;}
+  .odo-sub-income{color:var(--teal);}
+  .odo-sub-expense{color:var(--rose);}
 
   /* ---------- Tabs ---------- */
   .tabs{
@@ -120,6 +123,12 @@
   .mic-hint{margin-top:12px; font-size:13px; color:var(--text-muted); text-align:center; min-height:34px; padding:0 24px;}
   .mic-hint b{color:var(--text-primary); font-weight:600;}
   .mic-examples{font-size:11px; color:var(--text-faint); text-align:center; margin-top:6px; line-height:1.6;}
+  .wake-toggle{
+    margin-top:14px; padding:6px 14px; border-radius:999px; border:1px solid var(--hairline);
+    background:var(--bg-panel-raised); color:var(--text-muted); font-size:12px; font-weight:600; cursor:pointer;
+  }
+  .wake-toggle.active{background:rgba(232,163,61,.15); border-color:var(--amber); color:var(--amber);}
+  .wake-toggle.paused{border-color:var(--rose); color:var(--rose); background:rgba(224,90,90,.08);}
 
   .manual-toggle{
     display:block; margin:14px auto 0; background:none; border:none;
@@ -162,6 +171,9 @@
   /* ---------- Entries list ---------- */
   .day-group{margin-bottom:18px;}
   .day-group-title{font-size:12px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px;}
+  .day-group-title.with-net{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+  .week-net{font-family:'JetBrains Mono',monospace; color:var(--amber); font-size:12.5px; letter-spacing:0; text-transform:none;}
+  .entry-time.entry-count{text-transform:lowercase;}
   .entry{
     display:flex; align-items:center; gap:10px;
     background:var(--bg-panel); border:1px solid var(--hairline);
@@ -358,30 +370,7 @@
     <select id="welcomeCurrencySelect" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--hairline); background:var(--bg-panel-raised); color:var(--text-primary); font-size:14px;"></select>
   </div>
 
-  <div style="width:100%; max-width:360px; text-align:left; margin-bottom:20px;">
-    <label id="chooseUsageLbl" style="display:block; font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:4px;">How do you use this app?</label>
-    <p id="chooseUsageHintEl" style="font-size:12px; color:var(--text-muted); margin:0 0 10px;">Select all that apply — you can add or change these later in Settings.</p>
-    <div style="display:flex; flex-direction:column; gap:8px;">
-      <label style="display:flex; align-items:center; gap:8px; padding:10px; border:1px solid var(--hairline); border-radius:10px; background:var(--bg-panel-raised);">
-        <input type="checkbox" id="usagePersonal"> <span id="usagePersonalLbl">Personal spending — groceries, bills, everyday expenses</span>
-      </label>
-      <label style="display:flex; align-items:center; gap:8px; padding:10px; border:1px solid var(--hairline); border-radius:10px; background:var(--bg-panel-raised);">
-        <input type="checkbox" id="usageGig" checked> <span id="usageGigLbl">Gig driving — DoorDash, Uber, and similar platforms</span>
-      </label>
-      <label style="display:flex; align-items:center; gap:8px; padding:10px; border:1px solid var(--hairline); border-radius:10px; background:var(--bg-panel-raised);">
-        <input type="checkbox" id="usageSide"> <span id="usageSideLbl">A side hustle or small business</span>
-      </label>
-    </div>
-    <div id="usageSideDetails" style="display:none; margin-top:10px; padding:10px; border:1px solid var(--hairline); border-radius:10px;">
-      <label id="usageSideNameLbl" style="display:block; font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">What should we call it?</label>
-      <input type="text" id="usageSideName" placeholder="e.g. Martial Arts School, Etsy Shop..." style="width:100%; padding:9px; border-radius:8px; border:1px solid var(--hairline); background:var(--bg-panel); color:var(--text-primary); font-size:14px; margin-bottom:8px;">
-      <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-muted);">
-        <input type="checkbox" id="usageSideDrives"> <span id="usageSideDrivesLbl">I sometimes drive for this and want to track mileage</span>
-      </label>
-    </div>
-  </div>
-
-  <div style="width:100%; max-width:360px; text-align:left;" id="choosePlatformsWrap">
+  <div style="width:100%; max-width:360px; text-align:left;">
     <label id="choosePlatformsLbl" style="display:block; font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:4px;">Which platforms do you work with?</label>
     <p id="choosePlatformsHintEl" style="font-size:12px; color:var(--text-muted); margin:0 0 10px;">Check all that apply. You can add more anytime.</p>
     <div id="welcomePlatformList" style="max-height:220px; overflow-y:auto; border:1px solid var(--hairline); border-radius:10px; padding:6px 4px; margin-bottom:20px;"></div>
@@ -412,9 +401,12 @@
 </div>
 
 <div class="odometer-strip">
-  <div class="odo-card"><div class="odo-label">Today net</div><div class="odo-value net num" id="odoToday">$0.00</div></div>
-  <div class="odo-card"><div class="odo-label">Week net</div><div class="odo-value net num" id="odoWeek">$0.00</div></div>
-  <div class="odo-card"><div class="odo-label">Month net</div><div class="odo-value net num" id="odoMonth">$0.00</div></div>
+  <div class="odo-card"><div class="odo-label">Today net</div><div class="odo-value net num" id="odoToday">$0.00</div>
+    <div class="odo-sub num"><span class="odo-sub-income" id="odoTodayIncome">+$0.00</span><span class="odo-sub-expense" id="odoTodayExpense">-$0.00</span></div></div>
+  <div class="odo-card"><div class="odo-label">Week net</div><div class="odo-value net num" id="odoWeek">$0.00</div>
+    <div class="odo-sub num"><span class="odo-sub-income" id="odoWeekIncome">+$0.00</span><span class="odo-sub-expense" id="odoWeekExpense">-$0.00</span></div></div>
+  <div class="odo-card"><div class="odo-label">Month net</div><div class="odo-value net num" id="odoMonth">$0.00</div>
+    <div class="odo-sub num"><span class="odo-sub-income" id="odoMonthIncome">+$0.00</span><span class="odo-sub-expense" id="odoMonthExpense">-$0.00</span></div></div>
   <div class="odo-card"><div class="odo-label">Month miles</div><div class="odo-value num" id="odoMiles" style="color:var(--text-primary)">0.0</div></div>
 </div>
 
@@ -458,6 +450,7 @@
       </button>
       <div class="mic-hint" id="micHint">Tap and say an entry, or <b>"call this app [name]"</b> to rename it.</div>
       <div class="mic-examples">"20 dollars income doordash" · "8 dollars expense gas" · "log 12 miles"</div>
+      <button class="wake-toggle" id="wakeToggle"></button>
     </div>
     <button class="manual-toggle" id="manualToggle">or enter manually</button>
 
@@ -713,14 +706,6 @@
           <button type="button" data-unit="km">Kilometers</button>
         </div>
       </div>
-      <div class="settings-section">
-        <label id="lblVehicleTracking">Vehicle & mileage tracking</label>
-        <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;" id="vehicleTrackingHint">Turn this off if you don't drive for any of your income sources — it hides the Vehicle tab and mileage logging.</div>
-        <div class="lang-options" id="vehicleTrackingOptions">
-          <button type="button" data-val="on" id="vehicleTrackingOnBtn">On</button>
-          <button type="button" data-val="off" id="vehicleTrackingOffBtn">Off</button>
-        </div>
-      </div>
       <div class="settings-section" id="autoBackupSection">
         <label id="lblAutoBackup">Auto-backup</label>
         <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;" id="autoBackupStatus">Checking availability…</div>
@@ -897,23 +882,6 @@
     try{ localStorage.setItem(ACTIVE_STREAM_KEY, name); }catch(e){}
   }
 
-  // Whether vehicle/mileage tracking is relevant to this user at all — set
-  // during onboarding based on whether they drive for gig work or a side
-  // hustle. Defaults to true so existing installs (all gig-focused before
-  // this) keep seeing the Vehicle tab exactly as before.
-  var VEHICLE_TRACKING_KEY = 'routeLedger.vehicleTrackingEnabled.v1';
-  function loadVehicleTrackingEnabled(){
-    if(!storageWorks) return (window.__memVehicleTracking !== undefined) ? window.__memVehicleTracking : true;
-    try{
-      var raw = localStorage.getItem(VEHICLE_TRACKING_KEY);
-      return raw===null ? true : raw==='1';
-    }catch(e){ return true; }
-  }
-  function saveVehicleTrackingEnabled(val){
-    if(!storageWorks){ window.__memVehicleTracking = val; return; }
-    try{ localStorage.setItem(VEHICLE_TRACKING_KEY, val ? '1' : '0'); }catch(e){}
-  }
-
   /* ---------------- Region / currency / units ---------------- */
   // Curated, not exhaustive — covers the markets GigHelper is launching in.
   // Each country carries a default currency + distance unit; both are
@@ -989,7 +957,6 @@
   var streams = loadStreams();
   var activeStream = loadActiveStream();
   if(!activeStream || streams.indexOf(activeStream)===-1){ activeStream = streams[0] || DEFAULT_STREAMS[0]; }
-  var vehicleTrackingEnabled = loadVehicleTrackingEnabled();
   // Migration: entries logged before Streams existed have no e.stream field.
   // Tag them with the default stream once, on first load, so every entry is
   // always groupable by stream — old and new — without a "missing stream" case.
@@ -1072,17 +1039,14 @@
       lastServiceDateLabel: 'Last done on (date)',
       shareSummary: 'Share summary', weeklySummary: 'Weekly summary', monthlySummary: 'Monthly summary',
       allStreamsLabel: 'All streams',
+      thisWeekLabel: 'This week', lastWeekLabel: 'Last week', entrySingular: 'entry', entryPlural: 'entries',
+      wakeToggleOffLabel: 'Turn on voice activation', wakeListeningLabel: 'Listening for “{{APP}}”', wakePausedLabel: 'Voice activation paused — tap to resume', micHintWake: 'Say “{{APP}}” then your entry — e.g. “{{APP}}, 20 dollars income doordash.”',
       incomeLabel: 'Income', expenseLabel: 'Expenses', netLabel: 'Net', milesLabel: 'Miles driven',
       netPerMileLabel: 'Net per mile', byCategoryLabel: 'By category', copiedToClipboard: 'Summary copied to clipboard',
       welcomeTitle: 'Welcome to GigHelper', welcomeBody: 'Track income, expenses, mileage, and maintenance — hands-free with voice entry.',
       getStarted: 'Get started', choosePlatforms: 'Which platforms do you work with?', addPlatform: 'Add platform',
       addPlatformPlaceholder: 'e.g. Roadie, Shipt...', platformAdded: 'Platform added', platformsLabel: 'Platforms',
-      choosePlatformsHint: 'Check all that apply. You can add more anytime.',
-      chooseUsage: 'How do you use this app?', chooseUsageHint: 'Select all that apply — you can add or change these later in Settings.',
-      usagePersonalOpt: 'Personal spending — groceries, bills, everyday expenses', usageGigOpt: 'Gig driving — DoorDash, Uber, and similar platforms', usageSideOpt: 'A side hustle or small business',
-      usageSideNameLabel: 'What should we call it?', usageSideNamePlaceholder: 'e.g. Martial Arts School, Etsy Shop...', usageSideDrivesOpt: 'I sometimes drive for this and want to track mileage',
-      vehicleTrackingLabel: 'Vehicle & mileage tracking', vehicleTrackingHintText: 'Turn this off if you don\'t drive for any of your income sources — it hides the Vehicle tab and mileage logging.',
-      onLabel: 'On', offLabel: 'Off'
+      choosePlatformsHint: 'Check all that apply. You can add more anytime.'
     },
     'es-ES': {
       micHintDefault: 'Toca y di una entrada, o <b>"llama a esta app [nombre]"</b> para renombrarla.',
@@ -1105,17 +1069,14 @@
         battery:'Batería', wiper_blades:'Escobillas del limpiaparabrisas', timing_belt:'Correa de distribución' },
       shareSummary: 'Compartir resumen', weeklySummary: 'Resumen semanal', monthlySummary: 'Resumen mensual',
       allStreamsLabel: 'Todas las fuentes',
+      thisWeekLabel: 'Esta semana', lastWeekLabel: 'Semana pasada', entrySingular: 'entrada', entryPlural: 'entradas',
+      wakeToggleOffLabel: 'Activar por voz', wakeListeningLabel: 'Escuchando “{{APP}}”', wakePausedLabel: 'Activación por voz en pausa — toca para reanudar', micHintWake: 'Di “{{APP}}” y luego tu entrada — ej. “{{APP}}, 20 dólares de ingreso doordash.”',
       incomeLabel: 'Ingresos', expenseLabel: 'Gastos', netLabel: 'Neto', milesLabel: 'Millas recorridas',
       netPerMileLabel: 'Neto por milla', byCategoryLabel: 'Por categoría', copiedToClipboard: 'Resumen copiado al portapapeles',
       welcomeTitle: 'Bienvenido a GigHelper', welcomeBody: 'Registra ingresos, gastos, millaje y mantenimiento — con entrada de voz manos libres.',
       getStarted: 'Comenzar', choosePlatforms: '¿Con qué plataformas trabajas?', addPlatform: 'Añadir plataforma',
       addPlatformPlaceholder: 'p. ej. Roadie, Shipt...', platformAdded: 'Plataforma añadida', platformsLabel: 'Plataformas',
-      choosePlatformsHint: 'Marca todas las que apliquen. Puedes añadir más en cualquier momento.',
-      chooseUsage: '¿Cómo usas esta aplicación?', chooseUsageHint: 'Selecciona todas las que apliquen — puedes añadir o cambiar esto después en Ajustes.',
-      usagePersonalOpt: 'Gastos personales — comida, facturas, gastos cotidianos', usageGigOpt: 'Conducir para apps de reparto — DoorDash, Uber y similares', usageSideOpt: 'Un negocio propio o actividad secundaria',
-      usageSideNameLabel: '¿Cómo lo llamamos?', usageSideNamePlaceholder: 'ej. Escuela de Artes Marciales, Tienda Etsy...', usageSideDrivesOpt: 'A veces conduzco para esto y quiero registrar el kilometraje',
-      vehicleTrackingLabel: 'Seguimiento de vehículo y kilometraje', vehicleTrackingHintText: 'Desactívalo si no conduces para ninguna de tus fuentes de ingresos — oculta la pestaña Vehículo y el registro de millas.',
-      onLabel: 'Activado', offLabel: 'Desactivado'
+      choosePlatformsHint: 'Marca todas las que apliquen. Puedes añadir más en cualquier momento.'
     },
     'it-IT': {
       micHintDefault: 'Tocca e pronuncia una voce, oppure <b>"chiama questa app [nome]"</b> per rinominarla.',
@@ -1138,17 +1099,14 @@
         battery:'Batteria', wiper_blades:'Spazzole tergicristallo', timing_belt:'Cinghia distribuzione' },
       shareSummary: 'Condividi riepilogo', weeklySummary: 'Riepilogo settimanale', monthlySummary: 'Riepilogo mensile',
       allStreamsLabel: 'Tutti i flussi',
+      thisWeekLabel: 'Questa settimana', lastWeekLabel: 'Settimana scorsa', entrySingular: 'voce', entryPlural: 'voci',
+      wakeToggleOffLabel: 'Attiva comando vocale', wakeListeningLabel: 'In ascolto di “{{APP}}”', wakePausedLabel: 'Attivazione vocale in pausa — tocca per riprendere', micHintWake: 'Di\' “{{APP}}” seguito dalla voce da registrare — es. “{{APP}}, 20 dollari entrata doordash.”',
       incomeLabel: 'Entrate', expenseLabel: 'Spese', netLabel: 'Netto', milesLabel: 'Miglia percorse',
       netPerMileLabel: 'Netto per miglio', byCategoryLabel: 'Per categoria', copiedToClipboard: 'Riepilogo copiato negli appunti',
       welcomeTitle: 'Benvenuto in GigHelper', welcomeBody: 'Traccia entrate, spese, chilometraggio e manutenzione — a mani libere con la voce.',
       getStarted: 'Inizia', choosePlatforms: 'Con quali piattaforme lavori?', addPlatform: 'Aggiungi piattaforma',
       addPlatformPlaceholder: 'es. Roadie, Shipt...', platformAdded: 'Piattaforma aggiunta', platformsLabel: 'Piattaforme',
-      choosePlatformsHint: 'Seleziona tutte quelle pertinenti. Puoi aggiungerne altre in qualsiasi momento.',
-      chooseUsage: 'Come usi questa app?', chooseUsageHint: 'Seleziona tutte quelle pertinenti — puoi aggiungerle o modificarle dopo nelle Impostazioni.',
-      usagePersonalOpt: 'Spese personali — spesa, bollette, spese quotidiane', usageGigOpt: 'Guida per app di consegne — DoorDash, Uber e simili', usageSideOpt: 'Un\'attività secondaria o piccola impresa',
-      usageSideNameLabel: 'Come la chiamiamo?', usageSideNamePlaceholder: 'es. Scuola di Arti Marziali, Negozio Etsy...', usageSideDrivesOpt: 'A volte guido per questa attività e voglio tracciare il chilometraggio',
-      vehicleTrackingLabel: 'Monitoraggio veicolo e chilometraggio', vehicleTrackingHintText: 'Disattivalo se non guidi per nessuna delle tue fonti di reddito — nasconde la scheda Veicolo e la registrazione del chilometraggio.',
-      onLabel: 'Attivo', offLabel: 'Disattivo'
+      choosePlatformsHint: 'Seleziona tutte quelle pertinenti. Puoi aggiungerne altre in qualsiasi momento.'
     },
     'fr-FR': {
       micHintDefault: 'Appuyez et dites une entrée, ou <b>"appelle cette app [nom]"</b> pour la renommer.',
@@ -1171,17 +1129,14 @@
         battery:'Batterie', wiper_blades:'Balais d\'essuie-glace', timing_belt:'Courroie de distribution' },
       shareSummary: 'Partager le résumé', weeklySummary: 'Résumé hebdomadaire', monthlySummary: 'Résumé mensuel',
       allStreamsLabel: 'Tous les flux',
+      thisWeekLabel: 'Cette semaine', lastWeekLabel: 'Semaine dernière', entrySingular: 'entrée', entryPlural: 'entrées',
+      wakeToggleOffLabel: 'Activer par la voix', wakeListeningLabel: 'À l\'écoute de « {{APP}} »', wakePausedLabel: 'Activation vocale en pause — appuyez pour reprendre', micHintWake: 'Dites « {{APP}} » puis votre entrée — ex. « {{APP}}, 20 dollars revenu doordash. »',
       incomeLabel: 'Revenus', expenseLabel: 'Dépenses', netLabel: 'Net', milesLabel: 'Miles parcourus',
       netPerMileLabel: 'Net par mile', byCategoryLabel: 'Par catégorie', copiedToClipboard: 'Résumé copié dans le presse-papiers',
       welcomeTitle: 'Bienvenue sur GigHelper', welcomeBody: 'Suivez revenus, dépenses, kilométrage et entretien — mains libres avec la saisie vocale.',
       getStarted: 'Commencer', choosePlatforms: 'Avec quelles plateformes travaillez-vous ?', addPlatform: 'Ajouter une plateforme',
       addPlatformPlaceholder: 'ex. Roadie, Shipt...', platformAdded: 'Plateforme ajoutée', platformsLabel: 'Plateformes',
-      choosePlatformsHint: 'Cochez toutes celles qui s\'appliquent. Vous pouvez en ajouter d\'autres à tout moment.',
-      chooseUsage: 'Comment utilisez-vous cette application ?', chooseUsageHint: 'Sélectionnez toutes celles qui s\'appliquent — vous pourrez les modifier plus tard dans les Paramètres.',
-      usagePersonalOpt: 'Dépenses personnelles — courses, factures, dépenses quotidiennes', usageGigOpt: 'Conduite pour une appli de livraison — DoorDash, Uber et similaires', usageSideOpt: 'Une activité secondaire ou une petite entreprise',
-      usageSideNameLabel: 'Comment l\'appelle-t-on ?', usageSideNamePlaceholder: 'ex. École d\'Arts Martiaux, Boutique Etsy...', usageSideDrivesOpt: 'Je conduis parfois pour cette activité et je veux suivre le kilométrage',
-      vehicleTrackingLabel: 'Suivi véhicule et kilométrage', vehicleTrackingHintText: 'Désactivez si vous ne conduisez pour aucune de vos sources de revenus — cela masque l\'onglet Véhicule et l\'enregistrement du kilométrage.',
-      onLabel: 'Activé', offLabel: 'Désactivé'
+      choosePlatformsHint: 'Cochez toutes celles qui s\'appliquent. Vous pouvez en ajouter d\'autres à tout moment.'
     },
     'zh-CN': {
       micHintDefault: '点击并说出一条记录，或说 <b>"把这个应用叫做[名字]"</b> 来重命名。',
@@ -1204,17 +1159,14 @@
         battery:'电瓶', wiper_blades:'雨刷', timing_belt:'正时皮带' },
       shareSummary: '分享摘要', weeklySummary: '每周摘要', monthlySummary: '每月摘要',
       allStreamsLabel: '所有来源',
+      thisWeekLabel: '本周', lastWeekLabel: '上周', entrySingular: '条记录', entryPlural: '条记录',
+      wakeToggleOffLabel: '开启语音唤醒', wakeListeningLabel: '正在监听"{{APP}}"', wakePausedLabel: '语音唤醒已暂停 — 点击恢复', micHintWake: '说"{{APP}}"，然后说出内容 —— 例如"{{APP}}，20美元收入doordash"。',
       incomeLabel: '收入', expenseLabel: '支出', netLabel: '净额', milesLabel: '行驶英里数',
       netPerMileLabel: '每英里净额', byCategoryLabel: '按类别', copiedToClipboard: '摘要已复制到剪贴板',
       welcomeTitle: '欢迎使用 GigHelper', welcomeBody: '记录收入、支出、里程和保养 — 支持免提语音输入。',
       getStarted: '开始使用', choosePlatforms: '您在哪些平台工作？', addPlatform: '添加平台',
       addPlatformPlaceholder: '例如 Roadie、Shipt...', platformAdded: '平台已添加', platformsLabel: '平台',
-      choosePlatformsHint: '勾选所有适用项。您可以随时添加更多。',
-      chooseUsage: '您如何使用此应用？', chooseUsageHint: '请勾选所有适用项 — 之后可以在设置中添加或更改。',
-      usagePersonalOpt: '个人开支 —— 日常用品、账单、日常花销', usageGigOpt: '网约车/外卖配送 —— DoorDash、Uber 等平台', usageSideOpt: '副业或小型业务',
-      usageSideNameLabel: '要如何称呼它？', usageSideNamePlaceholder: '例如：武术学校、Etsy 商店……', usageSideDrivesOpt: '我有时会为此驾车，需要记录里程',
-      vehicleTrackingLabel: '车辆与里程追踪', vehicleTrackingHintText: '如果您的任何收入来源都不涉及驾车，可以关闭此项 —— 这会隐藏"车辆"标签页和里程记录功能。',
-      onLabel: '开启', offLabel: '关闭'
+      choosePlatformsHint: '勾选所有适用项。您可以随时添加更多。'
     }
   };
 
@@ -1250,6 +1202,25 @@
     'zh-CN': { log:'记录', stats:'统计', calendar:'日历', vehicle:'车辆' }
   };
 
+  // Stream switching by voice: "switch to Dojo", "log to Personal", etc.
+  // Streams are user-named (not a fixed list), so we capture the trailing
+  // phrase and fuzzy-match it against the user's current stream names.
+  var STREAM_WORDS_BY_LANG = {
+    'en-US': /(?:switch to|switch stream to|log to|logging to|change stream to|set stream to)\s+(.+)/,
+    'es-ES': /(?:cambia a|cambiar a|cambia de fuente a|cambiar fuente a|registra en|registrar en)\s+(.+)/,
+    'it-IT': /(?:passa a|passa al flusso|cambia flusso a|cambia a|registra su|registra in)\s+(.+)/,
+    'fr-FR': /(?:passe à|passe au flux|change de flux vers|change pour|enregistre dans|enregistrer dans)\s+(.+)/,
+    'zh-CN': /(?:切换到|切换至|记录到)\s*(.+)/
+  };
+  function matchStream(spoken){
+    var clean = spoken.trim().replace(/[.。]$/,'').toLowerCase();
+    for(var i=0;i<streams.length;i++){
+      var name = streams[i].toLowerCase();
+      if(clean===name || clean.indexOf(name)!==-1 || name.indexOf(clean)!==-1) return streams[i];
+    }
+    return null;
+  }
+
   function t(key){
     var dict = I18N[currentLang] || I18N['en-US'];
     return dict[key] !== undefined ? dict[key] : (I18N['en-US'][key] || '');
@@ -1264,7 +1235,7 @@
       title: 'User guide',
       sections: [
         { icon:'👋', title:'Getting started', body:'When you first open GigHelper, you\'ll pick your language, country, and platforms (DoorDash, Uber, etc.). Your country sets your default currency and whether you see miles or kilometers — you can change any of these later in Settings.' },
-        { icon:'🗂️', title:'Streams — tracking more than one income source', body:'If you have more than one income source — gig driving, a side business, or just your personal spending — add a Stream for each one in Settings. Once you have two or more, a "Logging to" bar appears at the top of the Log tab; tap a stream there to switch which one new entries go to. Everything you log by voice or by hand is tagged with whatever stream is active, so your Stats and exports can be viewed per stream or all together. One exception: the tax summary export requires picking one specific stream (not "All streams") if you have more than one, so personal spending never ends up in a business tax report.' },
+        { icon:'🗂️', title:'Streams — tracking more than one income source', body:'If you have more than one income source — gig driving, a side business, or just your personal spending — add a Stream for each one in Settings. Once you have two or more, a "Logging to" bar appears at the top of the Log tab; tap a stream there to switch which one new entries go to. Everything you log by voice or by hand is tagged with whatever stream is active, so your Stats and exports can be viewed per stream or all together. One exception: the tax summary export requires picking one specific stream (not "All streams") if you have more than one, so personal spending never ends up in a business tax report. You can also switch streams by voice — say something like "switch to Dojo."' },
         { icon:'🎙️', title:'Logging by voice', body:'Tap the microphone and say what happened — for example "20 dollars income doordash", "8 dollars expense gas", or "log 12 miles". You can also say spelled-out numbers like "twenty dollars" and kilometers like "10 kilometers". Works in English, Spanish, Italian, French, and Chinese — switch the voice language in Settings.' },
         { icon:'✏️', title:'Logging manually', body:'Tap the + button to add an income, expense, or mileage entry by hand — useful if it\'s noisy, you\'re not comfortable speaking the entry aloud, or you just prefer typing.' },
         { icon:'📊', title:'Stats & Calendar', body:'The Stats tab shows your income, expenses, and net earnings per mile (or km) for the day, week, or month. The Calendar tab lets you tap any date to see everything logged that day.' },
@@ -1282,7 +1253,7 @@
       title: 'Guía del usuario',
       sections: [
         { icon:'👋', title:'Primeros pasos', body:'Al abrir GigHelper por primera vez, elegirás tu idioma, país y plataformas (DoorDash, Uber, etc.). Tu país define tu moneda predeterminada y si ves millas o kilómetros — puedes cambiar todo esto después en Ajustes.' },
-        { icon:'🗂️', title:'Fuentes — seguimiento de más de una fuente de ingresos', body:'Si tienes más de una fuente de ingresos — conducir para apps de reparto, un negocio propio, o simplemente tus gastos personales — añade una Fuente para cada una en Ajustes. Cuando tengas dos o más, aparecerá una barra "Registrando en" en la parte superior de la pestaña Registro; toca una fuente ahí para cambiar a cuál se asignan los nuevos registros. Todo lo que registres por voz o a mano se etiqueta con la fuente activa, así que tus Estadísticas y exportaciones se pueden ver por fuente o todas juntas. Una excepción: la exportación del resumen de impuestos requiere elegir una fuente específica (no "Todas las fuentes") si tienes más de una, para que tus gastos personales nunca terminen en un informe de impuestos de negocio.' },
+        { icon:'🗂️', title:'Fuentes — seguimiento de más de una fuente de ingresos', body:'Si tienes más de una fuente de ingresos — conducir para apps de reparto, un negocio propio, o simplemente tus gastos personales — añade una Fuente para cada una en Ajustes. Cuando tengas dos o más, aparecerá una barra "Registrando en" en la parte superior de la pestaña Registro; toca una fuente ahí para cambiar a cuál se asignan los nuevos registros. Todo lo que registres por voz o a mano se etiqueta con la fuente activa, así que tus Estadísticas y exportaciones se pueden ver por fuente o todas juntas. Una excepción: la exportación del resumen de impuestos requiere elegir una fuente específica (no "Todas las fuentes") si tienes más de una, para que tus gastos personales nunca terminen en un informe de impuestos de negocio. También puedes cambiar de fuente por voz — di algo como "cambia a Dojo".' },
         { icon:'🎙️', title:'Registrar por voz', body:'Toca el micrófono y di lo que pasó — por ejemplo "20 dólares ingreso doordash", "8 dólares gasto gasolina", o "registra 12 millas". También puedes decir números escritos como "veinte dólares" y kilómetros como "10 kilómetros". Funciona en inglés, español, italiano, francés y chino — cambia el idioma de voz en Ajustes.' },
         { icon:'✏️', title:'Registrar manualmente', body:'Toca el botón + para añadir un ingreso, gasto o kilometraje a mano — útil si hay ruido, no te sientes cómodo hablando en voz alta, o simplemente prefieres escribir.' },
         { icon:'📊', title:'Estadísticas y calendario', body:'La pestaña Estadísticas muestra tus ingresos, gastos y ganancia neta por milla (o km) del día, semana o mes. La pestaña Calendario te deja tocar cualquier fecha para ver todo lo registrado ese día.' },
@@ -1300,7 +1271,7 @@
       title: 'Guida utente',
       sections: [
         { icon:'👋', title:'Per iniziare', body:'Alla prima apertura di GigHelper, sceglierai lingua, paese e piattaforme (DoorDash, Uber, ecc.). Il tuo paese imposta la valuta predefinita e se vedi miglia o chilometri — puoi cambiare tutto questo dopo nelle Impostazioni.' },
-        { icon:'🗂️', title:'Flussi — monitorare più di una fonte di reddito', body:'Se hai più di una fonte di reddito — guida per app di consegne, un\'attività secondaria, o semplicemente le tue spese personali — aggiungi un Flusso per ciascuna in Impostazioni. Quando ne hai due o più, in cima alla scheda Registro apparirà una barra "Registrazione su"; tocca un flusso lì per cambiare a quale vengono assegnate le nuove voci. Tutto ciò che registri, a voce o manualmente, viene etichettato con il flusso attivo, così le tue Statistiche ed esportazioni si possono vedere per flusso o tutte insieme. Un\'eccezione: l\'esportazione del riepilogo fiscale richiede di scegliere un flusso specifico (non "Tutti i flussi") se ne hai più di uno, così le spese personali non finiscono mai in un rendiconto fiscale aziendale.' },
+        { icon:'🗂️', title:'Flussi — monitorare più di una fonte di reddito', body:'Se hai più di una fonte di reddito — guida per app di consegne, un\'attività secondaria, o semplicemente le tue spese personali — aggiungi un Flusso per ciascuna in Impostazioni. Quando ne hai due o più, in cima alla scheda Registro apparirà una barra "Registrazione su"; tocca un flusso lì per cambiare a quale vengono assegnate le nuove voci. Tutto ciò che registri, a voce o manualmente, viene etichettato con il flusso attivo, così le tue Statistiche ed esportazioni si possono vedere per flusso o tutte insieme. Un\'eccezione: l\'esportazione del riepilogo fiscale richiede di scegliere un flusso specifico (non "Tutti i flussi") se ne hai più di uno, così le spese personali non finiscono mai in un rendiconto fiscale aziendale. Puoi anche cambiare flusso con la voce — di\' qualcosa come "passa a Dojo".' },
         { icon:'🎙️', title:'Registrare con la voce', body:'Tocca il microfono e di\' cosa è successo — ad esempio "20 dollari entrata doordash", "8 dollari spesa benzina", o "registra 12 miglia". Puoi anche dire numeri scritti come "venti dollari" e chilometri come "10 chilometri". Funziona in inglese, spagnolo, italiano, francese e cinese — cambia la lingua vocale nelle Impostazioni.' },
         { icon:'✏️', title:'Registrare manualmente', body:'Tocca il pulsante + per aggiungere entrata, spesa o chilometraggio a mano — utile se c\'è rumore, non ti senti a tuo agio a parlare ad alta voce, o preferisci semplicemente digitare.' },
         { icon:'📊', title:'Statistiche e calendario', body:'La scheda Statistiche mostra entrate, spese e guadagno netto per miglio (o km) del giorno, settimana o mese. La scheda Calendario ti permette di toccare qualsiasi data per vedere tutto ciò che è stato registrato quel giorno.' },
@@ -1318,7 +1289,7 @@
       title: 'Guide de l\'utilisateur',
       sections: [
         { icon:'👋', title:'Premiers pas', body:'À la première ouverture de GigHelper, vous choisirez votre langue, pays et plateformes (DoorDash, Uber, etc.). Votre pays définit votre devise par défaut et si vous voyez des miles ou des kilomètres — vous pouvez tout modifier plus tard dans les Paramètres.' },
-        { icon:'🗂️', title:'Flux — suivre plusieurs sources de revenus', body:'Si vous avez plusieurs sources de revenus — conduite pour une appli de livraison, une activité secondaire, ou simplement vos dépenses personnelles — ajoutez un Flux pour chacune dans Paramètres. Dès que vous en avez deux ou plus, une barre "Enregistrement dans" apparaît en haut de l\'onglet Journal ; touchez un flux pour changer celui auquel les nouvelles entrées sont attribuées. Tout ce que vous enregistrez, à la voix ou manuellement, est étiqueté avec le flux actif, afin que vos Statistiques et exports puissent être consultés par flux ou tous ensemble. Une exception : l\'export du résumé fiscal exige de choisir un flux précis (pas "Tous les flux") si vous en avez plusieurs, afin que vos dépenses personnelles ne se retrouvent jamais dans un rapport fiscal professionnel.' },
+        { icon:'🗂️', title:'Flux — suivre plusieurs sources de revenus', body:'Si vous avez plusieurs sources de revenus — conduite pour une appli de livraison, une activité secondaire, ou simplement vos dépenses personnelles — ajoutez un Flux pour chacune dans Paramètres. Dès que vous en avez deux ou plus, une barre "Enregistrement dans" apparaît en haut de l\'onglet Journal ; touchez un flux pour changer celui auquel les nouvelles entrées sont attribuées. Tout ce que vous enregistrez, à la voix ou manuellement, est étiqueté avec le flux actif, afin que vos Statistiques et exports puissent être consultés par flux ou tous ensemble. Une exception : l\'export du résumé fiscal exige de choisir un flux précis (pas "Tous les flux") si vous en avez plusieurs, afin que vos dépenses personnelles ne se retrouvent jamais dans un rapport fiscal professionnel. Vous pouvez aussi changer de flux à la voix — dites par exemple "passe à Dojo".' },
         { icon:'🎙️', title:'Enregistrer à la voix', body:'Touchez le micro et dites ce qui s\'est passé — par exemple "20 dollars revenu doordash", "8 dollars dépense essence", ou "enregistre 12 miles". Vous pouvez aussi dire des nombres en toutes lettres comme "vingt dollars" et des kilomètres comme "10 kilomètres". Fonctionne en anglais, espagnol, italien, français et chinois — changez la langue vocale dans les Paramètres.' },
         { icon:'✏️', title:'Enregistrer manuellement', body:'Touchez le bouton + pour ajouter un revenu, une dépense ou un kilométrage à la main — utile en cas de bruit, si vous n\'êtes pas à l\'aise pour parler à voix haute, ou si vous préférez simplement taper.' },
         { icon:'📊', title:'Statistiques et calendrier', body:'L\'onglet Statistiques affiche vos revenus, dépenses et gain net par mile (ou km) du jour, de la semaine ou du mois. L\'onglet Calendrier vous permet de toucher n\'importe quelle date pour voir tout ce qui a été enregistré ce jour-là.' },
@@ -1336,7 +1307,7 @@
       title: '用户指南',
       sections: [
         { icon:'👋', title:'快速开始', body:'首次打开 GigHelper 时，您将选择语言、国家和平台（DoorDash、Uber 等）。您的国家决定默认货币，以及显示英里还是公里 — 之后都可以在设置中更改。' },
-        { icon:'🗂️', title:'收入来源 — 追踪多个收入来源', body:'如果您有不止一个收入来源 —— 网约车/外卖配送、副业，或只是个人日常开支 —— 可以在设置中为每一个添加一个"收入来源"。当您有两个或更多来源时，记录标签页顶部会出现一个"记录到"栏；点击其中一个来源即可切换新记录归属的来源。无论是语音还是手动记录，都会标记为当前激活的来源，因此您的统计和导出数据既可以按来源单独查看，也可以合并查看。但有一个例外：如果您有多个收入来源，导出税务摘要时必须选择一个具体来源（而不是"所有来源"），这样可以确保个人开支永远不会出现在商业税务报告中。' },
+        { icon:'🗂️', title:'收入来源 — 追踪多个收入来源', body:'如果您有不止一个收入来源 —— 网约车/外卖配送、副业，或只是个人日常开支 —— 可以在设置中为每一个添加一个"收入来源"。当您有两个或更多来源时，记录标签页顶部会出现一个"记录到"栏；点击其中一个来源即可切换新记录归属的来源。无论是语音还是手动记录，都会标记为当前激活的来源，因此您的统计和导出数据既可以按来源单独查看，也可以合并查看。但有一个例外：如果您有多个收入来源，导出税务摘要时必须选择一个具体来源（而不是"所有来源"），这样可以确保个人开支永远不会出现在商业税务报告中。您也可以通过语音切换来源 —— 例如说"切换到Dojo"。' },
         { icon:'🎙️', title:'语音记录', body:'点按麦克风并说出发生的事情 — 例如"20美元收入doordash"、"8美元支出汽油"或"记录12英里"。您也可以说出数字词，如"二十美元"，以及公里，如"10公里"。支持英语、西班牙语、意大利语、法语和中文 — 可在设置中切换语音语言。' },
         { icon:'✏️', title:'手动记录', body:'点按 + 按钮手动添加收入、支出或里程 — 在环境嘈杂、不方便说话或您只是更喜欢打字时很有用。' },
         { icon:'📊', title:'统计与日历', body:'"统计"选项卡显示您当天、当周或当月的收入、支出和每英里（或公里）净收益。"日历"选项卡让您点按任意日期查看当天记录的所有内容。' },
@@ -1409,14 +1380,6 @@
     });
     document.getElementById('settingsTitle').textContent = t('settingsTitle');
     document.getElementById('lblVoiceLang').textContent = t('voiceLang');
-    var lblVehicleTracking = document.getElementById('lblVehicleTracking');
-    var vehicleTrackingHint = document.getElementById('vehicleTrackingHint');
-    var vtOnBtn = document.getElementById('vehicleTrackingOnBtn');
-    var vtOffBtn = document.getElementById('vehicleTrackingOffBtn');
-    if(lblVehicleTracking) lblVehicleTracking.textContent = t('vehicleTrackingLabel');
-    if(vehicleTrackingHint) vehicleTrackingHint.textContent = t('vehicleTrackingHintText');
-    if(vtOnBtn) vtOnBtn.textContent = t('onLabel');
-    if(vtOffBtn) vtOffBtn.textContent = t('offLabel');
     document.getElementById('lblMake').textContent = t('make');
     document.getElementById('lblModel').textContent = t('model');
     document.getElementById('lblYear').textContent = t('year');
@@ -1435,8 +1398,9 @@
     var lblLastServiceDate = document.getElementById('lblLastServiceDate');
     if(lblLastServiceDate) lblLastServiceDate.textContent = t('lastServiceDateLabel');
     if(!listening){
-      micHint.innerHTML = t('micHintDefault');
+      micHint.innerHTML = (typeof wakeModeEnabled !== 'undefined' && wakeModeEnabled && !wakePaused) ? fillAppName(t('micHintWake')) : t('micHintDefault');
     }
+    if(typeof updateWakeToggleUI === 'function') updateWakeToggleUI();
     document.querySelector('.mic-examples').innerHTML = t('micExamples');
     document.getElementById('shareSummaryBtn').textContent = t('shareSummary');
     renderMaintList();
@@ -1601,6 +1565,12 @@
     document.getElementById('odoToday').textContent = fmtMoney(today.net);
     document.getElementById('odoWeek').textContent = fmtMoney(week.net);
     document.getElementById('odoMonth').textContent = fmtMoney(month.net);
+    document.getElementById('odoTodayIncome').textContent = '+'+fmtMoney(today.income);
+    document.getElementById('odoTodayExpense').textContent = '-'+fmtMoney(today.expense);
+    document.getElementById('odoWeekIncome').textContent = '+'+fmtMoney(week.income);
+    document.getElementById('odoWeekExpense').textContent = '-'+fmtMoney(week.expense);
+    document.getElementById('odoMonthIncome').textContent = '+'+fmtMoney(month.income);
+    document.getElementById('odoMonthExpense').textContent = '-'+fmtMoney(month.expense);
     document.getElementById('odoMiles').textContent = milesToDisplay(month.miles).toFixed(1);
   }
 
@@ -1610,44 +1580,76 @@
     if(type==='expense') return '↓';
     return '🛣';
   }
+  // The Log tab shows weekly category totals rather than individual entries —
+  // individual entries (with delete buttons) still live in the Calendar tab.
   function renderEntriesList(){
     var container = document.getElementById('entriesList');
     if(entries.length===0){
       container.innerHTML = '<div class="empty-state">No entries yet. Tap the mic and log your first income, expense, or trip.</div>';
       return;
     }
-    var sorted = entries.slice().sort(function(a,b){ return new Date(b.ts)-new Date(a.ts); });
-    var groups = {};
-    var order = [];
-    sorted.forEach(function(e){
-      var d = new Date(e.ts);
-      var key = d.toDateString();
-      if(!groups[key]){ groups[key]=[]; order.push(key); }
-      groups[key].push(e);
+    var weeks = {};
+    var weekOrder = [];
+    entries.forEach(function(e){
+      var ws = startOfWeek(new Date(e.ts)).getTime();
+      if(!weeks[ws]){ weeks[ws]=[]; weekOrder.push(ws); }
+      weeks[ws].push(e);
     });
+    weekOrder.sort(function(a,b){ return b-a; });
+    var thisWeekStart = startOfWeek(new Date()).getTime();
+    var lastWeekStart = thisWeekStart - 7*24*60*60*1000;
+
     var html = '';
-    order.forEach(function(key){
-      var d = new Date(key);
-      var today = new Date(); today.setHours(0,0,0,0);
-      var label = isSameDay(d, new Date()) ? 'Today' : d.toLocaleDateString([], {weekday:'long', month:'short', day:'numeric'});
-      html += '<div class="day-group"><div class="day-group-title">'+label+'</div>';
-      groups[key].forEach(function(e){
-        var time = new Date(e.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        var amtText = e.type==='mileage' ? fmtDist(e.miles) : (e.type==='expense' ? '-' : '+') + fmtMoney(e.amount).replace('-','');
-        var amtDisplay = e.type==='mileage' ? fmtDist(e.miles) : (e.type==='expense'?'-':'+')+currencySymbol()+e.amount.toFixed(2);
+    weekOrder.forEach(function(ws){
+      var list = weeks[ws];
+      var s = summarize(list);
+      var incomeByCat = {}, expenseByCat = {}, incomeCount = {}, expenseCount = {};
+      list.forEach(function(e){
+        if(e.type==='income'){
+          incomeByCat[e.category] = (incomeByCat[e.category]||0) + e.amount;
+          incomeCount[e.category] = (incomeCount[e.category]||0) + 1;
+        } else if(e.type==='expense'){
+          expenseByCat[e.category] = (expenseByCat[e.category]||0) + e.amount;
+          expenseCount[e.category] = (expenseCount[e.category]||0) + 1;
+        }
+      });
+      var label;
+      if(ws===thisWeekStart) label = t('thisWeekLabel');
+      else if(ws===lastWeekStart) label = t('lastWeekLabel');
+      else {
+        var wEnd = new Date(ws); wEnd.setDate(wEnd.getDate()+6);
+        label = new Date(ws).toLocaleDateString([], {month:'short', day:'numeric'}) + ' \u2013 ' + wEnd.toLocaleDateString([], {month:'short', day:'numeric'});
+      }
+      html += '<div class="day-group"><div class="day-group-title with-net">'+label+'<span class="week-net">'+fmtMoney(s.net)+'</span></div>';
+
+      var incomeCats = Object.keys(incomeByCat).sort(function(a,b){ return incomeByCat[b]-incomeByCat[a]; });
+      incomeCats.forEach(function(cat){
+        var n = incomeCount[cat];
         html += '<div class="entry">'+
-          '<div class="entry-icon '+e.type+'">'+iconFor(e.type)+'</div>'+
-          '<div class="entry-info"><div class="entry-cat">'+e.category+'</div><div class="entry-time">'+time+'</div></div>'+
-          '<div class="entry-amt '+e.type+'">'+amtDisplay+'</div>'+
-          '<button class="entry-del" data-id="'+e.id+'">✕</button>'+
+          '<div class="entry-icon income">'+iconFor('income')+'</div>'+
+          '<div class="entry-info"><div class="entry-cat">'+cat+'</div><div class="entry-time entry-count">'+n+' '+(n===1?t('entrySingular'):t('entryPlural'))+'</div></div>'+
+          '<div class="entry-amt income">+'+fmtMoney(incomeByCat[cat])+'</div>'+
         '</div>';
       });
+      var expenseCats = Object.keys(expenseByCat).sort(function(a,b){ return expenseByCat[b]-expenseByCat[a]; });
+      expenseCats.forEach(function(cat){
+        var n = expenseCount[cat];
+        html += '<div class="entry">'+
+          '<div class="entry-icon expense">'+iconFor('expense')+'</div>'+
+          '<div class="entry-info"><div class="entry-cat">'+cat+'</div><div class="entry-time entry-count">'+n+' '+(n===1?t('entrySingular'):t('entryPlural'))+'</div></div>'+
+          '<div class="entry-amt expense">-'+fmtMoney(expenseByCat[cat])+'</div>'+
+        '</div>';
+      });
+      if(s.miles>0){
+        html += '<div class="entry">'+
+          '<div class="entry-icon mileage">'+iconFor('mileage')+'</div>'+
+          '<div class="entry-info"><div class="entry-cat">'+t('milesLabel')+'</div></div>'+
+          '<div class="entry-amt mileage">'+fmtDist(s.miles)+'</div>'+
+        '</div>';
+      }
       html += '</div>';
     });
     container.innerHTML = html;
-    container.querySelectorAll('.entry-del').forEach(function(b){
-      b.addEventListener('click', function(){ deleteEntry(b.dataset.id); });
-    });
   }
 
   /* ---------------- Stats panel ---------------- */
@@ -2626,6 +2628,21 @@
   var listening = false;
   var micBtn = document.getElementById('micBtn');
   var micHint = document.getElementById('micHint');
+  var wakeToggle = document.getElementById('wakeToggle');
+
+  var WAKE_MODE_KEY = 'routeLedger.wakeMode.v1';
+  function loadWakeMode(){ try{ return localStorage.getItem(WAKE_MODE_KEY)==='1'; }catch(e){ return false; } }
+  function saveWakeMode(v){ try{ localStorage.setItem(WAKE_MODE_KEY, v?'1':'0'); }catch(e){} }
+  var wakeModeEnabled = loadWakeMode();
+  var wakePaused = false;
+  var recognitionMode = 'idle'; // 'idle' | 'manual' | 'wake'
+  var wakeRestartTimer = null;
+
+  function wakeWordRegex(){
+    var esc = appName.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp('^\\s*(?:hey\\s+)?'+esc+'\\s*[,:]?\\s*(.*)$', 'i');
+  }
+  function fillAppName(str){ return str.split('{{APP}}').join(appName); }
 
   function matchCategory(text){
     text = text.toLowerCase();
@@ -2724,6 +2741,21 @@
       }
     }
 
+    // stream switching: "switch to Dojo", "log to Personal", etc.
+    if(streams.length > 1){
+      var streamTrigger = STREAM_WORDS_BY_LANG[currentLang] || STREAM_WORDS_BY_LANG['en-US'];
+      var streamMatch = text.match(streamTrigger);
+      if(streamMatch){
+        var matchedStream = matchStream(streamMatch[1]);
+        if(matchedStream){
+          activeStream = matchedStream;
+          saveActiveStream(activeStream);
+          renderStreamBar();
+          return matchedStream;
+        }
+      }
+    }
+
     // rename command
     var renameMatch = text.match(cmd.rename);
     if(renameMatch){
@@ -2769,7 +2801,54 @@
   function setListening(state){
     listening = state;
     micBtn.classList.toggle('listening', state);
-    micHint.innerHTML = state ? 'Listening…' : t('micHintDefault');
+    if(state){
+      micHint.innerHTML = recognitionMode==='wake' ? fillAppName(t('wakeListeningLabel')) : 'Listening…';
+    } else if(recognitionMode==='idle'){
+      micHint.innerHTML = wakeModeEnabled ? fillAppName(t('micHintWake')) : t('micHintDefault');
+    }
+  }
+
+  function shouldBeListeningForWake(){
+    return wakeModeEnabled && !wakePaused && document.visibilityState === 'visible';
+  }
+
+  function startRecognitionAs(mode){
+    if(!SpeechRecognition || !recognition) return;
+    recognitionMode = mode;
+    recognition.continuous = (mode==='wake');
+    try{ recognition.start(); }catch(e){ /* already running — ignore */ }
+  }
+
+  function stopWakeModeEntirely(msg){
+    wakeModeEnabled = false;
+    saveWakeMode(false);
+    wakePaused = false;
+    if(wakeRestartTimer){ clearTimeout(wakeRestartTimer); wakeRestartTimer = null; }
+    recognitionMode = 'idle';
+    updateWakeToggleUI();
+    if(msg) micHint.textContent = msg;
+  }
+
+  function syncWakeListening(){
+    if(!SpeechRecognition || !recognition) return;
+    if(shouldBeListeningForWake()){
+      if(recognitionMode !== 'wake' && !listening) startRecognitionAs('wake');
+    } else if(recognitionMode === 'wake'){
+      recognitionMode = 'idle';
+      try{ recognition.stop(); }catch(e){}
+    }
+  }
+
+  function updateWakeToggleUI(){
+    if(!wakeToggle) return;
+    wakeToggle.classList.toggle('active', wakeModeEnabled && !wakePaused);
+    wakeToggle.classList.toggle('paused', wakeModeEnabled && wakePaused);
+    if(!wakeModeEnabled) wakeToggle.textContent = '🎙️ ' + t('wakeToggleOffLabel');
+    else if(wakePaused) wakeToggle.textContent = '⏸ ' + t('wakePausedLabel');
+    else wakeToggle.textContent = '🎙️ ' + fillAppName(t('wakeListeningLabel'));
+    if(recognitionMode==='idle' && !listening){
+      micHint.innerHTML = wakeModeEnabled && !wakePaused ? fillAppName(t('micHintWake')) : t('micHintDefault');
+    }
   }
 
   if(SpeechRecognition){
@@ -2779,35 +2858,81 @@
     recognition.maxAlternatives = 1;
 
     recognition.onstart = function(){ setListening(true); };
-    recognition.onend = function(){ setListening(false); };
-    recognition.onerror = function(ev){
+    recognition.onend = function(){
       setListening(false);
-      if(ev.error === 'not-allowed'){
-        micHint.textContent = 'Microphone access is blocked — enable it in your browser settings.';
-      } else {
-        micHint.innerHTML = 'Didn\'t catch that — tap the mic and try again.';
+      var wasWake = (recognitionMode === 'wake');
+      recognitionMode = 'idle';
+      if(wasWake && shouldBeListeningForWake()){
+        wakeRestartTimer = setTimeout(function(){ if(shouldBeListeningForWake()) startRecognitionAs('wake'); }, 300);
       }
     };
+    recognition.onerror = function(ev){
+      var wasWake = (recognitionMode === 'wake');
+      setListening(false);
+      if(ev.error === 'not-allowed'){
+        stopWakeModeEntirely('Microphone access is blocked — enable it in your browser settings.');
+        return;
+      }
+      if(wasWake && (ev.error==='no-speech' || ev.error==='aborted' || ev.error==='network')){
+        return; // stay quiet — onend will restart listening automatically
+      }
+      if(!wasWake) micHint.innerHTML = 'Didn\'t catch that — tap the mic and try again.';
+    };
     recognition.onresult = function(ev){
-      var transcript = ev.results[0][0].transcript;
-      var result = parseVoiceCommand(transcript);
-      if(result){
-        micHint.innerHTML = '<b>Heard:</b> "'+transcript+'" → '+result;
-        showToast(result);
+      var transcript = ev.results[ev.results.length-1][0].transcript;
+      if(recognitionMode==='wake'){
+        var m = transcript.trim().match(wakeWordRegex());
+        if(!m || !m[1] || !m[1].trim()) return; // wasn't addressed to the app — ignore quietly
+        var command = m[1].trim();
+        var result = parseVoiceCommand(command);
+        if(result){
+          micHint.innerHTML = '<b>Heard:</b> "'+command+'" → '+result;
+          showToast(result);
+        } else {
+          micHint.innerHTML = '<b>Heard "'+appName+'":</b> "'+command+'" — couldn\'t parse that.';
+        }
       } else {
-        micHint.innerHTML = '<b>Heard:</b> "'+transcript+'" — couldn\'t parse that. Try "20 dollars income doordash."';
+        var result2 = parseVoiceCommand(transcript);
+        if(result2){
+          micHint.innerHTML = '<b>Heard:</b> "'+transcript+'" → '+result2;
+          showToast(result2);
+        } else {
+          micHint.innerHTML = '<b>Heard:</b> "'+transcript+'" — couldn\'t parse that. Try "20 dollars income doordash."';
+        }
       }
     };
 
     micBtn.addEventListener('click', function(){
+      if(wakeModeEnabled){
+        wakePaused = !wakePaused;
+        updateWakeToggleUI();
+        syncWakeListening();
+        return;
+      }
       if(listening){ recognition.stop(); return; }
-      try{ recognition.start(); }catch(e){}
+      startRecognitionAs('manual');
     });
+
+    if(wakeToggle){
+      wakeToggle.addEventListener('click', function(){
+        wakeModeEnabled = !wakeModeEnabled;
+        saveWakeMode(wakeModeEnabled);
+        wakePaused = false;
+        updateWakeToggleUI();
+        syncWakeListening();
+      });
+      updateWakeToggleUI();
+      syncWakeListening();
+    }
+
+    document.addEventListener('visibilitychange', function(){ syncWakeListening(); });
   } else {
     micHint.textContent = 'Voice entry isn\'t supported in this browser — use manual entry below.';
     micBtn.style.opacity = '0.4';
     micBtn.style.cursor = 'not-allowed';
+    if(wakeToggle) wakeToggle.style.display = 'none';
   }
+
 
   /* ---------------- Render all ---------------- */
   function renderAll(){
@@ -2878,27 +3003,6 @@
     }
   }
 
-  function updateVehicleUiVisibility(){
-    // Someone doing pure personal budgeting (or a non-driving side hustle)
-    // never needs mileage/vehicle tooling in front of them. Hide the whole
-    // surface rather than leaving it empty — an unused tab is still clutter.
-    document.querySelectorAll('[data-panel="vehicle"]').forEach(function(el){
-      el.style.display = vehicleTrackingEnabled ? '' : 'none';
-    });
-    var mileageTypeBtn = document.querySelector('.seg button[data-type="mileage"]');
-    if(mileageTypeBtn) mileageTypeBtn.style.display = vehicleTrackingEnabled ? '' : 'none';
-    if(!vehicleTrackingEnabled){
-      var banner = document.getElementById('taxBanner');
-      if(banner) banner.style.display = 'none';
-      var exportBtn = document.getElementById('exportTaxSummary');
-      if(exportBtn) exportBtn.style.display = 'none';
-      // If the (now-hidden) Vehicle tab happened to be active, fall back to Log.
-      if(document.getElementById('panel-vehicle').classList.contains('active')) showPanel('log');
-    }else{
-      updateTaxUiVisibility();
-    }
-  }
-
   var countrySelectEl = document.getElementById('countrySelect');
   var currencySelectEl = document.getElementById('currencySelect');
   populateCountrySelect(countrySelectEl, currentCountry);
@@ -2910,22 +3014,6 @@
       showToast('Units updated');
     });
   });
-  function renderVehicleTrackingToggle(){
-    var onBtn = document.getElementById('vehicleTrackingOnBtn');
-    var offBtn = document.getElementById('vehicleTrackingOffBtn');
-    if(onBtn) onBtn.classList.toggle('active', vehicleTrackingEnabled);
-    if(offBtn) offBtn.classList.toggle('active', !vehicleTrackingEnabled);
-  }
-  document.querySelectorAll('#vehicleTrackingOptions button').forEach(function(b){
-    b.addEventListener('click', function(){
-      vehicleTrackingEnabled = (b.dataset.val === 'on');
-      saveVehicleTrackingEnabled(vehicleTrackingEnabled);
-      renderVehicleTrackingToggle();
-      updateVehicleUiVisibility();
-      showToast(vehicleTrackingEnabled ? 'Vehicle tracking turned on' : 'Vehicle tracking turned off');
-    });
-  });
-  renderVehicleTrackingToggle();
   if(countrySelectEl){
     countrySelectEl.addEventListener('change', function(){
       var country = findCountry(this.value);
@@ -3148,22 +3236,6 @@
     if(bodyEl) bodyEl.textContent = t('welcomeBody');
     if(choosePlatformsLbl) choosePlatformsLbl.textContent = t('choosePlatforms');
     if(choosePlatformsHintEl) choosePlatformsHintEl.textContent = t('choosePlatformsHint');
-    var chooseUsageLbl = document.getElementById('chooseUsageLbl');
-    var chooseUsageHintEl = document.getElementById('chooseUsageHintEl');
-    if(chooseUsageLbl) chooseUsageLbl.textContent = t('chooseUsage');
-    if(chooseUsageHintEl) chooseUsageHintEl.textContent = t('chooseUsageHint');
-    var usagePersonalLbl = document.getElementById('usagePersonalLbl');
-    var usageGigLbl = document.getElementById('usageGigLbl');
-    var usageSideLbl = document.getElementById('usageSideLbl');
-    var usageSideNameLbl = document.getElementById('usageSideNameLbl');
-    var usageSideNameInput = document.getElementById('usageSideName');
-    var usageSideDrivesLbl = document.getElementById('usageSideDrivesLbl');
-    if(usagePersonalLbl) usagePersonalLbl.textContent = t('usagePersonalOpt');
-    if(usageGigLbl) usageGigLbl.textContent = t('usageGigOpt');
-    if(usageSideLbl) usageSideLbl.textContent = t('usageSideOpt');
-    if(usageSideNameLbl) usageSideNameLbl.textContent = t('usageSideNameLabel');
-    if(usageSideNameInput) usageSideNameInput.placeholder = t('usageSideNamePlaceholder');
-    if(usageSideDrivesLbl) usageSideDrivesLbl.textContent = t('usageSideDrivesOpt');
     if(continueBtn) continueBtn.textContent = t('getStarted');
     var lblPlatforms = document.getElementById('lblPlatforms');
     if(lblPlatforms) lblPlatforms.textContent = t('platformsLabel');
@@ -3193,7 +3265,6 @@
   renderVehiclePanel();
   renderAll();
   updateTaxUiVisibility();
-  updateVehicleUiVisibility();
   checkBackupReminder();
   checkTaxReminder();
   checkMaintenanceNotifications();
@@ -3266,65 +3337,16 @@
       }
     }
   }catch(e){}
-  // Usage question: toggle conditional sections based on what's checked.
-  var usagePersonalEl = document.getElementById('usagePersonal');
-  var usageGigEl = document.getElementById('usageGig');
-  var usageSideEl = document.getElementById('usageSide');
-  var usageSideDetailsEl = document.getElementById('usageSideDetails');
-  var choosePlatformsWrapEl = document.getElementById('choosePlatformsWrap');
-  function refreshUsageConditionals(){
-    if(choosePlatformsWrapEl) choosePlatformsWrapEl.style.display = (usageGigEl && usageGigEl.checked) ? '' : 'none';
-    if(usageSideDetailsEl) usageSideDetailsEl.style.display = (usageSideEl && usageSideEl.checked) ? 'block' : 'none';
-  }
-  [usagePersonalEl, usageGigEl, usageSideEl].forEach(function(el){
-    if(el) el.addEventListener('change', refreshUsageConditionals);
-  });
-  refreshUsageConditionals();
-
   var welcomeBtn = document.getElementById('welcomeContinueBtn');
   if(welcomeBtn){
     welcomeBtn.addEventListener('click', function(){
-      var wantsGig = !!(usageGigEl && usageGigEl.checked);
-      var wantsSide = !!(usageSideEl && usageSideEl.checked);
-      var wantsPersonal = !!(usagePersonalEl && usagePersonalEl.checked);
-      var sideDrives = !!(document.getElementById('usageSideDrives') && document.getElementById('usageSideDrives').checked);
-      // Nobody checked anything — don't strand the user with zero streams;
-      // fall back to the original single-stream Gig Driving experience.
-      if(!wantsGig && !wantsSide && !wantsPersonal){ wantsGig = true; }
-
-      if(wantsGig){
-        var checked = [];
-        document.querySelectorAll('#welcomePlatformList input[type="checkbox"]').forEach(function(cb){
-          if(cb.checked) checked.push(cb.dataset.platform);
-        });
-        savePlatforms(checked);
-      }else{
-        savePlatforms([]);
-      }
+      var checked = [];
+      document.querySelectorAll('#welcomePlatformList input[type="checkbox"]').forEach(function(cb){
+        if(cb.checked) checked.push(cb.dataset.platform);
+      });
+      savePlatforms(checked);
       rebuildCategorySelect();
       renderSettingsPlatformList();
-
-      var builtStreams = [];
-      if(wantsGig) builtStreams.push(DEFAULT_STREAMS[0]);
-      if(wantsSide){
-        var sideNameRaw = document.getElementById('usageSideName') ? document.getElementById('usageSideName').value : '';
-        var sideName = normalizePlatformName(sideNameRaw) || 'Side Hustle';
-        if(builtStreams.indexOf(sideName)===-1) builtStreams.push(sideName);
-      }
-      if(wantsPersonal && builtStreams.indexOf('Personal')===-1) builtStreams.push('Personal');
-      if(builtStreams.length===0) builtStreams = DEFAULT_STREAMS.slice();
-      streams = builtStreams;
-      saveStreams(streams);
-      activeStream = streams[0];
-      saveActiveStream(activeStream);
-      renderSettingsStreamList();
-      renderStreamBar();
-      renderStatsStreamChips();
-
-      vehicleTrackingEnabled = wantsGig || (wantsSide && sideDrives);
-      saveVehicleTrackingEnabled(vehicleTrackingEnabled);
-      updateVehicleUiVisibility();
-
       if(welcomeCountrySelectEl && welcomeCurrencySelectEl){
         var chosenCountry = findCountry(welcomeCountrySelectEl.value);
         applyRegionSettings(chosenCountry.code, welcomeCurrencySelectEl.value, chosenCountry.unit);
