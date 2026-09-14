@@ -203,6 +203,12 @@
     background:var(--bg-panel); color:var(--text-muted); font-weight:600; font-size:13px; cursor:pointer;
   }
   .stat-toggle button.active{background:var(--bg-panel-raised); color:var(--amber); border-color:var(--amber-dim);}
+  .log-gran-toggle{display:flex; gap:8px; margin-bottom:14px;}
+  .log-gran-toggle button{
+    flex:1; padding:8px; border-radius:8px; border:1px solid var(--hairline);
+    background:var(--bg-panel); color:var(--text-muted); font-weight:600; font-size:12.5px; cursor:pointer;
+  }
+  .log-gran-toggle button.active{background:var(--bg-panel-raised); color:var(--amber); border-color:var(--amber-dim);}
   .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;}
   .stat-card{background:var(--bg-panel); border:1px solid var(--hairline); border-radius:12px; padding:14px;}
   .stat-card .label{font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em;}
@@ -475,7 +481,12 @@
       <button class="save-btn" id="manualSave">Save entry</button>
     </div>
 
-    <div id="entriesList" style="margin-top:22px;"></div>
+    <div class="log-gran-toggle" id="logGranToggle" style="margin-top:22px;">
+      <button type="button" data-gran="daily">Daily</button>
+      <button type="button" data-gran="weekly" class="active">Weekly</button>
+      <button type="button" data-gran="monthly">Monthly</button>
+    </div>
+    <div id="entriesList"></div>
   </section>
 
   <!-- STATS PANEL -->
@@ -1040,6 +1051,7 @@
       shareSummary: 'Share summary', weeklySummary: 'Weekly summary', monthlySummary: 'Monthly summary',
       allStreamsLabel: 'All streams',
       thisWeekLabel: 'This week', lastWeekLabel: 'Last week', entrySingular: 'entry', entryPlural: 'entries',
+      todayLabel: 'Today', yesterdayLabel: 'Yesterday', thisMonthLabel: 'This month', dailyToggle: 'Daily', weeklyToggle: 'Weekly', monthlyToggle: 'Monthly',
       wakeToggleOffLabel: 'Turn on voice activation', wakeListeningLabel: 'Listening for “{{APP}}”', wakePausedLabel: 'Voice activation paused — tap to resume', micHintWake: 'Say “{{APP}}” then your entry — e.g. “{{APP}}, 20 dollars income doordash.”',
       incomeLabel: 'Income', expenseLabel: 'Expenses', netLabel: 'Net', milesLabel: 'Miles driven',
       netPerMileLabel: 'Net per mile', byCategoryLabel: 'By category', copiedToClipboard: 'Summary copied to clipboard',
@@ -1070,6 +1082,7 @@
       shareSummary: 'Compartir resumen', weeklySummary: 'Resumen semanal', monthlySummary: 'Resumen mensual',
       allStreamsLabel: 'Todas las fuentes',
       thisWeekLabel: 'Esta semana', lastWeekLabel: 'Semana pasada', entrySingular: 'entrada', entryPlural: 'entradas',
+      todayLabel: 'Hoy', yesterdayLabel: 'Ayer', thisMonthLabel: 'Este mes', dailyToggle: 'Diario', weeklyToggle: 'Semanal', monthlyToggle: 'Mensual',
       wakeToggleOffLabel: 'Activar por voz', wakeListeningLabel: 'Escuchando “{{APP}}”', wakePausedLabel: 'Activación por voz en pausa — toca para reanudar', micHintWake: 'Di “{{APP}}” y luego tu entrada — ej. “{{APP}}, 20 dólares de ingreso doordash.”',
       incomeLabel: 'Ingresos', expenseLabel: 'Gastos', netLabel: 'Neto', milesLabel: 'Millas recorridas',
       netPerMileLabel: 'Neto por milla', byCategoryLabel: 'Por categoría', copiedToClipboard: 'Resumen copiado al portapapeles',
@@ -1100,6 +1113,7 @@
       shareSummary: 'Condividi riepilogo', weeklySummary: 'Riepilogo settimanale', monthlySummary: 'Riepilogo mensile',
       allStreamsLabel: 'Tutti i flussi',
       thisWeekLabel: 'Questa settimana', lastWeekLabel: 'Settimana scorsa', entrySingular: 'voce', entryPlural: 'voci',
+      todayLabel: 'Oggi', yesterdayLabel: 'Ieri', thisMonthLabel: 'Questo mese', dailyToggle: 'Giornaliero', weeklyToggle: 'Settimanale', monthlyToggle: 'Mensile',
       wakeToggleOffLabel: 'Attiva comando vocale', wakeListeningLabel: 'In ascolto di “{{APP}}”', wakePausedLabel: 'Attivazione vocale in pausa — tocca per riprendere', micHintWake: 'Di\' “{{APP}}” seguito dalla voce da registrare — es. “{{APP}}, 20 dollari entrata doordash.”',
       incomeLabel: 'Entrate', expenseLabel: 'Spese', netLabel: 'Netto', milesLabel: 'Miglia percorse',
       netPerMileLabel: 'Netto per miglio', byCategoryLabel: 'Per categoria', copiedToClipboard: 'Riepilogo copiato negli appunti',
@@ -1130,6 +1144,7 @@
       shareSummary: 'Partager le résumé', weeklySummary: 'Résumé hebdomadaire', monthlySummary: 'Résumé mensuel',
       allStreamsLabel: 'Tous les flux',
       thisWeekLabel: 'Cette semaine', lastWeekLabel: 'Semaine dernière', entrySingular: 'entrée', entryPlural: 'entrées',
+      todayLabel: 'Aujourd\'hui', yesterdayLabel: 'Hier', thisMonthLabel: 'Ce mois-ci', dailyToggle: 'Quotidien', weeklyToggle: 'Hebdomadaire', monthlyToggle: 'Mensuel',
       wakeToggleOffLabel: 'Activer par la voix', wakeListeningLabel: 'À l\'écoute de « {{APP}} »', wakePausedLabel: 'Activation vocale en pause — appuyez pour reprendre', micHintWake: 'Dites « {{APP}} » puis votre entrée — ex. « {{APP}}, 20 dollars revenu doordash. »',
       incomeLabel: 'Revenus', expenseLabel: 'Dépenses', netLabel: 'Net', milesLabel: 'Miles parcourus',
       netPerMileLabel: 'Net par mile', byCategoryLabel: 'Par catégorie', copiedToClipboard: 'Résumé copié dans le presse-papiers',
@@ -1160,6 +1175,7 @@
       shareSummary: '分享摘要', weeklySummary: '每周摘要', monthlySummary: '每月摘要',
       allStreamsLabel: '所有来源',
       thisWeekLabel: '本周', lastWeekLabel: '上周', entrySingular: '条记录', entryPlural: '条记录',
+      todayLabel: '今天', yesterdayLabel: '昨天', thisMonthLabel: '本月', dailyToggle: '每日', weeklyToggle: '每周', monthlyToggle: '每月',
       wakeToggleOffLabel: '开启语音唤醒', wakeListeningLabel: '正在监听"{{APP}}"', wakePausedLabel: '语音唤醒已暂停 — 点击恢复', micHintWake: '说"{{APP}}"，然后说出内容 —— 例如"{{APP}}，20美元收入doordash"。',
       incomeLabel: '收入', expenseLabel: '支出', netLabel: '净额', milesLabel: '行驶英里数',
       netPerMileLabel: '每英里净额', byCategoryLabel: '按类别', copiedToClipboard: '摘要已复制到剪贴板',
@@ -1401,6 +1417,7 @@
       micHint.innerHTML = (typeof wakeModeEnabled !== 'undefined' && wakeModeEnabled && !wakePaused) ? fillAppName(t('micHintWake')) : t('micHintDefault');
     }
     if(typeof updateWakeToggleUI === 'function') updateWakeToggleUI();
+    if(typeof updateLogGranTexts === 'function') updateLogGranTexts();
     document.querySelector('.mic-examples').innerHTML = t('micExamples');
     document.getElementById('shareSummaryBtn').textContent = t('shareSummary');
     renderMaintList();
@@ -1488,9 +1505,10 @@
   }
 
   function startOfWeek(d){
-    var x = new Date(d); var day = x.getDay();
+    var x = new Date(d); var day = x.getDay(); // 0=Sun...6=Sat
+    var offset = (day===0) ? 6 : day-1; // days back to Monday
     x.setHours(0,0,0,0);
-    x.setDate(x.getDate()-day);
+    x.setDate(x.getDate()-offset);
     return x;
   }
   function startOfMonth(d){ var x=new Date(d.getFullYear(), d.getMonth(), 1); x.setHours(0,0,0,0); return x; }
@@ -1580,28 +1598,60 @@
     if(type==='expense') return '↓';
     return '🛣';
   }
-  // The Log tab shows weekly category totals rather than individual entries —
+  // The Log tab shows category totals per period rather than individual entries —
   // individual entries (with delete buttons) still live in the Calendar tab.
+  var LOG_GRAN_KEY = 'routeLedger.logGranularity.v1';
+  function loadLogGranularity(){
+    try{ var v = localStorage.getItem(LOG_GRAN_KEY); return (v==='daily'||v==='weekly'||v==='monthly') ? v : 'weekly'; }
+    catch(e){ return 'weekly'; }
+  }
+  function saveLogGranularity(v){ try{ localStorage.setItem(LOG_GRAN_KEY, v); }catch(e){} }
+  var logGranularity = loadLogGranularity();
+
+  function bucketStartFor(d, gran){
+    if(gran==='daily'){ var x=new Date(d); x.setHours(0,0,0,0); return x; }
+    if(gran==='monthly') return startOfMonth(d);
+    return startOfWeek(d);
+  }
+  function bucketLabelFor(bStart, gran){
+    var now = new Date();
+    if(gran==='daily'){
+      if(isSameDay(bStart, now)) return t('todayLabel');
+      var yest = new Date(now); yest.setDate(yest.getDate()-1);
+      if(isSameDay(bStart, yest)) return t('yesterdayLabel');
+      return bStart.toLocaleDateString([], {weekday:'long', month:'short', day:'numeric'});
+    }
+    if(gran==='monthly'){
+      if(bStart.getTime()===startOfMonth(now).getTime()) return t('thisMonthLabel');
+      return bStart.toLocaleDateString([], {month:'long', year:'numeric'});
+    }
+    var thisWeekStart = startOfWeek(now).getTime();
+    var lastWeekStart = thisWeekStart - 7*24*60*60*1000;
+    if(bStart.getTime()===thisWeekStart) return t('thisWeekLabel');
+    if(bStart.getTime()===lastWeekStart) return t('lastWeekLabel');
+    var wEnd = new Date(bStart); wEnd.setDate(wEnd.getDate()+6);
+    return bStart.toLocaleDateString([], {month:'short', day:'numeric'}) + ' \u2013 ' + wEnd.toLocaleDateString([], {month:'short', day:'numeric'});
+  }
+
   function renderEntriesList(){
     var container = document.getElementById('entriesList');
     if(entries.length===0){
       container.innerHTML = '<div class="empty-state">No entries yet. Tap the mic and log your first income, expense, or trip.</div>';
       return;
     }
-    var weeks = {};
-    var weekOrder = [];
+    var gran = logGranularity;
+    var buckets = {};
+    var bucketOrder = [];
     entries.forEach(function(e){
-      var ws = startOfWeek(new Date(e.ts)).getTime();
-      if(!weeks[ws]){ weeks[ws]=[]; weekOrder.push(ws); }
-      weeks[ws].push(e);
+      var bs = bucketStartFor(new Date(e.ts), gran).getTime();
+      if(!buckets[bs]){ buckets[bs]=[]; bucketOrder.push(bs); }
+      buckets[bs].push(e);
     });
-    weekOrder.sort(function(a,b){ return b-a; });
-    var thisWeekStart = startOfWeek(new Date()).getTime();
-    var lastWeekStart = thisWeekStart - 7*24*60*60*1000;
+    bucketOrder.sort(function(a,b){ return b-a; });
 
     var html = '';
-    weekOrder.forEach(function(ws){
-      var list = weeks[ws];
+    bucketOrder.forEach(function(bs){
+      var list = buckets[bs];
       var s = summarize(list);
       var incomeByCat = {}, expenseByCat = {}, incomeCount = {}, expenseCount = {};
       list.forEach(function(e){
@@ -1613,13 +1663,7 @@
           expenseCount[e.category] = (expenseCount[e.category]||0) + 1;
         }
       });
-      var label;
-      if(ws===thisWeekStart) label = t('thisWeekLabel');
-      else if(ws===lastWeekStart) label = t('lastWeekLabel');
-      else {
-        var wEnd = new Date(ws); wEnd.setDate(wEnd.getDate()+6);
-        label = new Date(ws).toLocaleDateString([], {month:'short', day:'numeric'}) + ' \u2013 ' + wEnd.toLocaleDateString([], {month:'short', day:'numeric'});
-      }
+      var label = bucketLabelFor(new Date(bs), gran);
       html += '<div class="day-group"><div class="day-group-title with-net">'+label+'<span class="week-net">'+fmtMoney(s.net)+'</span></div>';
 
       var incomeCats = Object.keys(incomeByCat).sort(function(a,b){ return incomeByCat[b]-incomeByCat[a]; });
@@ -1651,6 +1695,28 @@
     });
     container.innerHTML = html;
   }
+
+  function updateLogGranTexts(){
+    var toggle = document.getElementById('logGranToggle');
+    if(!toggle) return;
+    toggle.querySelectorAll('button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.gran === logGranularity);
+      b.textContent = t(b.dataset.gran + 'Toggle');
+    });
+  }
+  var logGranToggleEl = document.getElementById('logGranToggle');
+  if(logGranToggleEl){
+    logGranToggleEl.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click', function(){
+        logGranularity = b.dataset.gran;
+        saveLogGranularity(logGranularity);
+        updateLogGranTexts();
+        renderEntriesList();
+      });
+    });
+    updateLogGranTexts();
+  }
+
 
   /* ---------------- Stats panel ---------------- */
   var statRange = 'week';
@@ -2637,6 +2703,7 @@
   var wakePaused = false;
   var recognitionMode = 'idle'; // 'idle' | 'manual' | 'wake'
   var wakeRestartTimer = null;
+  var wakeHintRevertTimer = null;
 
   function wakeWordRegex(){
     var esc = appName.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -2882,7 +2949,17 @@
       var transcript = ev.results[ev.results.length-1][0].transcript;
       if(recognitionMode==='wake'){
         var m = transcript.trim().match(wakeWordRegex());
-        if(!m || !m[1] || !m[1].trim()) return; // wasn't addressed to the app — ignore quietly
+        if(!m || !m[1] || !m[1].trim()){
+          // Heard speech, but it wasn't addressed to the app — say so briefly
+          // instead of failing silently, so testers can tell wake mode IS
+          // hearing them and just needs the app name said first.
+          micHint.innerHTML = '<i>Heard: "'+transcript+'" — didn\'t start with "'+appName+'," so I ignored it.</i>';
+          if(wakeHintRevertTimer) clearTimeout(wakeHintRevertTimer);
+          wakeHintRevertTimer = setTimeout(function(){
+            if(recognitionMode==='wake') micHint.innerHTML = fillAppName(t('wakeListeningLabel'));
+          }, 3000);
+          return;
+        }
         var command = m[1].trim();
         var result = parseVoiceCommand(command);
         if(result){
