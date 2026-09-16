@@ -194,6 +194,7 @@
   .entry-amt.expense{color:var(--rose);}
   .entry-amt.mileage{color:var(--amber);}
   .entry-del{background:none; border:none; color:var(--text-faint); font-size:16px; padding:4px 6px; cursor:pointer;}
+  .entry-edit{background:none; border:none; color:var(--text-faint); font-size:14px; padding:4px 6px; cursor:pointer;}
   .empty-state{text-align:center; padding:40px 20px; color:var(--text-faint); font-size:13px;}
 
   /* ---------- Stats panel ---------- */
@@ -681,6 +682,38 @@
       <div class="row-btns">
         <button data-close="maintEditModal">Cancel</button>
         <button class="primary" id="maintEditSave">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit entry modal -->
+<div class="modal-backdrop" id="editEntryModal">
+  <div class="modal">
+    <div class="modal-inner">
+      <button class="close-x" data-close="editEntryModal">×</button>
+      <h3>Edit entry</h3>
+      <p>Fix a misheard amount or category from a voice entry.</p>
+      <div class="seg" id="editTypeSeg">
+        <button type="button" data-type="income">Income</button>
+        <button type="button" data-type="expense">Expense</button>
+        <button type="button" data-type="mileage">Mileage</button>
+      </div>
+      <div class="field" id="editAmountField">
+        <label>Amount ($)</label>
+        <input type="number" inputmode="decimal" id="editAmount" placeholder="0.00" step="0.01">
+      </div>
+      <div class="field" id="editMilesField" style="display:none;">
+        <label>Miles</label>
+        <input type="number" inputmode="decimal" id="editMiles" placeholder="0.0" step="0.1">
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="editCategory"></select>
+      </div>
+      <div class="row-btns">
+        <button data-close="editEntryModal">Cancel</button>
+        <button class="primary" id="editEntrySave">Save</button>
       </div>
     </div>
   </div>
@@ -1222,10 +1255,10 @@
   // Streams are user-named (not a fixed list), so we capture the trailing
   // phrase and fuzzy-match it against the user's current stream names.
   var STREAM_WORDS_BY_LANG = {
-    'en-US': /(?:switch to|switch stream to|log to|logging to|change stream to|set stream to)\s+(.+)/,
-    'es-ES': /(?:cambia a|cambiar a|cambia de fuente a|cambiar fuente a|registra en|registrar en)\s+(.+)/,
-    'it-IT': /(?:passa a|passa al flusso|cambia flusso a|cambia a|registra su|registra in)\s+(.+)/,
-    'fr-FR': /(?:passe à|passe au flux|change de flux vers|change pour|enregistre dans|enregistrer dans)\s+(.+)/,
+    'en-US': /(?:switch to|switch stream to|log to|logging to|change stream to|set stream to|go to)\s+(.+)/,
+    'es-ES': /(?:cambia a|cambiar a|cambia de fuente a|cambiar fuente a|registra en|registrar en|ir a)\s+(.+)/,
+    'it-IT': /(?:passa a|passa al flusso|cambia flusso a|cambia a|registra su|registra in|vai a)\s+(.+)/,
+    'fr-FR': /(?:passe à|passe au flux|change de flux vers|change pour|enregistre dans|enregistrer dans|va à)\s+(.+)/,
     'zh-CN': /(?:切换到|切换至|记录到)\s*(.+)/
   };
   function matchStream(spoken){
@@ -1567,6 +1600,10 @@
   }
 
   /* ---------------- Odometer strip ---------------- */
+  function filterToActiveStream(list){
+    if(streams.length <= 1) return list;
+    return list.filter(function(e){ return (e.stream || DEFAULT_STREAMS[0]) === activeStream; });
+  }
   function renderOdometers(){
     var now = new Date();
     var todayStart = new Date(now); todayStart.setHours(0,0,0,0);
@@ -1576,9 +1613,9 @@
     var monthStart = startOfMonth(now);
     var monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth()+1, 1);
 
-    var today = summarize(entriesInRange(todayStart, todayEnd));
-    var week = summarize(entriesInRange(weekStart, weekEnd));
-    var month = summarize(entriesInRange(monthStart, monthEnd));
+    var today = summarize(filterToActiveStream(entriesInRange(todayStart, todayEnd)));
+    var week = summarize(filterToActiveStream(entriesInRange(weekStart, weekEnd)));
+    var month = summarize(filterToActiveStream(entriesInRange(monthStart, monthEnd)));
 
     document.getElementById('odoToday').textContent = fmtMoney(today.net);
     document.getElementById('odoWeek').textContent = fmtMoney(week.net);
@@ -1635,14 +1672,18 @@
 
   function renderEntriesList(){
     var container = document.getElementById('entriesList');
-    if(entries.length===0){
-      container.innerHTML = '<div class="empty-state">No entries yet. Tap the mic and log your first income, expense, or trip.</div>';
+    var source = filterToActiveStream(entries);
+    if(source.length===0){
+      var emptyMsg = (streams.length > 1)
+        ? ('No entries yet for "'+activeStream+'." Tap the mic and log your first income, expense, or trip.')
+        : 'No entries yet. Tap the mic and log your first income, expense, or trip.';
+      container.innerHTML = '<div class="empty-state">'+emptyMsg+'</div>';
       return;
     }
     var gran = logGranularity;
     var buckets = {};
     var bucketOrder = [];
-    entries.forEach(function(e){
+    source.forEach(function(e){
       var bs = bucketStartFor(new Date(e.ts), gran).getTime();
       if(!buckets[bs]){ buckets[bs]=[]; bucketOrder.push(bs); }
       buckets[bs].push(e);
@@ -2283,10 +2324,14 @@
         html += '<div class="entry"><div class="entry-icon '+e.type+'">'+iconFor(e.type)+'</div>'+
           '<div class="entry-info"><div class="entry-cat">'+e.category+'</div><div class="entry-time">'+time+'</div></div>'+
           '<div class="entry-amt '+e.type+'">'+amtDisplay+'</div>'+
+          '<button class="entry-edit" data-id="'+e.id+'">✎</button>'+
           '<button class="entry-del" data-id="'+e.id+'">✕</button></div>';
       });
     }
     container.innerHTML = html;
+    container.querySelectorAll('.entry-edit').forEach(function(b){
+      b.addEventListener('click', function(){ openEditEntry(b.dataset.id); });
+    });
     container.querySelectorAll('.entry-del').forEach(function(b){
       b.addEventListener('click', function(){ deleteEntry(b.dataset.id); });
     });
@@ -2818,6 +2863,8 @@
           activeStream = matchedStream;
           saveActiveStream(activeStream);
           renderStreamBar();
+          renderOdometers();
+          renderEntriesList();
           return matchedStream;
         }
       }
@@ -3021,8 +3068,7 @@
   }
 
   /* ---------------- Platforms / categories ---------------- */
-  function rebuildCategorySelect(){
-    var sel = document.getElementById('manualCategory');
+  function populateCategorySelect(sel){
     if(!sel) return;
     var prev = sel.value;
     sel.innerHTML = '';
@@ -3038,6 +3084,58 @@
       sel.value = prev;
     }
   }
+  function rebuildCategorySelect(){
+    populateCategorySelect(document.getElementById('manualCategory'));
+    populateCategorySelect(document.getElementById('editCategory'));
+  }
+
+  // Editing an existing entry — mainly for fixing amounts/categories that
+  // speech recognition misheard. Lives in the Calendar day list, since
+  // that's the only view showing individual entries.
+  var editingEntryId = null;
+  var editType = 'income';
+  function setEditTypeUI(type){
+    editType = type;
+    document.querySelectorAll('#editTypeSeg button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.type===type);
+    });
+    document.getElementById('editAmountField').style.display = type==='mileage' ? 'none' : 'block';
+    document.getElementById('editMilesField').style.display = type==='mileage' ? 'block' : 'none';
+  }
+  function openEditEntry(id){
+    var e = entries.find(function(x){ return x.id===id; });
+    if(!e) return;
+    editingEntryId = id;
+    setEditTypeUI(e.type);
+    document.getElementById('editAmount').value = e.type==='mileage' ? '' : e.amount;
+    document.getElementById('editMiles').value = e.type==='mileage' ? e.miles : '';
+    populateCategorySelect(document.getElementById('editCategory'));
+    document.getElementById('editCategory').value = e.category;
+    openModal('editEntryModal');
+  }
+  document.querySelectorAll('#editTypeSeg button').forEach(function(b){
+    b.addEventListener('click', function(){ setEditTypeUI(b.dataset.type); });
+  });
+  document.getElementById('editEntrySave').addEventListener('click', function(){
+    if(!editingEntryId) return;
+    var e = entries.find(function(x){ return x.id===editingEntryId; });
+    if(!e){ closeModal('editEntryModal'); return; }
+    e.type = editType;
+    e.category = document.getElementById('editCategory').value || 'Other';
+    if(editType==='mileage'){
+      var milesEntered = parseFloat(document.getElementById('editMiles').value);
+      e.miles = isNaN(milesEntered) ? 0 : milesEntered;
+      e.amount = 0;
+    } else {
+      var amt = parseFloat(document.getElementById('editAmount').value);
+      e.amount = isNaN(amt) ? 0 : amt;
+      e.miles = 0;
+    }
+    saveEntries(entries);
+    renderAll();
+    closeModal('editEntryModal');
+    showToast('Entry updated');
+  });
 
   /* ---------------- Region / currency / units UI ---------------- */
   function populateCountrySelect(selectEl, selectedCode){
@@ -3163,6 +3261,8 @@
         activeStream = s;
         saveActiveStream(activeStream);
         renderStreamBar();
+        renderOdometers();
+        renderEntriesList();
       });
       box.appendChild(chip);
     });
