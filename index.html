@@ -173,6 +173,8 @@
   .day-group-title{font-size:12px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px;}
   .day-group-title.with-net{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
   .week-net{font-family:'JetBrains Mono',monospace; color:var(--amber); font-size:12.5px; letter-spacing:0; text-transform:none;}
+  .entry-stream-subhead{display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-size:11.5px; font-weight:600; color:var(--text-muted); margin:10px 0 4px; padding-top:8px; border-top:1px solid var(--border, rgba(255,255,255,.06));}
+  .entry-stream-subhead:first-of-type{border-top:none; padding-top:0; margin-top:2px;}
   .entry-time.entry-count{text-transform:lowercase;}
   .entry{
     display:flex; align-items:center; gap:10px;
@@ -926,6 +928,22 @@
     try{ localStorage.setItem(ACTIVE_STREAM_KEY, name); }catch(e){}
   }
 
+  // Log-tab VIEW filter — separate from activeStream. activeStream still
+  // decides which stream new entries (manual or voice) get tagged with;
+  // logViewAll only controls whether the Log tab's cards/list are showing
+  // just that one stream or everything combined. Kept independent so
+  // switching to "All" to review your data doesn't change where the next
+  // entry you log actually lands.
+  var LOG_VIEW_ALL_KEY = 'routeLedger.logViewAll.v1';
+  function loadLogViewAll(){
+    if(!storageWorks) return !!window.__memLogViewAll;
+    try{ return localStorage.getItem(LOG_VIEW_ALL_KEY) === '1'; }catch(e){ return false; }
+  }
+  function saveLogViewAll(v){
+    if(!storageWorks){ window.__memLogViewAll = v; return; }
+    try{ localStorage.setItem(LOG_VIEW_ALL_KEY, v ? '1' : '0'); }catch(e){}
+  }
+
   /* ---------------- Region / currency / units ---------------- */
   // Curated, not exhaustive — covers the markets GigHelper is launching in.
   // Each country carries a default currency + distance unit; both are
@@ -1001,6 +1019,7 @@
   var streams = loadStreams();
   var activeStream = loadActiveStream();
   if(!activeStream || streams.indexOf(activeStream)===-1){ activeStream = streams[0] || DEFAULT_STREAMS[0]; }
+  var logViewAll = loadLogViewAll();
   // Migration: entries logged before Streams existed have no e.stream field.
   // Tag them with the default stream once, on first load, so every entry is
   // always groupable by stream — old and new — without a "missing stream" case.
@@ -1601,7 +1620,7 @@
 
   /* ---------------- Odometer strip ---------------- */
   function filterToActiveStream(list){
-    if(streams.length <= 1) return list;
+    if(streams.length <= 1 || logViewAll) return list;
     return list.filter(function(e){ return (e.stream || DEFAULT_STREAMS[0]) === activeStream; });
   }
   function renderOdometers(){
@@ -1674,7 +1693,7 @@
     var container = document.getElementById('entriesList');
     var source = filterToActiveStream(entries);
     if(source.length===0){
-      var emptyMsg = (streams.length > 1)
+      var emptyMsg = (streams.length > 1 && !logViewAll)
         ? ('No entries yet for "'+activeStream+'." Tap the mic and log your first income, expense, or trip.')
         : 'No entries yet. Tap the mic and log your first income, expense, or trip.';
       container.innerHTML = '<div class="empty-state">'+emptyMsg+'</div>';
@@ -1690,10 +1709,13 @@
     });
     bucketOrder.sort(function(a,b){ return b-a; });
 
-    var html = '';
-    bucketOrder.forEach(function(bs){
-      var list = buckets[bs];
-      var s = summarize(list);
+    // When viewing "All" with more than one stream, keep each period's
+    // categories grouped under the stream they belong to instead of merging
+    // them — otherwise, e.g., "Gas" from two different streams would just
+    // silently add together with no way to tell them apart.
+    var groupByStream = logViewAll && streams.length > 1;
+
+    function categoryRowsHtml(list){
       var incomeByCat = {}, expenseByCat = {}, incomeCount = {}, expenseCount = {};
       list.forEach(function(e){
         if(e.type==='income'){
@@ -1704,13 +1726,12 @@
           expenseCount[e.category] = (expenseCount[e.category]||0) + 1;
         }
       });
-      var label = bucketLabelFor(new Date(bs), gran);
-      html += '<div class="day-group"><div class="day-group-title with-net">'+label+'<span class="week-net">'+fmtMoney(s.net)+'</span></div>';
-
+      var s = summarize(list);
+      var rowsHtml = '';
       var incomeCats = Object.keys(incomeByCat).sort(function(a,b){ return incomeByCat[b]-incomeByCat[a]; });
       incomeCats.forEach(function(cat){
         var n = incomeCount[cat];
-        html += '<div class="entry">'+
+        rowsHtml += '<div class="entry">'+
           '<div class="entry-icon income">'+iconFor('income')+'</div>'+
           '<div class="entry-info"><div class="entry-cat">'+cat+'</div><div class="entry-time entry-count">'+n+' '+(n===1?t('entrySingular'):t('entryPlural'))+'</div></div>'+
           '<div class="entry-amt income">+'+fmtMoney(incomeByCat[cat])+'</div>'+
@@ -1719,18 +1740,38 @@
       var expenseCats = Object.keys(expenseByCat).sort(function(a,b){ return expenseByCat[b]-expenseByCat[a]; });
       expenseCats.forEach(function(cat){
         var n = expenseCount[cat];
-        html += '<div class="entry">'+
+        rowsHtml += '<div class="entry">'+
           '<div class="entry-icon expense">'+iconFor('expense')+'</div>'+
           '<div class="entry-info"><div class="entry-cat">'+cat+'</div><div class="entry-time entry-count">'+n+' '+(n===1?t('entrySingular'):t('entryPlural'))+'</div></div>'+
           '<div class="entry-amt expense">-'+fmtMoney(expenseByCat[cat])+'</div>'+
         '</div>';
       });
       if(s.miles>0){
-        html += '<div class="entry">'+
+        rowsHtml += '<div class="entry">'+
           '<div class="entry-icon mileage">'+iconFor('mileage')+'</div>'+
           '<div class="entry-info"><div class="entry-cat">'+t('milesLabel')+'</div></div>'+
           '<div class="entry-amt mileage">'+fmtDist(s.miles)+'</div>'+
         '</div>';
+      }
+      return rowsHtml;
+    }
+
+    var html = '';
+    bucketOrder.forEach(function(bs){
+      var list = buckets[bs];
+      var s = summarize(list);
+      var label = bucketLabelFor(new Date(bs), gran);
+      html += '<div class="day-group"><div class="day-group-title with-net">'+label+'<span class="week-net">'+fmtMoney(s.net)+'</span></div>';
+      if(groupByStream){
+        streams.forEach(function(streamName){
+          var streamList = list.filter(function(e){ return (e.stream || DEFAULT_STREAMS[0]) === streamName; });
+          if(streamList.length===0) return;
+          var streamSummary = summarize(streamList);
+          html += '<div class="entry-stream-subhead">'+streamName+'<span>'+fmtMoney(streamSummary.net)+'</span></div>';
+          html += categoryRowsHtml(streamList);
+        });
+      } else {
+        html += categoryRowsHtml(list);
       }
       html += '</div>';
     });
@@ -2749,6 +2790,7 @@
   var recognitionMode = 'idle'; // 'idle' | 'manual' | 'wake'
   var wakeRestartTimer = null;
   var wakeHintRevertTimer = null;
+  var wakeFlashActive = false; // true while a "Heard: ..." message is on screen in wake mode
 
   function wakeWordRegex(){
     var esc = appName.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -2862,6 +2904,8 @@
         if(matchedStream){
           activeStream = matchedStream;
           saveActiveStream(activeStream);
+          logViewAll = false;
+          saveLogViewAll(false);
           renderStreamBar();
           renderOdometers();
           renderEntriesList();
@@ -2912,8 +2956,29 @@
     return null;
   }
 
+  function shouldBeListeningForWake(){
+    return wakeModeEnabled && !wakePaused && document.visibilityState === 'visible';
+  }
+
+  // The underlying SpeechRecognition engine restarts itself frequently in
+  // wake mode (many browsers end a "continuous" session every so often even
+  // with nothing said), which used to make the mic button and hint text
+  // visibly flick off and back on every restart. From the user's point of
+  // view wake mode is just "on" the whole time, so once it's actively
+  // listening we keep the UI showing that continuously and only drop it for
+  // a real state change (paused or turned off) — not for these internal
+  // restart blips.
+  function wakeUIActive(){
+    return shouldBeListeningForWake() && (recognitionMode==='wake' || recognitionMode==='idle');
+  }
+
   function setListening(state){
     listening = state;
+    if(wakeModeEnabled && wakeUIActive()){
+      micBtn.classList.add('listening');
+      if(!wakeFlashActive) micHint.innerHTML = fillAppName(t('wakeListeningLabel'));
+      return;
+    }
     micBtn.classList.toggle('listening', state);
     if(state){
       micHint.innerHTML = recognitionMode==='wake' ? fillAppName(t('wakeListeningLabel')) : 'Listening…';
@@ -2922,8 +2987,17 @@
     }
   }
 
-  function shouldBeListeningForWake(){
-    return wakeModeEnabled && !wakePaused && document.visibilityState === 'visible';
+  // Shows a transient "Heard: ..." message during wake mode without letting
+  // the next internal restart cycle (or setListening call) clobber it early;
+  // reverts to the normal "Listening for [name]" hint after `ms`.
+  function flashWakeHint(html, ms){
+    wakeFlashActive = true;
+    micHint.innerHTML = html;
+    if(wakeHintRevertTimer) clearTimeout(wakeHintRevertTimer);
+    wakeHintRevertTimer = setTimeout(function(){
+      wakeFlashActive = false;
+      if(shouldBeListeningForWake()) micHint.innerHTML = fillAppName(t('wakeListeningLabel'));
+    }, ms || 3000);
   }
 
   function startRecognitionAs(mode){
@@ -2938,6 +3012,8 @@
     saveWakeMode(false);
     wakePaused = false;
     if(wakeRestartTimer){ clearTimeout(wakeRestartTimer); wakeRestartTimer = null; }
+    if(wakeHintRevertTimer){ clearTimeout(wakeHintRevertTimer); wakeHintRevertTimer = null; }
+    wakeFlashActive = false;
     recognitionMode = 'idle';
     updateWakeToggleUI();
     if(msg) micHint.textContent = msg;
@@ -3000,20 +3076,16 @@
           // Heard speech, but it wasn't addressed to the app — say so briefly
           // instead of failing silently, so testers can tell wake mode IS
           // hearing them and just needs the app name said first.
-          micHint.innerHTML = '<i>Heard: "'+transcript+'" — didn\'t start with "'+appName+'," so I ignored it.</i>';
-          if(wakeHintRevertTimer) clearTimeout(wakeHintRevertTimer);
-          wakeHintRevertTimer = setTimeout(function(){
-            if(recognitionMode==='wake') micHint.innerHTML = fillAppName(t('wakeListeningLabel'));
-          }, 3000);
+          flashWakeHint('<i>Heard: "'+transcript+'" — didn\'t start with "'+appName+'," so I ignored it.</i>', 3000);
           return;
         }
         var command = m[1].trim();
         var result = parseVoiceCommand(command);
         if(result){
-          micHint.innerHTML = '<b>Heard:</b> "'+command+'" → '+result;
+          flashWakeHint('<b>Heard:</b> "'+command+'" → '+result, 3000);
           showToast(result);
         } else {
-          micHint.innerHTML = '<b>Heard "'+appName+'":</b> "'+command+'" — couldn\'t parse that.';
+          flashWakeHint('<b>Heard "'+appName+'":</b> "'+command+'" — couldn\'t parse that.', 3000);
         }
       } else {
         var result2 = parseVoiceCommand(transcript);
@@ -3029,6 +3101,10 @@
     micBtn.addEventListener('click', function(){
       if(wakeModeEnabled){
         wakePaused = !wakePaused;
+        if(wakePaused){
+          if(wakeHintRevertTimer){ clearTimeout(wakeHintRevertTimer); wakeHintRevertTimer = null; }
+          wakeFlashActive = false;
+        }
         updateWakeToggleUI();
         syncWakeListening();
         return;
@@ -3252,14 +3328,32 @@
     if(streams.length <= 1){ bar.style.display = 'none'; return; }
     bar.style.display = 'flex';
     box.innerHTML = '';
+    // "All" is a view-only option — it shows every stream's transactions
+    // combined on the Log tab, but doesn't change activeStream, so a new
+    // entry logged while "All" is showing still goes to whichever real
+    // stream was last selected (shown next time you switch off "All").
+    var allChip = document.createElement('button');
+    allChip.type = 'button';
+    allChip.className = 'stream-chip' + (logViewAll ? ' active' : '');
+    allChip.textContent = t('allStreamsLabel');
+    allChip.addEventListener('click', function(){
+      logViewAll = true;
+      saveLogViewAll(true);
+      renderStreamBar();
+      renderOdometers();
+      renderEntriesList();
+    });
+    box.appendChild(allChip);
     streams.forEach(function(s){
       var chip = document.createElement('button');
       chip.type = 'button';
-      chip.className = 'stream-chip' + (s===activeStream ? ' active' : '');
+      chip.className = 'stream-chip' + (!logViewAll && s===activeStream ? ' active' : '');
       chip.textContent = s;
       chip.addEventListener('click', function(){
         activeStream = s;
         saveActiveStream(activeStream);
+        logViewAll = false;
+        saveLogViewAll(false);
         renderStreamBar();
         renderOdometers();
         renderEntriesList();
