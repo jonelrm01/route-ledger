@@ -197,6 +197,9 @@
   .entry-amt.mileage{color:var(--amber);}
   .entry-del{background:none; border:none; color:var(--text-faint); font-size:16px; padding:4px 6px; cursor:pointer;}
   .entry-edit{background:none; border:none; color:var(--text-faint); font-size:14px; padding:4px 6px; cursor:pointer;}
+  .entry-group{cursor:pointer;}
+  .entry-group .entry-time.entry-count{color:var(--text-faint);}
+  .entry-sub{margin-left:14px; padding:8px 10px; opacity:.92; background:var(--bg-panel-raised, var(--bg-panel));}
   .empty-state{text-align:center; padding:40px 20px; color:var(--text-faint); font-size:13px;}
 
   /* ---------- Stats panel ---------- */
@@ -899,16 +902,29 @@
   }
 
   // Streams: separate income/expense "buckets" a person can be tagging entries
-  // under at once — e.g. Gig Driving, a side business, Personal spending.
+  // under at once — e.g. Driving, a side business, Personal spending.
   // Every user starts with one default stream so existing single-stream
   // behavior (and existing entries) keeps working unchanged.
-  var DEFAULT_STREAMS = ['Gig Driving'];
+  // Renamed from "Gig Driving" to "Driving" — loadStreams/migrateStreamRename
+  // below quietly renames it in anyone's existing saved data too.
+  var DEFAULT_STREAMS = ['Driving'];
+  var LEGACY_DEFAULT_STREAM_NAME = 'Gig Driving';
   function loadStreams(){
-    if(!storageWorks) return window.__memStreams || DEFAULT_STREAMS.slice();
-    try{
-      var raw = localStorage.getItem(STREAMS_KEY);
-      return raw ? JSON.parse(raw) : DEFAULT_STREAMS.slice();
-    }catch(e){ return DEFAULT_STREAMS.slice(); }
+    var raw;
+    if(!storageWorks){ raw = window.__memStreams || DEFAULT_STREAMS.slice(); }
+    else {
+      try{
+        var stored = localStorage.getItem(STREAMS_KEY);
+        raw = stored ? JSON.parse(stored) : DEFAULT_STREAMS.slice();
+      }catch(e){ raw = DEFAULT_STREAMS.slice(); }
+    }
+    var renamed = false;
+    raw = raw.map(function(s){
+      if(s === LEGACY_DEFAULT_STREAM_NAME){ renamed = true; return DEFAULT_STREAMS[0]; }
+      return s;
+    });
+    if(renamed) saveStreams(raw);
+    return raw;
   }
   function saveStreams(list){
     if(!storageWorks){ window.__memStreams = list; return; }
@@ -920,8 +936,11 @@
   // Persists across sessions so reopening the app keeps you in the same context.
   var ACTIVE_STREAM_KEY = 'routeLedger.activeStream.v1';
   function loadActiveStream(){
-    if(!storageWorks) return window.__memActiveStream || null;
-    try{ return localStorage.getItem(ACTIVE_STREAM_KEY) || null; }catch(e){ return null; }
+    var name;
+    if(!storageWorks){ name = window.__memActiveStream || null; }
+    else { try{ name = localStorage.getItem(ACTIVE_STREAM_KEY) || null; }catch(e){ name = null; } }
+    if(name === LEGACY_DEFAULT_STREAM_NAME){ name = DEFAULT_STREAMS[0]; saveActiveStream(name); }
+    return name;
   }
   function saveActiveStream(name){
     if(!storageWorks){ window.__memActiveStream = name; return; }
@@ -1020,13 +1039,18 @@
   var activeStream = loadActiveStream();
   if(!activeStream || streams.indexOf(activeStream)===-1){ activeStream = streams[0] || DEFAULT_STREAMS[0]; }
   var logViewAll = loadLogViewAll();
-  // Migration: entries logged before Streams existed have no e.stream field.
-  // Tag them with the default stream once, on first load, so every entry is
-  // always groupable by stream — old and new — without a "missing stream" case.
+  // Which category groups are currently expanded on the Log tab, so tapping
+  // a category shows its individual entries (each editable/deletable) right
+  // there instead of needing the Calendar tab. Ephemeral — not persisted.
+  var expandedLogGroups = {};
+  // Migration: entries logged before Streams existed have no e.stream field,
+  // and entries logged under the old default-stream name ("Gig Driving")
+  // need renaming to the current one so they still group correctly.
   (function migrateEntryStreams(){
     var changed = false;
     entries.forEach(function(e){
       if(!e.stream){ e.stream = DEFAULT_STREAMS[0]; changed = true; }
+      else if(e.stream === LEGACY_DEFAULT_STREAM_NAME){ e.stream = DEFAULT_STREAMS[0]; changed = true; }
     });
     if(changed) saveEntries(entries);
   })();
@@ -1709,49 +1733,72 @@
     });
     bucketOrder.sort(function(a,b){ return b-a; });
 
-    // When viewing "All" with more than one stream, keep each period's
-    // categories grouped under the stream they belong to instead of merging
-    // them — otherwise, e.g., "Gas" from two different streams would just
-    // silently add together with no way to tell them apart.
+    // Ephemeral per-render toggle state for "tap a category to edit its
+    // entries right here" — keyed by bucket+stream+type+category so it
+    // survives re-renders (e.g. after saving an edit) without collapsing.
     var groupByStream = logViewAll && streams.length > 1;
 
-    function categoryRowsHtml(list){
-      var incomeByCat = {}, expenseByCat = {}, incomeCount = {}, expenseCount = {};
+    function categoryRowsHtml(list, keyPrefix){
+      var byKey = {}; // 'income|Cat' or 'expense|Cat' -> entries[]
       list.forEach(function(e){
-        if(e.type==='income'){
-          incomeByCat[e.category] = (incomeByCat[e.category]||0) + e.amount;
-          incomeCount[e.category] = (incomeCount[e.category]||0) + 1;
-        } else if(e.type==='expense'){
-          expenseByCat[e.category] = (expenseByCat[e.category]||0) + e.amount;
-          expenseCount[e.category] = (expenseCount[e.category]||0) + 1;
-        }
+        if(e.type!=='income' && e.type!=='expense') return;
+        var k = e.type+'|'+e.category;
+        (byKey[k] = byKey[k] || []).push(e);
       });
       var s = summarize(list);
       var rowsHtml = '';
-      var incomeCats = Object.keys(incomeByCat).sort(function(a,b){ return incomeByCat[b]-incomeByCat[a]; });
-      incomeCats.forEach(function(cat){
-        var n = incomeCount[cat];
-        rowsHtml += '<div class="entry">'+
-          '<div class="entry-icon income">'+iconFor('income')+'</div>'+
+
+      function renderGroup(type, cat, group){
+        var total = group.reduce(function(sum,e){ return sum+e.amount; }, 0);
+        var n = group.length;
+        var key = keyPrefix+'|'+type+'|'+cat;
+        var expanded = !!expandedLogGroups[key];
+        var sign = type==='income' ? '+' : '-';
+        rowsHtml += '<div class="entry entry-group" data-key="'+encodeURIComponent(key)+'">'+
+          '<div class="entry-icon '+type+'">'+iconFor(type)+'</div>'+
           '<div class="entry-info"><div class="entry-cat">'+cat+'</div><div class="entry-time entry-count">'+n+' '+(n===1?t('entrySingular'):t('entryPlural'))+'</div></div>'+
-          '<div class="entry-amt income">+'+fmtMoney(incomeByCat[cat])+'</div>'+
+          '<div class="entry-amt '+type+'">'+sign+fmtMoney(total)+'</div>'+
         '</div>';
-      });
-      var expenseCats = Object.keys(expenseByCat).sort(function(a,b){ return expenseByCat[b]-expenseByCat[a]; });
-      expenseCats.forEach(function(cat){
-        var n = expenseCount[cat];
-        rowsHtml += '<div class="entry">'+
-          '<div class="entry-icon expense">'+iconFor('expense')+'</div>'+
-          '<div class="entry-info"><div class="entry-cat">'+cat+'</div><div class="entry-time entry-count">'+n+' '+(n===1?t('entrySingular'):t('entryPlural'))+'</div></div>'+
-          '<div class="entry-amt expense">-'+fmtMoney(expenseByCat[cat])+'</div>'+
-        '</div>';
-      });
+        if(expanded){
+          group.slice().sort(function(a,b){ return new Date(b.ts)-new Date(a.ts); }).forEach(function(e){
+            var time = new Date(e.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            rowsHtml += '<div class="entry entry-sub">'+
+              '<div class="entry-info"><div class="entry-time">'+time+'</div></div>'+
+              '<div class="entry-amt '+type+'">'+sign+fmtMoney(e.amount)+'</div>'+
+              '<button class="entry-edit" data-id="'+e.id+'">\u270E</button>'+
+              '<button class="entry-del" data-id="'+e.id+'">\u2715</button>'+
+            '</div>';
+          });
+        }
+      }
+
+      var incomeCats = Object.keys(byKey).filter(function(k){ return k.indexOf('income|')===0; })
+        .sort(function(a,b){ return byKey[b].reduce(function(s,e){return s+e.amount;},0) - byKey[a].reduce(function(s,e){return s+e.amount;},0); });
+      incomeCats.forEach(function(k){ renderGroup('income', k.slice(7), byKey[k]); });
+      var expenseCats = Object.keys(byKey).filter(function(k){ return k.indexOf('expense|')===0; })
+        .sort(function(a,b){ return byKey[b].reduce(function(s,e){return s+e.amount;},0) - byKey[a].reduce(function(s,e){return s+e.amount;},0); });
+      expenseCats.forEach(function(k){ renderGroup('expense', k.slice(8), byKey[k]); });
+
       if(s.miles>0){
-        rowsHtml += '<div class="entry">'+
+        var mileageEntries = list.filter(function(e){ return e.type==='mileage'; });
+        var mKey = keyPrefix+'|mileage';
+        var mExpanded = !!expandedLogGroups[mKey];
+        rowsHtml += '<div class="entry entry-group" data-key="'+encodeURIComponent(mKey)+'">'+
           '<div class="entry-icon mileage">'+iconFor('mileage')+'</div>'+
           '<div class="entry-info"><div class="entry-cat">'+t('milesLabel')+'</div></div>'+
           '<div class="entry-amt mileage">'+fmtDist(s.miles)+'</div>'+
         '</div>';
+        if(mExpanded){
+          mileageEntries.slice().sort(function(a,b){ return new Date(b.ts)-new Date(a.ts); }).forEach(function(e){
+            var time = new Date(e.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            rowsHtml += '<div class="entry entry-sub">'+
+              '<div class="entry-info"><div class="entry-time">'+time+'</div></div>'+
+              '<div class="entry-amt mileage">'+fmtDist(e.miles)+'</div>'+
+              '<button class="entry-edit" data-id="'+e.id+'">\u270E</button>'+
+              '<button class="entry-del" data-id="'+e.id+'">\u2715</button>'+
+            '</div>';
+          });
+        }
       }
       return rowsHtml;
     }
@@ -1768,14 +1815,27 @@
           if(streamList.length===0) return;
           var streamSummary = summarize(streamList);
           html += '<div class="entry-stream-subhead">'+streamName+'<span>'+fmtMoney(streamSummary.net)+'</span></div>';
-          html += categoryRowsHtml(streamList);
+          html += categoryRowsHtml(streamList, bs+'|'+streamName);
         });
       } else {
-        html += categoryRowsHtml(list);
+        html += categoryRowsHtml(list, bs+'|'+activeStream);
       }
       html += '</div>';
     });
     container.innerHTML = html;
+    container.querySelectorAll('.entry-group').forEach(function(row){
+      row.addEventListener('click', function(){
+        var key = decodeURIComponent(row.dataset.key);
+        expandedLogGroups[key] = !expandedLogGroups[key];
+        renderEntriesList();
+      });
+    });
+    container.querySelectorAll('.entry-edit').forEach(function(b){
+      b.addEventListener('click', function(ev){ ev.stopPropagation(); openEditEntry(b.dataset.id); });
+    });
+    container.querySelectorAll('.entry-del').forEach(function(b){
+      b.addEventListener('click', function(ev){ ev.stopPropagation(); deleteEntry(b.dataset.id); });
+    });
   }
 
   function updateLogGranTexts(){
@@ -2909,6 +2969,7 @@
           renderStreamBar();
           renderOdometers();
           renderEntriesList();
+          rebuildCategorySelect();
           return matchedStream;
         }
       }
@@ -3144,25 +3205,33 @@
   }
 
   /* ---------------- Platforms / categories ---------------- */
-  function populateCategorySelect(sel){
+  // Category choices are per-stream: the built-in Driving stream keeps a
+  // curated set matching how most gig drivers actually earn/spend, while any
+  // other stream (Dojo, Personal, or a custom one someone adds) just offers
+  // "Other" — those tend to be simpler, less categorized buckets of money.
+  function categoriesForStream(streamName){
+    if(streamName === DEFAULT_STREAMS[0]) return ['Uber','DoorDash','Gas','Other'];
+    return ['Other'];
+  }
+  function populateCategorySelect(sel, streamName, ensureValue){
     if(!sel) return;
-    var prev = sel.value;
+    var wanted = ensureValue || sel.value;
     sel.innerHTML = '';
-    var platforms = loadPlatforms();
-    platforms.forEach(function(p){
-      var o = document.createElement('option'); o.textContent = p; sel.appendChild(o);
-    });
-    FIXED_CATEGORIES.forEach(function(c){
+    var list = categoriesForStream(streamName).slice();
+    // If the entry's current category isn't part of this stream's curated
+    // set (e.g. it was logged before this stream's category list changed,
+    // or via a voice command that named something else), keep it as an
+    // option instead of silently swapping it out from under the user.
+    if(wanted && list.indexOf(wanted)===-1) list.splice(Math.max(list.length-1,0), 0, wanted);
+    list.forEach(function(c){
       var o = document.createElement('option'); o.textContent = c; sel.appendChild(o);
     });
-    var other = document.createElement('option'); other.textContent = 'Other'; sel.appendChild(other);
-    if(prev && Array.prototype.some.call(sel.options, function(o){ return o.textContent===prev; })){
-      sel.value = prev;
+    if(wanted && Array.prototype.some.call(sel.options, function(o){ return o.textContent===wanted; })){
+      sel.value = wanted;
     }
   }
   function rebuildCategorySelect(){
-    populateCategorySelect(document.getElementById('manualCategory'));
-    populateCategorySelect(document.getElementById('editCategory'));
+    populateCategorySelect(document.getElementById('manualCategory'), activeStream);
   }
 
   // Editing an existing entry — mainly for fixing amounts/categories that
@@ -3185,7 +3254,7 @@
     setEditTypeUI(e.type);
     document.getElementById('editAmount').value = e.type==='mileage' ? '' : e.amount;
     document.getElementById('editMiles').value = e.type==='mileage' ? e.miles : '';
-    populateCategorySelect(document.getElementById('editCategory'));
+    populateCategorySelect(document.getElementById('editCategory'), e.stream, e.category);
     document.getElementById('editCategory').value = e.category;
     openModal('editEntryModal');
   }
@@ -3322,7 +3391,7 @@
     var bar = document.getElementById('streamBar');
     var box = document.getElementById('streamChips');
     if(!bar || !box) return;
-    // Single-stream users (the common case today — just Gig Driving) never
+    // Single-stream users (the common case today — just Driving) never
     // need to think about this; only show the selector once there's an
     // actual choice to make.
     if(streams.length <= 1){ bar.style.display = 'none'; return; }
@@ -3357,6 +3426,7 @@
         renderStreamBar();
         renderOdometers();
         renderEntriesList();
+        rebuildCategorySelect();
       });
       box.appendChild(chip);
     });
@@ -3381,6 +3451,7 @@
           if(activeStream===s){
             activeStream = streams[0];
             saveActiveStream(activeStream);
+            rebuildCategorySelect();
           }
           renderSettingsStreamList();
           renderStreamBar();

@@ -3,7 +3,7 @@
 // This app stores all user data in localStorage on-device — this worker only caches
 // the static files needed to load the app itself, never any user data.
 
-const CACHE_NAME = 'route-ledger-v4';
+const CACHE_NAME = 'route-ledger-v5';
 const APP_SHELL = [
   './index.html',
   './manifest.json',
