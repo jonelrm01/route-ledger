@@ -772,6 +772,12 @@
           </div>
         </div>
       </div>
+      <div class="settings-section" id="monthlyCloseSection">
+        <label id="lblMonthlyClose">Monthly clean slate</label>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;" id="monthlyCloseHint">At the start of each month, archive last month's entries into your backup file and clear them from the app so Log/Stats start fresh. Full history always stays in your CSV exports. Requires auto-backup to be set up.</div>
+        <button type="button" class="save-btn" id="monthlyCloseToggleBtn" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline);">Turn on</button>
+        <div style="font-size:11px; color:var(--text-faint); margin-top:6px;" id="monthlyCloseStatus"></div>
+      </div>
       <div class="settings-section">
         <label id="lblStreams">Streams</label>
         <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;" id="streamsHint">Separate buckets for tracking different income sources — gig work, a side business, personal spending — each with its own stats.</div>
@@ -842,6 +848,9 @@
   var CURRENCY_KEY = 'routeLedger.currency.v1';
   var UNIT_KEY = 'routeLedger.unit.v1';
   var ONBOARDED_REGION_KEY = 'routeLedger.regionOnboarded.v1';
+  var ARCHIVE_KEY = 'routeLedger.archive.v1';
+  var LAST_CLOSE_MONTH_KEY = 'routeLedger.lastCloseMonth.v1';
+  var MONTHLY_CLOSE_ENABLED_KEY = 'routeLedger.monthlyCloseEnabled.v1';
   var storageWorks = true;
   try{
     var storageTestKey='__t__'; localStorage.setItem(storageTestKey,'1'); localStorage.removeItem(storageTestKey);
@@ -857,6 +866,33 @@
   function saveEntries(entries){
     if(!storageWorks){ window.__memEntries = entries; return; }
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); }catch(e){}
+  }
+  function loadArchive(){
+    if(!storageWorks) return (window.__memArchive || []);
+    try{
+      var raw = localStorage.getItem(ARCHIVE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function saveArchive(list){
+    if(!storageWorks){ window.__memArchive = list; return; }
+    try{ localStorage.setItem(ARCHIVE_KEY, JSON.stringify(list)); }catch(e){}
+  }
+  function loadLastCloseMonth(){
+    if(!storageWorks) return window.__memLastClose || '';
+    try{ return localStorage.getItem(LAST_CLOSE_MONTH_KEY) || ''; }catch(e){ return ''; }
+  }
+  function saveLastCloseMonth(v){
+    if(!storageWorks){ window.__memLastClose = v; return; }
+    try{ localStorage.setItem(LAST_CLOSE_MONTH_KEY, v); }catch(e){}
+  }
+  function loadMonthlyCloseEnabled(){
+    if(!storageWorks) return window.__memMonthlyCloseEnabled || false;
+    try{ return localStorage.getItem(MONTHLY_CLOSE_ENABLED_KEY) === '1'; }catch(e){ return false; }
+  }
+  function saveMonthlyCloseEnabled(v){
+    if(!storageWorks){ window.__memMonthlyCloseEnabled = v; return; }
+    try{ localStorage.setItem(MONTHLY_CLOSE_ENABLED_KEY, v ? '1' : '0'); }catch(e){}
   }
   function loadName(){
     if(!storageWorks) return window.__memName || 'GigHelper';
@@ -1035,6 +1071,8 @@
   }
 
   var entries = loadEntries();
+  var archivedEntries = loadArchive();
+  function allEntries(){ return archivedEntries.concat(entries); }
   var streams = loadStreams();
   var activeStream = loadActiveStream();
   if(!activeStream || streams.indexOf(activeStream)===-1){ activeStream = streams[0] || DEFAULT_STREAMS[0]; }
@@ -1592,7 +1630,10 @@
   function fmtMoney(n){ var s = (n<0?'-':'') + currencySymbol() + Math.abs(n).toFixed(2); return s; }
 
   function entriesInRange(start, end){
-    return entries.filter(function(e){ var d=new Date(e.ts); return d>=start && d<end; });
+    // Pulls from archived + current entries so month/quarter/year figures (tax
+    // reminders, tax summary) stay accurate even after a month has been
+    // auto-archived and cleared from the working entries list.
+    return allEntries().filter(function(e){ var d=new Date(e.ts); return d>=start && d<end; });
   }
   function summarize(list){
     var income=0, expense=0, miles=0;
@@ -2008,23 +2049,33 @@
     });
   }
 
-  function exportCsv(){
+  // Single source of truth for CSV rows, used by the manual export button,
+  // the auto-backup file, and anywhere else a full-history CSV is needed.
+  // Always pulls from allEntries() (archived + current) so a backup/export
+  // never silently drops months that were auto-archived and cleared.
+  function csvContent(){
     var rows = [['Date','Time','Type','Stream','Category','Amount ('+currentCurrency+')','Distance ('+distUnitLabel()+')']];
-    entries.slice().sort(function(a,b){return new Date(a.ts)-new Date(b.ts);}).forEach(function(e){
+    allEntries().slice().sort(function(a,b){return new Date(a.ts)-new Date(b.ts);}).forEach(function(e){
       var d = new Date(e.ts);
       rows.push([d.toLocaleDateString(), d.toLocaleTimeString(), e.type, (e.stream||DEFAULT_STREAMS[0]), e.category, e.amount.toFixed(2), milesToDisplay(e.miles).toFixed(1)]);
     });
-    var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
-    var blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+    return '\uFEFF' + rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+  }
+
+  function exportCsv(){
+    var csv = csvContent();
+    var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
-    a.href = url; a.download = appName.replace(/\s+/g,'_')+'_export.csv';
+    var dateStamp = new Date().toISOString().slice(0,10);
+    a.href = url; a.download = appName.replace(/\s+/g,'_')+'_export_'+dateStamp+'.csv';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
     try{ localStorage.setItem('gh_last_export', String(Date.now())); }catch(e){}
     var banner = document.getElementById('backupBanner');
     if(banner) banner.style.display = 'none';
     updateAutoBackupStatusUi();
+    showToast('Exported ' + allEntries().length + ' entries to CSV');
   }
 
   /* ---------------- Auto-backup (bring-your-own-cloud) ----------------
@@ -2086,15 +2137,6 @@
     try{ localStorage.setItem(BACKUP_CADENCE_KEY, c); }catch(e){}
   }
 
-  function csvContent(){
-    var rows = [['Date','Time','Type','Category','Amount ('+currentCurrency+')','Distance ('+distUnitLabel()+')']];
-    entries.slice().sort(function(a,b){return new Date(a.ts)-new Date(b.ts);}).forEach(function(e){
-      var d = new Date(e.ts);
-      rows.push([d.toLocaleDateString(), d.toLocaleTimeString(), e.type, e.category, e.amount.toFixed(2), milesToDisplay(e.miles).toFixed(1)]);
-    });
-    return '\uFEFF' + rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
-  }
-
   function setupAutoBackup(){
     if(!fsAccessSupported){ showToast('Auto-backup needs Chrome or Edge — use manual export instead'); return; }
     window.showSaveFilePicker({
@@ -2131,6 +2173,87 @@
         });
       });
     }).catch(function(){ return false; });
+  }
+
+  /* ---------------- Monthly clean-slate close-out ----------------
+     Opt-in. When enabled, on the first app open of a new month we move all
+     current entries into a permanent local archive (still included in every
+     CSV/tax export via allEntries()), force a full auto-backup write so the
+     external file reflects everything up to the close, then clear the
+     working `entries` list so Log/Stats start the month empty. Gated on an
+     auto-backup file already being set up — refuses to clear otherwise, so
+     there's always an external copy before anything is wiped. */
+  function currentMonthKey(d){ d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
+
+  function checkMonthlyClose(){
+    if(!loadMonthlyCloseEnabled()) return;
+    var nowKey = currentMonthKey();
+    var lastKey = loadLastCloseMonth();
+    if(!lastKey){
+      // First time this feature has run — just record the baseline, don't
+      // archive/clear anything the user built up before opting in.
+      saveLastCloseMonth(nowKey);
+      return;
+    }
+    if(lastKey === nowKey) return; // already closed out for this month
+    if(entries.length === 0){
+      saveLastCloseMonth(nowKey);
+      return;
+    }
+    idbGetHandle().then(function(handle){
+      if(!handle){
+        showToast('Monthly clean-up is paused — set up auto-backup in Settings first');
+        updateMonthlyCloseStatusUi();
+        return; // do NOT advance lastKey or clear — retries next open
+      }
+      performAutoBackup(true).then(function(ok){
+        if(!ok){
+          showToast('Monthly clean-up skipped — auto-backup write failed, try "Back up now" in Settings');
+          updateMonthlyCloseStatusUi();
+          return;
+        }
+        var movedCount = entries.length;
+        archivedEntries = archivedEntries.concat(entries);
+        entries = [];
+        saveArchive(archivedEntries);
+        saveEntries(entries);
+        saveLastCloseMonth(nowKey);
+        renderAll();
+        renderStreamBar();
+        updateAutoBackupStatusUi();
+        updateMonthlyCloseStatusUi();
+        showToast('New month started — ' + movedCount + ' entries backed up and cleared for a fresh start');
+      });
+    });
+  }
+
+  function updateMonthlyCloseStatusUi(){
+    var statusEl = document.getElementById('monthlyCloseStatus');
+    var toggleBtn = document.getElementById('monthlyCloseToggleBtn');
+    if(!statusEl || !toggleBtn) return;
+    var enabled = loadMonthlyCloseEnabled();
+    toggleBtn.textContent = enabled ? 'Turn off' : 'Turn on';
+    if(!enabled){ statusEl.textContent = ''; return; }
+    idbGetHandle().then(function(handle){
+      if(!handle){
+        statusEl.textContent = 'Waiting on auto-backup — set that up above to activate.';
+        return;
+      }
+      var lastKey = loadLastCloseMonth();
+      statusEl.textContent = lastKey ? ('Active — last closed out: ' + lastKey + '.') : 'Active — will start tracking from this month.';
+    });
+  }
+
+  var monthlyCloseToggleBtn = document.getElementById('monthlyCloseToggleBtn');
+  if(monthlyCloseToggleBtn){
+    monthlyCloseToggleBtn.addEventListener('click', function(){
+      var enabling = !loadMonthlyCloseEnabled();
+      saveMonthlyCloseEnabled(enabling);
+      if(enabling && !loadLastCloseMonth()){ saveLastCloseMonth(currentMonthKey()); }
+      updateMonthlyCloseStatusUi();
+      showToast(enabling ? 'Monthly clean slate turned on' : 'Monthly clean slate turned off');
+      if(enabling) checkMonthlyClose();
+    });
   }
 
   function backupIsDue(){
@@ -2180,7 +2303,7 @@
       var when = lastExport ? new Date(lastExport).toLocaleString() : 'never';
       handle.queryPermission({mode:'readwrite'}).then(function(perm){
         if(perm === 'granted'){
-          statusEl.textContent = 'Backing up to "' + handle.name + '" — last backup ' + when + '.';
+          statusEl.textContent = 'Backing up to "' + handle.name + '" — last backup ' + when + ' (' + allEntries().length + ' total entries).';
         } else {
           statusEl.textContent = 'Backup file needs re-authorization — tap "Back up now" to reconnect.';
         }
@@ -3624,6 +3747,8 @@
   }
 
   updateAutoBackupStatusUi();
+  updateMonthlyCloseStatusUi();
+  checkMonthlyClose();
   maybeAutoBackup(false);
   var helpDownloadBtn = document.getElementById('helpDownloadBtn');
   if(helpDownloadBtn) helpDownloadBtn.addEventListener('click', downloadHelpGuide);
