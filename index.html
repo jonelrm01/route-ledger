@@ -444,6 +444,17 @@
   </div>
 </div>
 
+<div class="vehicle-card" id="odoWeeklyBanner" style="display:none; border-color:#5eb8ff; background:rgba(94,184,255,.08); margin:0 16px 12px; align-items:center;">
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%;">
+    <div style="flex:1;">
+      <div style="font-size:13px; color:var(--text-primary); margin-bottom:2px;" id="odoWeeklyBannerTitle">Update this week's odometer</div>
+      <div style="font-size:12px; color:var(--text-muted);" id="odoWeeklyBannerBody">You haven't logged your actual mileage reading this week yet.</div>
+    </div>
+    <button id="odoWeeklyBannerBtn" style="background:#5eb8ff; color:var(--bg-deep); border:none; border-radius:8px; padding:8px 12px; font-size:12px; font-weight:700; flex-shrink:0;">Update now</button>
+    <button id="odoWeeklyBannerDismiss" aria-label="Dismiss" style="background:none; border:none; color:var(--text-faint); font-size:16px; padding:0 2px; flex-shrink:0;">✕</button>
+  </div>
+</div>
+
 <div class="tabs">
   <button class="tab active" data-panel="log">Log</button>
   <button class="tab" data-panel="stats">Stats</button>
@@ -567,6 +578,11 @@
       <div class="odo-current-label" id="lblEstimated">Based on starting mileage + logged trips</div>
       <div class="odo-current num" id="vCurrentOdo">0 mi</div>
       <button class="resync-link" id="vResyncBtn">Update actual odometer reading</button>
+    </div>
+
+    <div class="vehicle-card">
+      <h4 id="weeklyOdoLogTitle">Weekly odometer log</h4>
+      <div id="weeklyOdoLogList" style="font-size:13px;"></div>
     </div>
 
     <div class="vehicle-card">
@@ -851,6 +867,7 @@
   var ARCHIVE_KEY = 'routeLedger.archive.v1';
   var LAST_CLOSE_MONTH_KEY = 'routeLedger.lastCloseMonth.v1';
   var MONTHLY_CLOSE_ENABLED_KEY = 'routeLedger.monthlyCloseEnabled.v1';
+  var WEEKLY_ODO_KEY = 'routeLedger.weeklyOdoLog.v1';
   var storageWorks = true;
   try{
     var storageTestKey='__t__'; localStorage.setItem(storageTestKey,'1'); localStorage.removeItem(storageTestKey);
@@ -913,6 +930,29 @@
   function saveVehicle(v){
     if(!storageWorks){ window.__memVehicle = v; return; }
     try{ localStorage.setItem(VEHICLE_KEY, JSON.stringify(v)); }catch(e){}
+  }
+  function loadWeeklyOdoLog(){
+    if(!storageWorks) return window.__memWeeklyOdoLog || [];
+    try{
+      var raw = localStorage.getItem(WEEKLY_ODO_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function saveWeeklyOdoLog(list){
+    if(!storageWorks){ window.__memWeeklyOdoLog = list; return; }
+    try{ localStorage.setItem(WEEKLY_ODO_KEY, JSON.stringify(list)); }catch(e){}
+  }
+  // Records/overwrites this week's actual odometer reading in the weekly
+  // history (mileage stored canonically in miles, like vehicle.odoBaseline).
+  function upsertWeeklyOdoEntry(mileageInMiles, when){
+    var wkKey = dateKeyLocal(startOfWeek(when || new Date()));
+    var log = loadWeeklyOdoLog();
+    var found = false;
+    for(var i=0;i<log.length;i++){
+      if(log[i].weekStart === wkKey){ log[i].mileage = mileageInMiles; log[i].loggedAt = new Date().toISOString(); found = true; break; }
+    }
+    if(!found) log.push({ weekStart: wkKey, mileage: mileageInMiles, loggedAt: new Date().toISOString() });
+    saveWeeklyOdoLog(log);
   }
   function loadLang(){
     if(!storageWorks) return window.__memLang || 'en-US';
@@ -1154,6 +1194,10 @@
       resyncLink: 'Update actual odometer reading', maintenance: 'Maintenance',
       maintDisclaimer: "These are general industry-standard intervals, not manufacturer-specific figures. Check your owner's manual for your vehicle's exact schedule, and tap a service to update it when you know the real interval.",
       resyncTitle: 'Update odometer', resyncSub: "Enter your vehicle's actual current mileage from the dashboard. Future trip miles you log will be added on top of this number.",
+      odoWeeklyBannerTitle: "Update this week's odometer", odoWeeklyBannerBody: "You haven't logged your actual mileage reading this week yet.",
+      odoWeeklyBannerBtn: 'Update now', weeklyOdoLogTitle: 'Weekly odometer log',
+      weeklyOdoLogEmpty: 'No readings logged yet — update your odometer to start a history.',
+      weeklyOdoWeekOf: 'Week of', weeklyOdoVsLastWeek: 'vs last week',
       markDone: 'Mark done', edit: 'Edit',
       statusOk: 'OK', statusSoon: 'due soon', statusOverdue: 'overdue',
       dueAt: 'next due at', milesShort: 'mi',
@@ -1185,6 +1229,10 @@
       resyncLink: 'Actualizar lectura real del odómetro', maintenance: 'Mantenimiento',
       maintDisclaimer: 'Estos son intervalos generales de la industria, no cifras específicas del fabricante. Consulta el manual de tu vehículo para el programa exacto, y toca un servicio para actualizarlo cuando conozcas el intervalo real.',
       resyncTitle: 'Actualizar odómetro', resyncSub: 'Ingresa el kilometraje real actual de tu vehículo desde el tablero. Las millas de viajes futuros se sumarán a este número.',
+      odoWeeklyBannerTitle: 'Actualiza el odómetro de esta semana', odoWeeklyBannerBody: 'Aún no has registrado tu kilometraje real esta semana.',
+      odoWeeklyBannerBtn: 'Actualizar ahora', weeklyOdoLogTitle: 'Registro semanal del odómetro',
+      weeklyOdoLogEmpty: 'Aún no hay lecturas registradas — actualiza tu odómetro para comenzar un historial.',
+      weeklyOdoWeekOf: 'Semana del', weeklyOdoVsLastWeek: 'vs. semana pasada',
       maintEditTitle: 'Editar servicio', maintEditSub: 'Configura seguimiento por kilometraje, por tiempo, o ambos — deja un intervalo en blanco para usar solo uno.',
       lastServiceDateLabel: 'Última vez (fecha)',
       markDone: 'Marcar hecho', edit: 'Editar',
@@ -1216,6 +1264,10 @@
       resyncLink: "Aggiorna la lettura reale del contachilometri", maintenance: 'Manutenzione',
       maintDisclaimer: "Questi sono intervalli generici del settore, non dati specifici del costruttore. Controlla il libretto del tuo veicolo per il programma esatto, e tocca un intervento per aggiornarlo quando conosci l'intervallo reale.",
       resyncTitle: 'Aggiorna contachilometri', resyncSub: 'Inserisci il chilometraggio reale attuale del tuo veicolo dal cruscotto. I chilometri dei viaggi futuri si aggiungeranno a questo numero.',
+      odoWeeklyBannerTitle: 'Aggiorna il contachilometri di questa settimana', odoWeeklyBannerBody: 'Non hai ancora registrato il chilometraggio reale di questa settimana.',
+      odoWeeklyBannerBtn: 'Aggiorna ora', weeklyOdoLogTitle: 'Registro settimanale del contachilometri',
+      weeklyOdoLogEmpty: 'Nessuna lettura registrata ancora — aggiorna il contachilometri per iniziare uno storico.',
+      weeklyOdoWeekOf: 'Settimana del', weeklyOdoVsLastWeek: 'rispetto alla settimana scorsa',
       maintEditTitle: 'Modifica intervento', maintEditSub: "Imposta il monitoraggio per chilometraggio, per tempo, o entrambi — lascia un intervallo vuoto per usarne solo uno.",
       lastServiceDateLabel: 'Ultima volta (data)',
       markDone: 'Segna fatto', edit: 'Modifica',
@@ -1247,6 +1299,10 @@
       resyncLink: 'Mettre à jour le relevé réel du compteur', maintenance: 'Entretien',
       maintDisclaimer: "Ce sont des intervalles standards du secteur, pas des chiffres spécifiques au fabricant. Consultez le manuel de votre véhicule pour le calendrier exact, et touchez un service pour le mettre à jour lorsque vous connaissez l'intervalle réel.",
       resyncTitle: 'Mettre à jour le compteur', resyncSub: 'Entrez le kilométrage réel actuel de votre véhicule depuis le tableau de bord. Les kilomètres des futurs trajets s\'ajouteront à ce nombre.',
+      odoWeeklyBannerTitle: 'Mettez à jour le compteur de cette semaine', odoWeeklyBannerBody: "Vous n'avez pas encore enregistré votre kilométrage réel cette semaine.",
+      odoWeeklyBannerBtn: 'Mettre à jour', weeklyOdoLogTitle: 'Relevé hebdomadaire du compteur',
+      weeklyOdoLogEmpty: "Aucun relevé enregistré pour l'instant — mettez à jour votre compteur pour démarrer un historique.",
+      weeklyOdoWeekOf: 'Semaine du', weeklyOdoVsLastWeek: 'par rapport à la semaine dernière',
       maintEditTitle: "Modifier l'entretien", maintEditSub: "Configurez le suivi par kilométrage, par durée, ou les deux — laissez un intervalle vide pour n'en utiliser qu'un seul.",
       lastServiceDateLabel: 'Dernière fois (date)',
       markDone: 'Marquer fait', edit: 'Modifier',
@@ -1278,6 +1334,10 @@
       resyncLink: '更新实际里程表读数', maintenance: '保养',
       maintDisclaimer: '这些是行业通用的间隔标准，并非制造商专属数据。请查阅您车辆的车主手册以获取准确的保养计划，并在了解实际间隔后点击某项服务进行更新。',
       resyncTitle: '更新里程表', resyncSub: '请输入仪表盘上显示的车辆实际当前里程。之后记录的行程里程将累加到此数字上。',
+      odoWeeklyBannerTitle: '更新本周的里程表读数', odoWeeklyBannerBody: '您本周还未记录实际里程表读数。',
+      odoWeeklyBannerBtn: '立即更新', weeklyOdoLogTitle: '每周里程表记录',
+      weeklyOdoLogEmpty: '暂无记录 — 更新里程表以开始记录历史。',
+      weeklyOdoWeekOf: '当周', weeklyOdoVsLastWeek: '与上周相比',
       maintEditTitle: '编辑保养项目', maintEditSub: '设置按里程、按时间或两者结合的追踪方式——留空其中一项即可仅按另一项追踪。',
       lastServiceDateLabel: '上次日期',
       markDone: '标记完成', edit: '编辑',
@@ -1523,6 +1583,11 @@
     document.getElementById('maintDisclaimer').textContent = t('maintDisclaimer');
     document.getElementById('resyncTitle').textContent = t('resyncTitle');
     document.getElementById('resyncSub').textContent = t('resyncSub');
+    document.getElementById('odoWeeklyBannerTitle').textContent = t('odoWeeklyBannerTitle');
+    document.getElementById('odoWeeklyBannerBody').textContent = t('odoWeeklyBannerBody');
+    document.getElementById('odoWeeklyBannerBtn').textContent = t('odoWeeklyBannerBtn');
+    document.getElementById('weeklyOdoLogTitle').textContent = t('weeklyOdoLogTitle');
+    renderWeeklyOdoLog();
     document.getElementById('maintEditTitle').textContent = t('maintEditTitle');
     document.getElementById('maintEditSub').textContent = t('maintEditSub');
     var lblLastServiceDate = document.getElementById('lblLastServiceDate');
@@ -1626,6 +1691,9 @@
     return x;
   }
   function startOfMonth(d){ var x=new Date(d.getFullYear(), d.getMonth(), 1); x.setHours(0,0,0,0); return x; }
+  function dateKeyLocal(d){
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
   function isSameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
   function fmtMoney(n){ var s = (n<0?'-':'') + currencySymbol() + Math.abs(n).toFixed(2); return s; }
 
@@ -2867,6 +2935,7 @@
       if(isFirstTime || changed){
         vehicle.odoBaseline = displayToMiles(enteredMileage);
         vehicle.baselineSetAt = new Date().toISOString();
+        upsertWeeklyOdoEntry(vehicle.odoBaseline);
       }
     }
 
@@ -2905,9 +2974,12 @@
     if(isNaN(val) || val < 0){ showToast('Enter a valid mileage'); return; }
     vehicle.odoBaseline = val;
     vehicle.baselineSetAt = new Date().toISOString();
+    upsertWeeklyOdoEntry(vehicle.odoBaseline);
     saveVehicle(vehicle);
     renderVehicleProfile();
     renderMaintList();
+    renderWeeklyOdoLog();
+    checkOdoWeeklyBanner();
     closeModal('resyncModal');
     showToast('Odometer updated');
   });
@@ -2915,7 +2987,77 @@
   function renderVehiclePanel(){
     renderVehicleProfile();
     renderMaintList();
+    renderWeeklyOdoLog();
     updateVehicleNudge();
+  }
+
+  function renderWeeklyOdoLog(){
+    var container = document.getElementById('weeklyOdoLogList');
+    if(!container) return;
+    var log = loadWeeklyOdoLog().slice().sort(function(a,b){ return b.weekStart.localeCompare(a.weekStart); });
+    if(log.length === 0){
+      container.innerHTML = '<div style="color:var(--text-faint); font-size:12px;">' + t('weeklyOdoLogEmpty') + '</div>';
+      return;
+    }
+    var html = '';
+    for(var i=0;i<log.length;i++){
+      var entry = log[i];
+      var prev = log[i+1]; // next in the desc-sorted array is the prior week
+      var displayVal = Math.round(milesToDisplay(entry.mileage));
+      var deltaHtml = '';
+      if(prev){
+        var deltaVal = Math.round(milesToDisplay(entry.mileage - prev.mileage));
+        var sign = deltaVal >= 0 ? '+' : '';
+        deltaHtml = '<span style="color:var(--text-faint); font-size:11px; margin-left:8px;">'+sign+deltaVal.toLocaleString()+' '+distUnitLabel()+' '+t('weeklyOdoVsLastWeek')+'</span>';
+      }
+      var wkDate = new Date(entry.weekStart+'T00:00:00');
+      var wkLabel = t('weeklyOdoWeekOf') + ' ' + wkDate.toLocaleDateString(currentLang, {month:'short', day:'numeric'});
+      html += '<div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--hairline);">' +
+        '<div><div style="color:var(--text-primary);">'+wkLabel+'</div>' +
+        '<div class="num">' + displayVal.toLocaleString() + ' ' + distUnitLabel() + deltaHtml + '</div></div>' +
+        '<button class="weekly-odo-delete" data-week="'+entry.weekStart+'" aria-label="Delete" style="background:none; border:none; color:var(--text-faint); font-size:16px; padding:4px 6px; flex-shrink:0;">✕</button>' +
+      '</div>';
+    }
+    container.innerHTML = html;
+    container.querySelectorAll('.weekly-odo-delete').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var wk = this.dataset.week;
+        saveWeeklyOdoLog(loadWeeklyOdoLog().filter(function(e){ return e.weekStart !== wk; }));
+        renderWeeklyOdoLog();
+        checkOdoWeeklyBanner();
+      });
+    });
+  }
+
+  /* ---------------- Weekly odometer reminder banner ---------------- */
+  function checkOdoWeeklyBanner(){
+    var banner = document.getElementById('odoWeeklyBanner');
+    if(!banner) return;
+    if(!vehicle.baselineSetAt){ banner.style.display = 'none'; return; } // no vehicle set up yet — nothing to remind about
+    var wkKey = dateKeyLocal(startOfWeek(new Date()));
+    var loggedThisWeek = loadWeeklyOdoLog().some(function(e){ return e.weekStart === wkKey; });
+    var dismissed = false;
+    try{ dismissed = localStorage.getItem('gh_odo_weekly_dismissed_' + wkKey) === '1'; }catch(e){}
+    banner.style.display = (!loggedThisWeek && !dismissed) ? 'flex' : 'none';
+  }
+  var odoWeeklyBannerBtn = document.getElementById('odoWeeklyBannerBtn');
+  if(odoWeeklyBannerBtn){
+    odoWeeklyBannerBtn.addEventListener('click', function(){
+      document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.panel==='vehicle'); });
+      document.querySelectorAll('.panel').forEach(function(p){ p.classList.toggle('active', p.id==='panel-vehicle'); });
+      renderVehiclePanel();
+      document.getElementById('resyncInput').value = Math.round(computeCurrentMileage());
+      openModal('resyncModal');
+    });
+  }
+  var odoWeeklyBannerDismiss = document.getElementById('odoWeeklyBannerDismiss');
+  if(odoWeeklyBannerDismiss){
+    odoWeeklyBannerDismiss.addEventListener('click', function(){
+      var wkKey = dateKeyLocal(startOfWeek(new Date()));
+      try{ localStorage.setItem('gh_odo_weekly_dismissed_' + wkKey, '1'); }catch(e){}
+      var banner = document.getElementById('odoWeeklyBanner');
+      if(banner) banner.style.display = 'none';
+    });
   }
 
   function updateVehicleNudge(){
@@ -3732,6 +3874,7 @@
   updateTaxUiVisibility();
   checkBackupReminder();
   checkTaxReminder();
+  checkOdoWeeklyBanner();
   checkMaintenanceNotifications();
   updateMaintNotifStatus();
 
