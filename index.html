@@ -3487,12 +3487,13 @@
 
   /* ---------------- Platforms / categories ---------------- */
   // Category choices are per-stream: the built-in Driving stream keeps a
-  // curated set matching how most gig drivers actually earn/spend, while any
-  // other stream (Dojo, Personal, or a custom one someone adds) just offers
-  // "Other" — those tend to be simpler, less categorized buckets of money.
+  // curated set matching how most gig drivers actually earn/spend. Every
+  // other stream (Personal, Dojo, or any custom one someone adds) gets a
+  // general personal/small-business finance set — common enough to cover
+  // most everyday spending without becoming an overwhelming dropdown.
   function categoriesForStream(streamName){
     if(streamName === DEFAULT_STREAMS[0]) return ['Uber','DoorDash','Gas','Other'];
-    return ['Other'];
+    return ['Housing','Services','Groceries','Credit Card Payment','Insurance','Subscriptions','Transportation','Healthcare','Debt Payment','Shopping','Salary','Other'];
   }
   function populateCategorySelect(sel, streamName, ensureValue){
     if(!sel) return;
