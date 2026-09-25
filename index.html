@@ -692,6 +692,21 @@
   </div>
 </div>
 
+<!-- Confirm stream deletion modal -->
+<div class="modal-backdrop" id="streamDeleteModal">
+  <div class="modal">
+    <div class="modal-inner">
+      <button class="close-x" data-close="streamDeleteModal">×</button>
+      <h3 id="streamDeleteTitle">Remove this stream?</h3>
+      <p id="streamDeleteBody">This stream has entries. Removing it won't delete them, but they'll disappear from your Log and Stats until you move them to another stream (edit an entry to change its stream).</p>
+      <div class="row-btns">
+        <button data-close="streamDeleteModal" id="streamDeleteCancel">Cancel</button>
+        <button class="primary" id="streamDeleteConfirm" style="background:#e5484d;">Remove anyway</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Edit maintenance interval modal -->
 <div class="modal-backdrop" id="maintEditModal">
   <div class="modal">
@@ -779,18 +794,21 @@
         <label id="lblAutoBackup">Auto-backup</label>
         <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;" id="autoBackupStatus">Checking availability…</div>
         <button type="button" id="autoBackupSetupBtn" style="width:100%; background:var(--amber); color:var(--bg-deep); border:none; border-radius:10px; padding:10px; font-size:13px; font-weight:700; margin-bottom:8px; display:none;">Set up auto-backup</button>
-        <div id="autoBackupControls" style="display:none;">
-          <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Back up</div>
+        <div id="backupCadenceWrap" style="display:none;">
+          <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Remind me</div>
           <div class="lang-options" id="backupCadenceOptions" style="margin-bottom:8px;">
             <button type="button" data-cadence="entry">Every entry</button>
             <button type="button" data-cadence="daily">Daily</button>
             <button type="button" data-cadence="weekly">Weekly</button>
           </div>
+        </div>
+        <div id="autoBackupControls" style="display:none;">
           <div style="display:flex; gap:8px;">
             <button type="button" id="autoBackupNowBtn" style="flex:1; background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline); border-radius:10px; padding:9px; font-size:12px; font-weight:600;">Back up now</button>
             <button type="button" id="autoBackupDisableBtn" style="flex:1; background:none; color:var(--text-muted); border:1px solid var(--hairline); border-radius:10px; padding:9px; font-size:12px;">Turn off</button>
           </div>
         </div>
+        <button type="button" id="shareBackupNowBtn" style="width:100%; background:var(--amber); color:var(--bg-deep); border:none; border-radius:10px; padding:10px; font-size:13px; font-weight:700; display:none;">Share backup now</button>
       </div>
       <div class="settings-section" id="monthlyCloseSection">
         <label id="lblMonthlyClose">Monthly clean slate</label>
@@ -1196,6 +1214,7 @@
       firstTimeMaintIntro: "When was each of these last done? Leave as-is if you're not sure — we'll assume it matches your current mileage.",
       currentOdo: 'Current odometer (estimated)', estimatedSub: 'Based on starting mileage + logged trips',
       resyncLink: 'Update actual odometer reading', maintenance: 'Maintenance', lblManualDate: 'Date',
+      streamDeleteTitle: 'Remove "{{STREAM}}"?', streamDeleteBody: 'This stream has {{COUNT}} entries. Removing it won\'t delete them, but they\'ll disappear from your Log and Stats until you move them to another stream (edit an entry to change its stream). Remove anyway?', streamDeleteConfirm: 'Remove anyway',
       maintDisclaimer: "These are general industry-standard intervals, not manufacturer-specific figures. Check your owner's manual for your vehicle's exact schedule, and tap a service to update it when you know the real interval.",
       resyncTitle: 'Update odometer', resyncSub: "Enter your vehicle's actual current mileage from the dashboard. Future trip miles you log will be added on top of this number.",
       odoWeeklyBannerTitle: "Update this week's odometer", odoWeeklyBannerBody: "You haven't logged your actual mileage reading this week yet.",
@@ -1231,6 +1250,7 @@
       firstTimeMaintIntro: '¿Cuándo se hizo cada uno por última vez? Déjalo así si no estás seguro — asumiremos que coincide con tu kilometraje actual.',
       currentOdo: 'Kilometraje actual (estimado)', estimatedSub: 'Basado en el kilometraje inicial + viajes registrados',
       resyncLink: 'Actualizar lectura real del odómetro', maintenance: 'Mantenimiento', lblManualDate: 'Fecha',
+      streamDeleteTitle: '¿Eliminar "{{STREAM}}"?', streamDeleteBody: 'Esta secuencia tiene {{COUNT}} movimientos. Eliminarla no los borrará, pero desaparecerán de tu Registro y Estadísticas hasta que los muevas a otra secuencia (edita un movimiento para cambiar su secuencia). ¿Eliminar de todos modos?', streamDeleteConfirm: 'Eliminar de todos modos',
       maintDisclaimer: 'Estos son intervalos generales de la industria, no cifras específicas del fabricante. Consulta el manual de tu vehículo para el programa exacto, y toca un servicio para actualizarlo cuando conozcas el intervalo real.',
       resyncTitle: 'Actualizar odómetro', resyncSub: 'Ingresa el kilometraje real actual de tu vehículo desde el tablero. Las millas de viajes futuros se sumarán a este número.',
       odoWeeklyBannerTitle: 'Actualiza el odómetro de esta semana', odoWeeklyBannerBody: 'Aún no has registrado tu kilometraje real esta semana.',
@@ -1266,6 +1286,7 @@
       firstTimeMaintIntro: "Quando è stato fatto ciascuno l'ultima volta? Lascia invariato se non sei sicuro — presumeremo che corrisponda al tuo chilometraggio attuale.",
       currentOdo: 'Chilometraggio attuale (stimato)', estimatedSub: 'Basato sul chilometraggio iniziale + viaggi registrati',
       resyncLink: "Aggiorna la lettura reale del contachilometri", maintenance: 'Manutenzione', lblManualDate: 'Data',
+      streamDeleteTitle: 'Rimuovere "{{STREAM}}"?', streamDeleteBody: 'Questo flusso ha {{COUNT}} voci. Rimuoverlo non le eliminerà, ma spariranno dal Registro e dalle Statistiche finché non le sposti in un altro flusso (modifica una voce per cambiarne il flusso). Rimuovere comunque?', streamDeleteConfirm: 'Rimuovi comunque',
       maintDisclaimer: "Questi sono intervalli generici del settore, non dati specifici del costruttore. Controlla il libretto del tuo veicolo per il programma esatto, e tocca un intervento per aggiornarlo quando conosci l'intervallo reale.",
       resyncTitle: 'Aggiorna contachilometri', resyncSub: 'Inserisci il chilometraggio reale attuale del tuo veicolo dal cruscotto. I chilometri dei viaggi futuri si aggiungeranno a questo numero.',
       odoWeeklyBannerTitle: 'Aggiorna il contachilometri di questa settimana', odoWeeklyBannerBody: 'Non hai ancora registrato il chilometraggio reale di questa settimana.',
@@ -1301,6 +1322,7 @@
       firstTimeMaintIntro: "Quand chacun de ces éléments a-t-il été fait pour la dernière fois ? Laissez tel quel si vous n'êtes pas sûr — nous supposerons que cela correspond à votre kilométrage actuel.",
       currentOdo: 'Compteur actuel (estimé)', estimatedSub: 'Basé sur le kilométrage de départ + trajets enregistrés',
       resyncLink: 'Mettre à jour le relevé réel du compteur', maintenance: 'Entretien', lblManualDate: 'Date',
+      streamDeleteTitle: 'Supprimer « {{STREAM}} » ?', streamDeleteBody: 'Ce flux contient {{COUNT}} entrées. Le supprimer ne les effacera pas, mais elles disparaîtront de votre Journal et de vos Statistiques jusqu\'à ce que vous les déplaciez vers un autre flux (modifiez une entrée pour changer son flux). Supprimer quand même ?', streamDeleteConfirm: 'Supprimer quand même',
       maintDisclaimer: "Ce sont des intervalles standards du secteur, pas des chiffres spécifiques au fabricant. Consultez le manuel de votre véhicule pour le calendrier exact, et touchez un service pour le mettre à jour lorsque vous connaissez l'intervalle réel.",
       resyncTitle: 'Mettre à jour le compteur', resyncSub: 'Entrez le kilométrage réel actuel de votre véhicule depuis le tableau de bord. Les kilomètres des futurs trajets s\'ajouteront à ce nombre.',
       odoWeeklyBannerTitle: 'Mettez à jour le compteur de cette semaine', odoWeeklyBannerBody: "Vous n'avez pas encore enregistré votre kilométrage réel cette semaine.",
@@ -1336,6 +1358,7 @@
       firstTimeMaintIntro: '这些项目上次是什么时候做的？如果不确定就保持原样——我们会假设它与您当前的里程相符。',
       currentOdo: '当前里程表（估算）', estimatedSub: '基于起始里程 + 已记录行程',
       resyncLink: '更新实际里程表读数', maintenance: '保养', lblManualDate: '日期',
+      streamDeleteTitle: '删除"{{STREAM}}"？', streamDeleteBody: '此收支类别下有 {{COUNT}} 条记录。删除该类别不会删除这些记录，但在您把它们移到其他类别之前（编辑记录即可更改类别），它们会从"记录"和"统计"中消失。仍要删除吗？', streamDeleteConfirm: '仍要删除',
       maintDisclaimer: '这些是行业通用的间隔标准，并非制造商专属数据。请查阅您车辆的车主手册以获取准确的保养计划，并在了解实际间隔后点击某项服务进行更新。',
       resyncTitle: '更新里程表', resyncSub: '请输入仪表盘上显示的车辆实际当前里程。之后记录的行程里程将累加到此数字上。',
       odoWeeklyBannerTitle: '更新本周的里程表读数', odoWeeklyBannerBody: '您本周还未记录实际里程表读数。',
@@ -1420,6 +1443,25 @@
     return dict[key] !== undefined ? dict[key] : (I18N['en-US'][key] || '');
   }
 
+  // Display-only category translation. Entries store a canonical English
+  // category string (e.g. "Services") regardless of UI language — that
+  // keeps categoriesForStream() matching, stats/tax grouping keys, and CSV
+  // exports all stable across a language switch. Only the on-screen label
+  // is translated; brand names (Uber, DoorDash) and any category not in
+  // this map (a future custom category, say) fall back to the stored name
+  // unchanged, so nothing ever renders blank.
+  var CATEGORY_LABELS = {
+    'en-US': { Gas:'Gas', Other:'Other', Housing:'Housing', Services:'Services', Groceries:'Groceries', 'Credit Card Payment':'Credit Card Payment', Insurance:'Insurance', Subscriptions:'Subscriptions', Transportation:'Transportation', Healthcare:'Healthcare', 'Debt Payment':'Debt Payment', Shopping:'Shopping', Salary:'Salary' },
+    'es-ES': { Gas:'Gasolina', Other:'Otro', Housing:'Vivienda', Services:'Servicios', Groceries:'Comestibles', 'Credit Card Payment':'Pago de tarjeta de crédito', Insurance:'Seguro', Subscriptions:'Suscripciones', Transportation:'Transporte', Healthcare:'Salud', 'Debt Payment':'Pago de deuda', Shopping:'Compras', Salary:'Salario' },
+    'it-IT': { Gas:'Benzina', Other:'Altro', Housing:'Alloggio', Services:'Servizi', Groceries:'Alimentari', 'Credit Card Payment':'Pagamento carta di credito', Insurance:'Assicurazione', Subscriptions:'Abbonamenti', Transportation:'Trasporti', Healthcare:'Sanità', 'Debt Payment':'Pagamento debito', Shopping:'Acquisti', Salary:'Stipendio' },
+    'fr-FR': { Gas:'Essence', Other:'Autre', Housing:'Logement', Services:'Services', Groceries:'Courses', 'Credit Card Payment':'Paiement carte de crédit', Insurance:'Assurance', Subscriptions:'Abonnements', Transportation:'Transport', Healthcare:'Santé', 'Debt Payment':'Remboursement de dette', Shopping:'Achats', Salary:'Salaire' },
+    'zh-CN': { Gas:'汽油', Other:'其他', Housing:'住房', Services:'服务', Groceries:'食品杂货', 'Credit Card Payment':'信用卡还款', Insurance:'保险', Subscriptions:'订阅服务', Transportation:'交通', Healthcare:'医疗保健', 'Debt Payment':'偿还债务', Shopping:'购物', Salary:'工资' }
+  };
+  function categoryLabel(cat){
+    var dict = CATEGORY_LABELS[currentLang] || CATEGORY_LABELS['en-US'];
+    return dict[cat] || cat;
+  }
+
   /* ---------------- Help / user manual ---------------- */
   var HELP_CONTENT = {
     'en-US': {
@@ -1429,12 +1471,12 @@
       title: 'User guide',
       sections: [
         { icon:'👋', title:'Getting started', body:'When you first open GigHelper, you\'ll pick your language, country, and platforms (DoorDash, Uber, etc.). Your country sets your default currency and whether you see miles or kilometers — you can change any of these later in Settings.' },
-        { icon:'🗂️', title:'Streams — tracking more than one income source', body:'If you have more than one income source — gig driving, a side business, or just your personal spending — add a Stream for each one in Settings. Once you have two or more, a "Logging to" bar appears at the top of the Log tab; tap a stream there to switch which one new entries go to. Everything you log by voice or by hand is tagged with whatever stream is active, so your Stats and exports can be viewed per stream or all together. One exception: the tax summary export requires picking one specific stream (not "All streams") if you have more than one, so personal spending never ends up in a business tax report. You can also switch streams by voice — say something like "switch to Dojo."' },
+        { icon:'🗂️', title:'Streams — tracking more than one income source', body:'If you have more than one income source — gig driving, a side business, or just your personal spending — add a Stream for each one in Settings. Once you have two or more, a "Logging to" bar appears at the top of the Log tab; tap a stream there to switch which one new entries go to. Everything you log by voice or by hand is tagged with whatever stream is active, so your Stats and exports can be viewed per stream or all together. One exception: the tax summary export requires picking one specific stream (not "All streams") if you have more than one, so personal spending never ends up in a business tax report. You can also switch streams by voice — say something like "switch to Dojo." If you remove a stream that still has entries, the app will warn you first — those entries aren\'t deleted, but they\'ll be hidden until you move them to another stream.' },
         { icon:'🎙️', title:'Logging by voice', body:'Tap the microphone and say what happened — for example "20 dollars income doordash", "8 dollars expense gas", or "log 12 miles". You can also say spelled-out numbers like "twenty dollars" and kilometers like "10 kilometers". Works in English, Spanish, Italian, French, and Chinese — switch the voice language in Settings.' },
         { icon:'✏️', title:'Logging manually', body:'Tap the + button to add an income, expense, or mileage entry by hand — useful if it\'s noisy, you\'re not comfortable speaking the entry aloud, or you just prefer typing. Use the Date field to log something for a past day (like income you forgot to enter yesterday) instead of it landing on today — it defaults to today and won\'t let you pick a future date.' },
         { icon:'📊', title:'Stats & Calendar', body:'The Stats tab shows your income, expenses, and net earnings per mile (or km) for the day, week, or month. The Calendar tab lets you tap any date to see everything logged that day.' },
         { icon:'🚗', title:'Vehicle & maintenance', body:'Add your vehicle\'s make, model, and current mileage in the Vehicle tab. GigHelper tracks common maintenance items (oil changes, tires, brakes, and more) by mileage and/or time, and can send you a notification when something\'s due. Once a week, a banner reminds you to update your actual odometer reading — you can do this any day that week, not just Monday. A "Weekly odometer log" in the Vehicle tab keeps a history of these readings with how much you drove week to week.' },
-        { icon:'💾', title:'Backing up your data', body:'Your entries live only on this device unless you back them up. In Settings, set up auto-backup to save automatically to a file you choose (for example, inside your Google Drive or OneDrive folder) — available in Chrome and Edge. You can also export a CSV manually anytime.' },
+        { icon:'💾', title:'Backing up your data', body:'Your entries live only on this device unless you back them up. In Settings, set up auto-backup to save automatically to a file you choose (for example, inside your Google Drive or OneDrive folder) — available in Chrome and Edge. On iOS Safari and other browsers without that option, Settings offers a "Share backup now" button instead — it hands a backup file straight to Files, iCloud Drive, Google Drive, or email in one tap. You can also export a CSV manually anytime.' },
         { icon:'🌍', title:'Currency, units & region', body:'In Settings, set your country, currency, and whether distances show in miles or kilometers. Changing these doesn\'t alter your past entries — they\'re stored consistently and simply displayed in whichever unit you\'ve chosen.' },
         { icon:'🧾', title:'Tax tools (US only)', body:'If your country is set to United States, GigHelper reminds you about quarterly estimated tax deadlines and can export a tax summary using the IRS standard mileage deduction. These tools are hidden for other countries since they\'re specific to US tax rules.' },
         { icon:'✂️', title:'Renaming the app', body:'Say "call this app [name]" to the microphone, or change it directly in Settings.' }
@@ -1447,12 +1489,12 @@
       title: 'Guía del usuario',
       sections: [
         { icon:'👋', title:'Primeros pasos', body:'Al abrir GigHelper por primera vez, elegirás tu idioma, país y plataformas (DoorDash, Uber, etc.). Tu país define tu moneda predeterminada y si ves millas o kilómetros — puedes cambiar todo esto después en Ajustes.' },
-        { icon:'🗂️', title:'Fuentes — seguimiento de más de una fuente de ingresos', body:'Si tienes más de una fuente de ingresos — conducir para apps de reparto, un negocio propio, o simplemente tus gastos personales — añade una Fuente para cada una en Ajustes. Cuando tengas dos o más, aparecerá una barra "Registrando en" en la parte superior de la pestaña Registro; toca una fuente ahí para cambiar a cuál se asignan los nuevos registros. Todo lo que registres por voz o a mano se etiqueta con la fuente activa, así que tus Estadísticas y exportaciones se pueden ver por fuente o todas juntas. Una excepción: la exportación del resumen de impuestos requiere elegir una fuente específica (no "Todas las fuentes") si tienes más de una, para que tus gastos personales nunca terminen en un informe de impuestos de negocio. También puedes cambiar de fuente por voz — di algo como "cambia a Dojo".' },
+        { icon:'🗂️', title:'Fuentes — seguimiento de más de una fuente de ingresos', body:'Si tienes más de una fuente de ingresos — conducir para apps de reparto, un negocio propio, o simplemente tus gastos personales — añade una Fuente para cada una en Ajustes. Cuando tengas dos o más, aparecerá una barra "Registrando en" en la parte superior de la pestaña Registro; toca una fuente ahí para cambiar a cuál se asignan los nuevos registros. Todo lo que registres por voz o a mano se etiqueta con la fuente activa, así que tus Estadísticas y exportaciones se pueden ver por fuente o todas juntas. Una excepción: la exportación del resumen de impuestos requiere elegir una fuente específica (no "Todas las fuentes") si tienes más de una, para que tus gastos personales nunca terminen en un informe de impuestos de negocio. También puedes cambiar de fuente por voz — di algo como "cambia a Dojo". Si eliminas una fuente que aún tiene registros, la app te avisará antes — esos registros no se borran, pero quedarán ocultos hasta que los muevas a otra fuente.' },
         { icon:'🎙️', title:'Registrar por voz', body:'Toca el micrófono y di lo que pasó — por ejemplo "20 dólares ingreso doordash", "8 dólares gasto gasolina", o "registra 12 millas". También puedes decir números escritos como "veinte dólares" y kilómetros como "10 kilómetros". Funciona en inglés, español, italiano, francés y chino — cambia el idioma de voz en Ajustes.' },
         { icon:'✏️', title:'Registrar manualmente', body:'Toca el botón + para añadir un ingreso, gasto o kilometraje a mano — útil si hay ruido, no te sientes cómodo hablando en voz alta, o simplemente prefieres escribir. Usa el campo Fecha para registrar algo de un día pasado (por ejemplo, un ingreso que olvidaste registrar ayer) en lugar de que quede en el día de hoy — viene predeterminado en hoy y no te deja elegir una fecha futura.' },
         { icon:'📊', title:'Estadísticas y calendario', body:'La pestaña Estadísticas muestra tus ingresos, gastos y ganancia neta por milla (o km) del día, semana o mes. La pestaña Calendario te deja tocar cualquier fecha para ver todo lo registrado ese día.' },
         { icon:'🚗', title:'Vehículo y mantenimiento', body:'Añade la marca, modelo y kilometraje actual de tu vehículo en la pestaña Vehículo. GigHelper rastrea el mantenimiento común (cambios de aceite, llantas, frenos y más) por kilometraje y/o tiempo, y puede avisarte cuando algo esté por vencer. Una vez a la semana, un aviso te recuerda actualizar tu lectura real del odómetro — puedes hacerlo cualquier día de esa semana, no solo el lunes. Un "Registro semanal del odómetro" en la pestaña Vehículo guarda un historial de estas lecturas con cuánto condujiste semana a semana.' },
-        { icon:'💾', title:'Respaldar tus datos', body:'Tus registros solo viven en este dispositivo a menos que los respaldes. En Ajustes, activa el respaldo automático para guardar en un archivo que elijas (por ejemplo, dentro de tu carpeta de Google Drive o OneDrive) — disponible en Chrome y Edge. También puedes exportar un CSV manualmente cuando quieras.' },
+        { icon:'💾', title:'Respaldar tus datos', body:'Tus registros solo viven en este dispositivo a menos que los respaldes. En Ajustes, activa el respaldo automático para guardar en un archivo que elijas (por ejemplo, dentro de tu carpeta de Google Drive o OneDrive) — disponible en Chrome y Edge. En iOS Safari y otros navegadores sin esa opción, Ajustes ofrece un botón "Compartir respaldo ahora" — envía un archivo de respaldo directamente a Archivos, iCloud Drive, Google Drive o correo con un solo toque. También puedes exportar un CSV manualmente cuando quieras.' },
         { icon:'🌍', title:'Moneda, unidades y región', body:'En Ajustes, configura tu país, moneda y si las distancias se muestran en millas o kilómetros. Cambiar esto no altera tus registros pasados — se guardan de forma consistente y solo se muestran en la unidad que elijas.' },
         { icon:'🧾', title:'Herramientas fiscales (solo EE. UU.)', body:'Si tu país está configurado como Estados Unidos, GigHelper te recuerda las fechas límite de impuestos estimados trimestrales y puede exportar un resumen fiscal usando la deducción estándar del IRS por milla. Estas herramientas están ocultas para otros países porque son específicas de las reglas fiscales de EE. UU.' },
         { icon:'✂️', title:'Renombrar la app', body:'Dile al micrófono "llama a esta app [nombre]", o cámbialo directamente en Ajustes.' }
@@ -1465,12 +1507,12 @@
       title: 'Guida utente',
       sections: [
         { icon:'👋', title:'Per iniziare', body:'Alla prima apertura di GigHelper, sceglierai lingua, paese e piattaforme (DoorDash, Uber, ecc.). Il tuo paese imposta la valuta predefinita e se vedi miglia o chilometri — puoi cambiare tutto questo dopo nelle Impostazioni.' },
-        { icon:'🗂️', title:'Flussi — monitorare più di una fonte di reddito', body:'Se hai più di una fonte di reddito — guida per app di consegne, un\'attività secondaria, o semplicemente le tue spese personali — aggiungi un Flusso per ciascuna in Impostazioni. Quando ne hai due o più, in cima alla scheda Registro apparirà una barra "Registrazione su"; tocca un flusso lì per cambiare a quale vengono assegnate le nuove voci. Tutto ciò che registri, a voce o manualmente, viene etichettato con il flusso attivo, così le tue Statistiche ed esportazioni si possono vedere per flusso o tutte insieme. Un\'eccezione: l\'esportazione del riepilogo fiscale richiede di scegliere un flusso specifico (non "Tutti i flussi") se ne hai più di uno, così le spese personali non finiscono mai in un rendiconto fiscale aziendale. Puoi anche cambiare flusso con la voce — di\' qualcosa come "passa a Dojo".' },
+        { icon:'🗂️', title:'Flussi — monitorare più di una fonte di reddito', body:'Se hai più di una fonte di reddito — guida per app di consegne, un\'attività secondaria, o semplicemente le tue spese personali — aggiungi un Flusso per ciascuna in Impostazioni. Quando ne hai due o più, in cima alla scheda Registro apparirà una barra "Registrazione su"; tocca un flusso lì per cambiare a quale vengono assegnate le nuove voci. Tutto ciò che registri, a voce o manualmente, viene etichettato con il flusso attivo, così le tue Statistiche ed esportazioni si possono vedere per flusso o tutte insieme. Un\'eccezione: l\'esportazione del riepilogo fiscale richiede di scegliere un flusso specifico (non "Tutti i flussi") se ne hai più di uno, così le spese personali non finiscono mai in un rendiconto fiscale aziendale. Puoi anche cambiare flusso con la voce — di\' qualcosa come "passa a Dojo". Se rimuovi un flusso che ha ancora delle voci, l\'app ti avviserà prima — quelle voci non vengono eliminate, ma resteranno nascoste finché non le sposti in un altro flusso.' },
         { icon:'🎙️', title:'Registrare con la voce', body:'Tocca il microfono e di\' cosa è successo — ad esempio "20 dollari entrata doordash", "8 dollari spesa benzina", o "registra 12 miglia". Puoi anche dire numeri scritti come "venti dollari" e chilometri come "10 chilometri". Funziona in inglese, spagnolo, italiano, francese e cinese — cambia la lingua vocale nelle Impostazioni.' },
         { icon:'✏️', title:'Registrare manualmente', body:'Tocca il pulsante + per aggiungere entrata, spesa o chilometraggio a mano — utile se c\'è rumore, non ti senti a tuo agio a parlare ad alta voce, o preferisci semplicemente digitare. Usa il campo Data per registrare qualcosa per un giorno passato (ad esempio un\'entrata che hai dimenticato di registrare ieri) invece che sul giorno di oggi — è impostato di default su oggi e non permette di scegliere una data futura.' },
         { icon:'📊', title:'Statistiche e calendario', body:'La scheda Statistiche mostra entrate, spese e guadagno netto per miglio (o km) del giorno, settimana o mese. La scheda Calendario ti permette di toccare qualsiasi data per vedere tutto ciò che è stato registrato quel giorno.' },
         { icon:'🚗', title:'Veicolo e manutenzione', body:'Aggiungi marca, modello e chilometraggio attuale del tuo veicolo nella scheda Veicolo. GigHelper traccia la manutenzione comune (cambio olio, gomme, freni e altro) per chilometraggio e/o tempo, e può avvisarti quando qualcosa è in scadenza. Una volta a settimana, un avviso ti ricorda di aggiornare la lettura reale del contachilometri — puoi farlo in qualsiasi giorno di quella settimana, non solo lunedì. Un "Registro settimanale del contachilometri" nella scheda Veicolo conserva uno storico di queste letture con quanto hai percorso settimana per settimana.' },
-        { icon:'💾', title:'Backup dei tuoi dati', body:'I tuoi dati vivono solo su questo dispositivo a meno che tu non li salvi altrove. Nelle Impostazioni, attiva il backup automatico per salvare in un file a tua scelta (ad esempio, dentro la tua cartella Google Drive o OneDrive) — disponibile su Chrome ed Edge. Puoi anche esportare un CSV manualmente in qualsiasi momento.' },
+        { icon:'💾', title:'Backup dei tuoi dati', body:'I tuoi dati vivono solo su questo dispositivo a meno che tu non li salvi altrove. Nelle Impostazioni, attiva il backup automatico per salvare in un file a tua scelta (ad esempio, dentro la tua cartella Google Drive o OneDrive) — disponibile su Chrome ed Edge. Su iOS Safari e altri browser senza questa opzione, Impostazioni offre invece un pulsante "Condividi backup ora" — invia un file di backup direttamente a File, iCloud Drive, Google Drive o email con un tocco. Puoi anche esportare un CSV manualmente in qualsiasi momento.' },
         { icon:'🌍', title:'Valuta, unità e regione', body:'Nelle Impostazioni, imposta il tuo paese, la valuta e se le distanze sono mostrate in miglia o chilometri. Cambiare questi valori non altera i dati passati — sono salvati in modo coerente e vengono semplicemente mostrati nell\'unità scelta.' },
         { icon:'🧾', title:'Strumenti fiscali (solo USA)', body:'Se il tuo paese è impostato su Stati Uniti, GigHelper ti ricorda le scadenze fiscali trimestrali stimate e può esportare un riepilogo fiscale usando la deduzione chilometrica standard dell\'IRS. Questi strumenti sono nascosti per gli altri paesi perché specifici delle regole fiscali statunitensi.' },
         { icon:'✂️', title:'Rinominare l\'app', body:'Di\' al microfono "chiama questa app [nome]", oppure cambialo direttamente nelle Impostazioni.' }
@@ -1483,12 +1525,12 @@
       title: 'Guide de l\'utilisateur',
       sections: [
         { icon:'👋', title:'Premiers pas', body:'À la première ouverture de GigHelper, vous choisirez votre langue, pays et plateformes (DoorDash, Uber, etc.). Votre pays définit votre devise par défaut et si vous voyez des miles ou des kilomètres — vous pouvez tout modifier plus tard dans les Paramètres.' },
-        { icon:'🗂️', title:'Flux — suivre plusieurs sources de revenus', body:'Si vous avez plusieurs sources de revenus — conduite pour une appli de livraison, une activité secondaire, ou simplement vos dépenses personnelles — ajoutez un Flux pour chacune dans Paramètres. Dès que vous en avez deux ou plus, une barre "Enregistrement dans" apparaît en haut de l\'onglet Journal ; touchez un flux pour changer celui auquel les nouvelles entrées sont attribuées. Tout ce que vous enregistrez, à la voix ou manuellement, est étiqueté avec le flux actif, afin que vos Statistiques et exports puissent être consultés par flux ou tous ensemble. Une exception : l\'export du résumé fiscal exige de choisir un flux précis (pas "Tous les flux") si vous en avez plusieurs, afin que vos dépenses personnelles ne se retrouvent jamais dans un rapport fiscal professionnel. Vous pouvez aussi changer de flux à la voix — dites par exemple "passe à Dojo".' },
+        { icon:'🗂️', title:'Flux — suivre plusieurs sources de revenus', body:'Si vous avez plusieurs sources de revenus — conduite pour une appli de livraison, une activité secondaire, ou simplement vos dépenses personnelles — ajoutez un Flux pour chacune dans Paramètres. Dès que vous en avez deux ou plus, une barre "Enregistrement dans" apparaît en haut de l\'onglet Journal ; touchez un flux pour changer celui auquel les nouvelles entrées sont attribuées. Tout ce que vous enregistrez, à la voix ou manuellement, est étiqueté avec le flux actif, afin que vos Statistiques et exports puissent être consultés par flux ou tous ensemble. Une exception : l\'export du résumé fiscal exige de choisir un flux précis (pas "Tous les flux") si vous en avez plusieurs, afin que vos dépenses personnelles ne se retrouvent jamais dans un rapport fiscal professionnel. Vous pouvez aussi changer de flux à la voix — dites par exemple "passe à Dojo". Si vous supprimez un flux qui contient encore des entrées, l\'appli vous préviendra d\'abord — ces entrées ne sont pas effacées, mais elles resteront masquées jusqu\'à ce que vous les déplaciez vers un autre flux.' },
         { icon:'🎙️', title:'Enregistrer à la voix', body:'Touchez le micro et dites ce qui s\'est passé — par exemple "20 dollars revenu doordash", "8 dollars dépense essence", ou "enregistre 12 miles". Vous pouvez aussi dire des nombres en toutes lettres comme "vingt dollars" et des kilomètres comme "10 kilomètres". Fonctionne en anglais, espagnol, italien, français et chinois — changez la langue vocale dans les Paramètres.' },
         { icon:'✏️', title:'Enregistrer manuellement', body:'Touchez le bouton + pour ajouter un revenu, une dépense ou un kilométrage à la main — utile en cas de bruit, si vous n\'êtes pas à l\'aise pour parler à voix haute, ou si vous préférez simplement taper. Utilisez le champ Date pour enregistrer quelque chose pour un jour passé (par exemple un revenu que vous avez oublié d\'enregistrer hier) au lieu qu\'il soit attribué à aujourd\'hui — il est par défaut sur aujourd\'hui et ne permet pas de choisir une date future.' },
         { icon:'📊', title:'Statistiques et calendrier', body:'L\'onglet Statistiques affiche vos revenus, dépenses et gain net par mile (ou km) du jour, de la semaine ou du mois. L\'onglet Calendrier vous permet de toucher n\'importe quelle date pour voir tout ce qui a été enregistré ce jour-là.' },
         { icon:'🚗', title:'Véhicule et entretien', body:'Ajoutez la marque, le modèle et le kilométrage actuel de votre véhicule dans l\'onglet Véhicule. GigHelper suit l\'entretien courant (vidanges, pneus, freins, et plus) selon le kilométrage et/ou le temps, et peut vous notifier quand quelque chose arrive à échéance. Une fois par semaine, une bannière vous rappelle de mettre à jour votre relevé réel du compteur — vous pouvez le faire n\'importe quel jour de cette semaine, pas seulement le lundi. Un "Relevé hebdomadaire du compteur" dans l\'onglet Véhicule conserve un historique de ces relevés avec le kilométrage parcouru semaine après semaine.' },
-        { icon:'💾', title:'Sauvegarder vos données', body:'Vos données ne vivent que sur cet appareil à moins de les sauvegarder. Dans les Paramètres, activez la sauvegarde automatique pour enregistrer dans un fichier de votre choix (par exemple, dans votre dossier Google Drive ou OneDrive) — disponible sur Chrome et Edge. Vous pouvez aussi exporter un CSV manuellement à tout moment.' },
+        { icon:'💾', title:'Sauvegarder vos données', body:'Vos données ne vivent que sur cet appareil à moins de les sauvegarder. Dans les Paramètres, activez la sauvegarde automatique pour enregistrer dans un fichier de votre choix (par exemple, dans votre dossier Google Drive ou OneDrive) — disponible sur Chrome et Edge. Sur iOS Safari et les autres navigateurs sans cette option, les Paramètres proposent à la place un bouton « Partager une sauvegarde maintenant » — il envoie un fichier de sauvegarde directement vers Fichiers, iCloud Drive, Google Drive ou par e-mail en un geste. Vous pouvez aussi exporter un CSV manuellement à tout moment.' },
         { icon:'🌍', title:'Devise, unités et région', body:'Dans les Paramètres, définissez votre pays, votre devise et si les distances s\'affichent en miles ou en kilomètres. Ce changement n\'altère pas vos données passées — elles sont enregistrées de façon cohérente et simplement affichées dans l\'unité choisie.' },
         { icon:'🧾', title:'Outils fiscaux (États-Unis uniquement)', body:'Si votre pays est défini sur États-Unis, GigHelper vous rappelle les échéances fiscales trimestrielles estimées et peut exporter un résumé fiscal utilisant la déduction kilométrique standard de l\'IRS. Ces outils sont masqués pour les autres pays car spécifiques aux règles fiscales américaines.' },
         { icon:'✂️', title:'Renommer l\'application', body:'Dites au micro "appelle cette app [nom]", ou changez-le directement dans les Paramètres.' }
@@ -1501,12 +1543,12 @@
       title: '用户指南',
       sections: [
         { icon:'👋', title:'快速开始', body:'首次打开 GigHelper 时，您将选择语言、国家和平台（DoorDash、Uber 等）。您的国家决定默认货币，以及显示英里还是公里 — 之后都可以在设置中更改。' },
-        { icon:'🗂️', title:'收入来源 — 追踪多个收入来源', body:'如果您有不止一个收入来源 —— 网约车/外卖配送、副业，或只是个人日常开支 —— 可以在设置中为每一个添加一个"收入来源"。当您有两个或更多来源时，记录标签页顶部会出现一个"记录到"栏；点击其中一个来源即可切换新记录归属的来源。无论是语音还是手动记录，都会标记为当前激活的来源，因此您的统计和导出数据既可以按来源单独查看，也可以合并查看。但有一个例外：如果您有多个收入来源，导出税务摘要时必须选择一个具体来源（而不是"所有来源"），这样可以确保个人开支永远不会出现在商业税务报告中。您也可以通过语音切换来源 —— 例如说"切换到Dojo"。' },
+        { icon:'🗂️', title:'收入来源 — 追踪多个收入来源', body:'如果您有不止一个收入来源 —— 网约车/外卖配送、副业，或只是个人日常开支 —— 可以在设置中为每一个添加一个"收入来源"。当您有两个或更多来源时，记录标签页顶部会出现一个"记录到"栏；点击其中一个来源即可切换新记录归属的来源。无论是语音还是手动记录，都会标记为当前激活的来源，因此您的统计和导出数据既可以按来源单独查看，也可以合并查看。但有一个例外：如果您有多个收入来源，导出税务摘要时必须选择一个具体来源（而不是"所有来源"），这样可以确保个人开支永远不会出现在商业税务报告中。您也可以通过语音切换来源 —— 例如说"切换到Dojo"。如果您删除的来源下仍有记录，应用会先提醒您 —— 这些记录不会被删除，但会一直隐藏，直到您把它们移到其他来源。' },
         { icon:'🎙️', title:'语音记录', body:'点按麦克风并说出发生的事情 — 例如"20美元收入doordash"、"8美元支出汽油"或"记录12英里"。您也可以说出数字词，如"二十美元"，以及公里，如"10公里"。支持英语、西班牙语、意大利语、法语和中文 — 可在设置中切换语音语言。' },
         { icon:'✏️', title:'手动记录', body:'点按 + 按钮手动添加收入、支出或里程 — 在环境嘈杂、不方便说话或您只是更喜欢打字时很有用。使用"日期"字段可以为过去的某一天记录内容（例如昨天忘记记录的收入），而不是记到今天 — 该字段默认是今天，且不能选择未来的日期。' },
         { icon:'📊', title:'统计与日历', body:'"统计"选项卡显示您当天、当周或当月的收入、支出和每英里（或公里）净收益。"日历"选项卡让您点按任意日期查看当天记录的所有内容。' },
         { icon:'🚗', title:'车辆与保养', body:'在"车辆"选项卡中添加您车辆的品牌、型号和当前里程。GigHelper 会按里程和/或时间跟踪常见保养项目（换机油、轮胎、刹车等），并在到期时提醒您。每周都会有一个提醒横幅，提示您更新实际的里程表读数 — 您可以在当周的任意一天完成，不必是周一。"车辆"选项卡中的"每周里程表记录"会保存这些读数的历史，并显示每周之间的行驶里程变化。' },
-        { icon:'💾', title:'备份您的数据', body:'除非您进行备份，否则您的记录仅保存在此设备上。在设置中，开启自动备份，将数据保存到您选择的文件中（例如您的 Google Drive 或 OneDrive 文件夹内）— 该功能适用于 Chrome 和 Edge。您也可以随时手动导出 CSV 文件。' },
+        { icon:'💾', title:'备份您的数据', body:'除非您进行备份，否则您的记录仅保存在此设备上。在设置中，开启自动备份，将数据保存到您选择的文件中（例如您的 Google Drive 或 OneDrive 文件夹内）— 该功能适用于 Chrome 和 Edge。在 iOS Safari 和其他不支持该功能的浏览器上，设置里会改为提供"立即分享备份"按钮 —— 一键将备份文件发送到"文件"、iCloud Drive、Google Drive 或邮件。您也可以随时手动导出 CSV 文件。' },
         { icon:'🌍', title:'货币、单位与地区', body:'在设置中，设置您的国家、货币，以及距离显示为英里还是公里。更改这些设置不会改变您过去的记录 — 数据的存储方式始终一致，只是按您选择的单位显示。' },
         { icon:'🧾', title:'税务工具（仅限美国）', body:'如果您的国家设置为美国，GigHelper 会提醒您季度预估税的截止日期，并可使用 IRS 标准里程扣除额导出税务摘要。其他国家/地区因涉及美国特定税务规则而不显示这些工具。' },
         { icon:'✂️', title:'重命名应用', body:'对麦克风说"把这个应用叫做[名称]"，或直接在设置中更改。' }
@@ -1585,6 +1627,7 @@
     document.getElementById('vResyncBtn').textContent = t('resyncLink');
     document.getElementById('lblMaintenance').textContent = t('maintenance');
     document.getElementById('lblManualDate').textContent = t('lblManualDate');
+    document.getElementById('streamDeleteConfirm').textContent = t('streamDeleteConfirm');
     document.getElementById('maintDisclaimer').textContent = t('maintDisclaimer');
     document.getElementById('resyncTitle').textContent = t('resyncTitle');
     document.getElementById('resyncSub').textContent = t('resyncSub');
@@ -1650,6 +1693,13 @@
   document.querySelectorAll('[data-close]').forEach(function(b){
     b.addEventListener('click', function(){ closeModal(b.dataset.close); });
   });
+  document.getElementById('streamDeleteConfirm').addEventListener('click', function(){
+    if(pendingStreamDelete){
+      performStreamRemoval(pendingStreamDelete);
+      pendingStreamDelete = null;
+    }
+    closeModal('streamDeleteModal');
+  });
   document.getElementById('titleClickable').addEventListener('click', function(){
     document.getElementById('renameInput').value = appName;
     openModal('renameModal');
@@ -1696,6 +1746,9 @@
     entries = entries.filter(function(e){ return e.id!==id; });
     saveEntries(entries);
     renderAll();
+  }
+  function countEntriesForStream(streamName){
+    return entries.filter(function(e){ return e.stream===streamName; }).length;
   }
 
   function startOfWeek(d){
@@ -1880,7 +1933,7 @@
         var sign = type==='income' ? '+' : '-';
         rowsHtml += '<div class="entry entry-group" data-key="'+encodeURIComponent(key)+'">'+
           '<div class="entry-icon '+type+'">'+iconFor(type)+'</div>'+
-          '<div class="entry-info"><div class="entry-cat">'+cat+'</div><div class="entry-time entry-count">'+n+' '+(n===1?t('entrySingular'):t('entryPlural'))+'</div></div>'+
+          '<div class="entry-info"><div class="entry-cat">'+categoryLabel(cat)+'</div><div class="entry-time entry-count">'+n+' '+(n===1?t('entrySingular'):t('entryPlural'))+'</div></div>'+
           '<div class="entry-amt '+type+'">'+sign+fmtMoney(total)+'</div>'+
         '</div>';
         if(expanded){
@@ -2058,7 +2111,7 @@
         var parts = [];
         if(c.income) parts.push('+'+fmtMoney(c.income));
         if(c.expense) parts.push('-'+fmtMoney(c.expense));
-        lines.push('  ' + cat + ': ' + parts.join(' / '));
+        lines.push('  ' + categoryLabel(cat) + ': ' + parts.join(' / '));
       });
     }
     return lines.join('\n');
@@ -2136,6 +2189,10 @@
   // the auto-backup file, and anywhere else a full-history CSV is needed.
   // Always pulls from allEntries() (archived + current) so a backup/export
   // never silently drops months that were auto-archived and cleared.
+  // Category is kept in its canonical English form (not categoryLabel()) —
+  // this is meant to be a durable backup file, and rows shouldn't relabel
+  // themselves depending on which language happened to be active on
+  // export day.
   function csvContent(){
     var rows = [['Date','Time','Type','Stream','Category','Amount ('+currentCurrency+')','Distance ('+distUnitLabel()+')']];
     allEntries().slice().sort(function(a,b){return new Date(a.ts)-new Date(b.ts);}).forEach(function(e){
@@ -2170,6 +2227,19 @@
      manual export banner as their backup path. The handle itself can't go
      in localStorage, so it lives in a tiny IndexedDB store instead. */
   var fsAccessSupported = (typeof window.showSaveFilePicker === 'function');
+  // Web Share API (with files) is the cross-platform fallback for browsers
+  // without File System Access — notably iOS Safari, which has no
+  // filesystem-write API at all. It can't write silently in the background
+  // (it always requires a live tap), so it's a one-tap "share to Files /
+  // iCloud Drive / Drive / email" action rather than a truly automatic
+  // backup, but it's a real backup path where today there was none.
+  var webShareFilesSupported = (function(){
+    try{
+      if(!(navigator.share && navigator.canShare)) return false;
+      var testFile = new File(['test'], 'test.csv', {type:'text/csv'});
+      return navigator.canShare({files:[testFile]});
+    }catch(e){ return false; }
+  })();
   var BACKUP_CADENCE_KEY = 'routeLedger.backupCadence.v1';
   var DB_NAME = 'routeLedgerFiles', DB_STORE = 'handles', DB_KEY = 'backupFile';
 
@@ -2256,6 +2326,25 @@
         });
       });
     }).catch(function(){ return false; });
+  }
+
+  function shareBackupNow(){
+    var dateStamp = new Date().toISOString().slice(0,10);
+    var filename = appName.replace(/\s+/g,'_')+'_backup_'+dateStamp+'.csv';
+    var file;
+    try{
+      file = new File([csvContent()], filename, {type:'text/csv'});
+    }catch(e){ showToast('Could not prepare backup file'); return; }
+    if(!navigator.canShare({files:[file]})){ showToast("Sharing files isn't supported here — use manual export instead"); return; }
+    navigator.share({ files:[file], title: appName + ' backup', text: 'Backup of your ' + appName + ' data.' }).then(function(){
+      try{ localStorage.setItem('gh_last_export', String(Date.now())); }catch(e){}
+      var banner = document.getElementById('backupBanner');
+      if(banner) banner.style.display = 'none';
+      updateAutoBackupStatusUi();
+      showToast('Backup shared');
+    }).catch(function(err){
+      if(err && err.name !== 'AbortError'){ showToast('Could not share backup'); }
+    });
   }
 
   /* ---------------- Monthly clean-slate close-out ----------------
@@ -2357,42 +2446,72 @@
     });
   }
 
+  function syncCadenceButtons(){
+    var cadence = loadBackupCadence();
+    document.querySelectorAll('#backupCadenceOptions button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.cadence === cadence);
+    });
+  }
+
   function updateAutoBackupStatusUi(){
     var statusEl = document.getElementById('autoBackupStatus');
     var setupBtn = document.getElementById('autoBackupSetupBtn');
     var controls = document.getElementById('autoBackupControls');
+    var cadenceWrap = document.getElementById('backupCadenceWrap');
+    var shareBtn = document.getElementById('shareBackupNowBtn');
     if(!statusEl) return;
-    if(!fsAccessSupported){
-      statusEl.textContent = 'Not available in this browser — use manual export below, or open in Chrome/Edge for automatic backups.';
-      if(setupBtn) setupBtn.style.display = 'none';
-      if(controls) controls.style.display = 'none';
+
+    if(fsAccessSupported){
+      idbGetHandle().then(function(handle){
+        if(!handle){
+          statusEl.textContent = 'Pick a file (e.g. inside your Google Drive or OneDrive folder) and GigHelper will keep it updated automatically.';
+          if(setupBtn) setupBtn.style.display = 'block';
+          if(controls) controls.style.display = 'none';
+          if(cadenceWrap) cadenceWrap.style.display = 'none';
+          if(shareBtn) shareBtn.style.display = 'none';
+          return;
+        }
+        if(setupBtn) setupBtn.style.display = 'none';
+        if(controls) controls.style.display = 'block';
+        if(cadenceWrap) cadenceWrap.style.display = 'block';
+        if(shareBtn) shareBtn.style.display = 'none';
+        syncCadenceButtons();
+        var lastExport = 0;
+        try{ lastExport = parseInt(localStorage.getItem('gh_last_export') || '0', 10); }catch(e){}
+        var when = lastExport ? new Date(lastExport).toLocaleString() : 'never';
+        handle.queryPermission({mode:'readwrite'}).then(function(perm){
+          if(perm === 'granted'){
+            statusEl.textContent = 'Backing up to "' + handle.name + '" — last backup ' + when + ' (' + allEntries().length + ' total entries).';
+          } else {
+            statusEl.textContent = 'Backup file needs re-authorization — tap "Back up now" to reconnect.';
+          }
+        });
+      });
       return;
     }
-    idbGetHandle().then(function(handle){
-      if(!handle){
-        statusEl.textContent = 'Pick a file (e.g. inside your Google Drive or OneDrive folder) and GigHelper will keep it updated automatically.';
-        if(setupBtn) setupBtn.style.display = 'block';
-        if(controls) controls.style.display = 'none';
-        return;
-      }
+
+    if(webShareFilesSupported){
       if(setupBtn) setupBtn.style.display = 'none';
-      if(controls) controls.style.display = 'block';
-      var cadence = loadBackupCadence();
-      document.querySelectorAll('#backupCadenceOptions button').forEach(function(b){
-        b.classList.toggle('active', b.dataset.cadence === cadence);
-      });
-      var lastExport = 0;
-      try{ lastExport = parseInt(localStorage.getItem('gh_last_export') || '0', 10); }catch(e){}
-      var when = lastExport ? new Date(lastExport).toLocaleString() : 'never';
-      handle.queryPermission({mode:'readwrite'}).then(function(perm){
-        if(perm === 'granted'){
-          statusEl.textContent = 'Backing up to "' + handle.name + '" — last backup ' + when + ' (' + allEntries().length + ' total entries).';
-        } else {
-          statusEl.textContent = 'Backup file needs re-authorization — tap "Back up now" to reconnect.';
-        }
-      });
-    });
+      if(controls) controls.style.display = 'none';
+      if(cadenceWrap) cadenceWrap.style.display = 'block';
+      if(shareBtn) shareBtn.style.display = 'block';
+      syncCadenceButtons();
+      var lastExportShare = 0;
+      try{ lastExportShare = parseInt(localStorage.getItem('gh_last_export') || '0', 10); }catch(e){}
+      var whenShare = lastExportShare ? new Date(lastExportShare).toLocaleString() : 'never';
+      statusEl.textContent = "Silent auto-backup isn't available in this browser, but you can share a backup straight to Files, iCloud Drive, Google Drive, or email in one tap. Last backup: " + whenShare + ' (' + allEntries().length + ' total entries).';
+      return;
+    }
+
+    // Neither File System Access nor Web Share is available (a very old
+    // browser) — the manual "Export now" button below is the only path.
+    statusEl.textContent = "Automatic backup isn't available in this browser — use manual export below.";
+    if(setupBtn) setupBtn.style.display = 'none';
+    if(controls) controls.style.display = 'none';
+    if(cadenceWrap) cadenceWrap.style.display = 'none';
+    if(shareBtn) shareBtn.style.display = 'none';
   }
+
 
   function exportTaxSummary(){
     if(currentCountry !== 'US'){
@@ -2415,6 +2534,11 @@
 
     var incomeByCat = {}, expenseByCat = {};
     var grossIncome = 0, otherExpenses = 0;
+    // Deliberately kept in canonical English category names here (not run
+    // through categoryLabel()) — this export is already US/IRS-specific by
+    // the gate above, and a permanent tax record shouldn't have its
+    // category labels shift depending on whatever UI language happened to
+    // be active on export day.
     list.forEach(function(e){
       if(e.type==='income'){ incomeByCat[e.category]=(incomeByCat[e.category]||0)+e.amount; grossIncome+=e.amount; }
       else if(e.type==='expense'){ expenseByCat[e.category]=(expenseByCat[e.category]||0)+e.amount; otherExpenses+=e.amount; }
@@ -2506,7 +2630,9 @@
           if(titleEl) titleEl.textContent = 'Back up your data';
           if(bodyEl) bodyEl.textContent = fsAccessSupported
             ? 'It\'s been a while since your last export. Set up auto-backup in Settings, or export a CSV now.'
-            : 'It\'s been a while since your last export. Download a CSV backup so you never lose your records.';
+            : (webShareFilesSupported
+                ? 'It\'s been a while since your last backup. Tap below to share a backup straight to Files, iCloud Drive, Drive, or email.'
+                : 'It\'s been a while since your last export. Download a CSV backup so you never lose your records.');
         }
         banner.style.display = 'flex';
       } else {
@@ -2629,7 +2755,7 @@
         var time = new Date(e.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
         var amtDisplay = e.type==='mileage' ? fmtDist(e.miles) : (e.type==='expense'?'-':'+')+currencySymbol()+e.amount.toFixed(2);
         html += '<div class="entry"><div class="entry-icon '+e.type+'">'+iconFor(e.type)+'</div>'+
-          '<div class="entry-info"><div class="entry-cat">'+e.category+'</div><div class="entry-time">'+time+'</div></div>'+
+          '<div class="entry-info"><div class="entry-cat">'+categoryLabel(e.category)+'</div><div class="entry-time">'+time+'</div></div>'+
           '<div class="entry-amt '+e.type+'">'+amtDisplay+'</div>'+
           '<button class="entry-edit" data-id="'+e.id+'">✎</button>'+
           '<button class="entry-del" data-id="'+e.id+'">✕</button></div>';
@@ -3506,9 +3632,9 @@
     // option instead of silently swapping it out from under the user.
     if(wanted && list.indexOf(wanted)===-1) list.splice(Math.max(list.length-1,0), 0, wanted);
     list.forEach(function(c){
-      var o = document.createElement('option'); o.textContent = c; sel.appendChild(o);
+      var o = document.createElement('option'); o.value = c; o.textContent = categoryLabel(c); sel.appendChild(o);
     });
-    if(wanted && Array.prototype.some.call(sel.options, function(o){ return o.textContent===wanted; })){
+    if(wanted && Array.prototype.some.call(sel.options, function(o){ return o.value===wanted; })){
       sel.value = wanted;
     }
   }
@@ -3714,6 +3840,23 @@
     });
   }
 
+  var pendingStreamDelete = null;
+  function fillStreamDeleteText(str, streamName, count){
+    return str.split('{{STREAM}}').join(streamName).split('{{COUNT}}').join(String(count));
+  }
+  function performStreamRemoval(s){
+    streams = streams.filter(function(x){ return x!==s; });
+    saveStreams(streams);
+    if(activeStream===s){
+      activeStream = streams[0];
+      saveActiveStream(activeStream);
+      rebuildCategorySelect();
+    }
+    renderSettingsStreamList();
+    renderStreamBar();
+    renderStatsStreamChips();
+    showToast('Stream removed');
+  }
   function renderSettingsStreamList(){
     var box = document.getElementById('settingsStreamList');
     if(!box) return;
@@ -3728,17 +3871,12 @@
         var rm = document.createElement('button'); rm.type = 'button'; rm.textContent = '×';
         rm.style.cssText = 'background:none; border:none; color:var(--text-muted); font-size:16px; padding:2px 8px; cursor:pointer;';
         rm.addEventListener('click', function(){
-          streams = streams.filter(function(x){ return x!==s; });
-          saveStreams(streams);
-          if(activeStream===s){
-            activeStream = streams[0];
-            saveActiveStream(activeStream);
-            rebuildCategorySelect();
-          }
-          renderSettingsStreamList();
-          renderStreamBar();
-          renderStatsStreamChips();
-          showToast('Stream removed');
+          var count = countEntriesForStream(s);
+          if(count === 0){ performStreamRemoval(s); return; }
+          pendingStreamDelete = s;
+          document.getElementById('streamDeleteTitle').textContent = fillStreamDeleteText(t('streamDeleteTitle'), s, count);
+          document.getElementById('streamDeleteBody').textContent = fillStreamDeleteText(t('streamDeleteBody'), s, count);
+          openModal('streamDeleteModal');
         });
         row.appendChild(rm);
       }
@@ -3904,7 +4042,16 @@
   updateMaintNotifStatus();
 
   var backupExportBtn = document.getElementById('backupBannerExport');
-  if(backupExportBtn) backupExportBtn.addEventListener('click', exportCsv);
+  if(backupExportBtn){
+    backupExportBtn.addEventListener('click', function(){
+      // On a browser with no silent auto-backup but real file-sharing (iOS
+      // Safari, notably), sharing straight to Files/iCloud Drive/Drive/email
+      // is a better outcome than a bare download the user has to relocate
+      // themselves — so prefer it here when it's available.
+      if(!fsAccessSupported && webShareFilesSupported){ shareBackupNow(); }
+      else { exportCsv(); }
+    });
+  }
   var backupDismissBtn = document.getElementById('backupBannerDismiss');
   if(backupDismissBtn){
     backupDismissBtn.addEventListener('click', function(){
@@ -3922,6 +4069,8 @@
   if(helpDownloadBtn) helpDownloadBtn.addEventListener('click', downloadHelpGuide);
   var autoBackupSetupBtn = document.getElementById('autoBackupSetupBtn');
   if(autoBackupSetupBtn) autoBackupSetupBtn.addEventListener('click', setupAutoBackup);
+  var shareBackupNowBtn = document.getElementById('shareBackupNowBtn');
+  if(shareBackupNowBtn) shareBackupNowBtn.addEventListener('click', shareBackupNow);
   var autoBackupNowBtn = document.getElementById('autoBackupNowBtn');
   if(autoBackupNowBtn){
     autoBackupNowBtn.addEventListener('click', function(){
