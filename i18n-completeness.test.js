@@ -44,12 +44,12 @@ test('no I18N string value is empty (recurses into nested objects like maintenan
   });
 });
 
-test('HELP_CONTENT defines exactly the 5 supported languages, 10 sections each', function(){
+test('HELP_CONTENT defines exactly the 5 supported languages, 11 sections each', function(){
   const HELP = extractObjectLiteral(html, 'HELP_CONTENT');
   assert.deepStrictEqual(Object.keys(HELP).sort(), EXPECTED_LANGS.slice().sort());
   EXPECTED_LANGS.forEach(function(lang){
     assert.ok(Array.isArray(HELP[lang].sections), lang + ' HELP_CONTENT.sections should be an array');
-    assert.strictEqual(HELP[lang].sections.length, 10, lang + ' should have 10 Help sections, got ' + HELP[lang].sections.length);
+    assert.strictEqual(HELP[lang].sections.length, 11, lang + ' should have 11 Help sections, got ' + HELP[lang].sections.length);
   });
 });
 
