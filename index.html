@@ -2456,7 +2456,7 @@
     var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
-    var dateStamp = new Date().toISOString().slice(0,10);
+    var now = new Date(); var dateStamp = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
     a.href = url; a.download = appName.replace(/\s+/g,'_')+'_export_'+dateStamp+'.csv';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
@@ -2578,7 +2578,7 @@
   }
 
   function shareBackupNow(){
-    var dateStamp = new Date().toISOString().slice(0,10);
+    var now = new Date(); var dateStamp = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
     var filename = appName.replace(/\s+/g,'_')+'_backup_'+dateStamp+'.csv';
     var file;
     try{
@@ -3922,17 +3922,20 @@
     if(!editingEntryId) return;
     var e = entries.find(function(x){ return x.id===editingEntryId; });
     if(!e){ closeModal('editEntryModal'); return; }
-    e.type = editType;
-    e.category = document.getElementById('editCategory').value || 'Other';
+    var newMiles = 0, newAmount = 0;
     if(editType==='mileage'){
       var milesEntered = parseFloat(document.getElementById('editMiles').value);
-      e.miles = isNaN(milesEntered) ? 0 : milesEntered;
-      e.amount = 0;
+      if(isNaN(milesEntered) || milesEntered <= 0){ showToast('Enter a mileage amount'); return; }
+      newMiles = milesEntered;
     } else {
       var amt = parseFloat(document.getElementById('editAmount').value);
-      e.amount = isNaN(amt) ? 0 : amt;
-      e.miles = 0;
+      if(isNaN(amt) || amt <= 0){ showToast('Enter an amount'); return; }
+      newAmount = amt;
     }
+    e.type = editType;
+    e.category = document.getElementById('editCategory').value || 'Other';
+    e.miles = newMiles;
+    e.amount = newAmount;
     saveEntries(entries);
     renderAll();
     closeModal('editEntryModal');
@@ -4216,6 +4219,7 @@
       if(navigator.clipboard){
         navigator.clipboard.writeText(text).catch(function(){});
       }
+      showToast('Report copied to clipboard');
       window.location.href = 'mailto:' + SUPPORT_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyText);
     });
   }
