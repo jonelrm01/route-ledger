@@ -358,6 +358,10 @@
   .setup-row{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
   .setup-row .setup-label{flex:1; font-size:13px; color:var(--text-muted); min-width:0;}
   .setup-row input{width:100px; flex-shrink:0; text-align:right;}
+  .stat-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 12px;}
+  .stat-nav button{background:var(--bg-panel-raised);color:var(--text-primary);border:1px solid var(--hairline);border-radius:10px;min-width:44px;height:40px;font-size:20px;line-height:1;cursor:pointer;}
+  .stat-nav button:disabled{opacity:.35;cursor:default;}
+  .stat-nav #statPeriodLabel{flex:1;font-size:14px;}
 </style>
 </head>
 <body>
@@ -520,6 +524,11 @@
     <div class="stat-toggle">
       <button data-range="week" class="active">This week</button>
       <button data-range="month">This month</button>
+    </div>
+    <div class="stat-nav" id="statNav">
+      <button type="button" id="statPrev" aria-label="Previous period">&#8249;</button>
+      <button type="button" id="statPeriodLabel" aria-label="Back to current period"></button>
+      <button type="button" id="statNext" aria-label="Next period">&#8250;</button>
     </div>
     <div class="stat-grid">
       <div class="stat-card"><div class="label">Income</div><div class="value num" id="statIncome" style="color:var(--teal)">$0.00</div></div>
@@ -2288,6 +2297,7 @@
 
   /* ---------------- Stats panel ---------------- */
   var statRange = 'week';
+  var statOffset = 0; // 0 = current period, -1 = previous, etc.
   // 'all' = every stream combined (today's behavior). Any other value narrows
   // every stat, the bar chart, and the share summary to just that stream.
   var statStreamFilter = 'all';
@@ -2326,10 +2336,33 @@
       document.querySelectorAll('.stat-toggle button').forEach(function(x){x.classList.remove('active');});
       b.classList.add('active');
       statRange = b.dataset.range;
+      statOffset = 0;
       renderStats();
     });
   });
   document.getElementById('exportCsv').addEventListener('click', exportCsv);
+
+  function getStatPeriod(){
+    var now = new Date();
+    var start, end, dayCount, label;
+    if(statRange==='week'){
+      start = startOfWeek(now); start.setDate(start.getDate() + 7*statOffset);
+      end = new Date(start); end.setDate(end.getDate()+7);
+      dayCount = 7;
+      var last = new Date(end); last.setDate(last.getDate()-1);
+      label = statOffset===0 ? t('thisWeekLabel') : (statOffset===-1 ? t('lastWeekLabel') : (start.toLocaleDateString([],{month:'short',day:'numeric'}) + ' \u2013 ' + last.toLocaleDateString([],{month:'short',day:'numeric'})));
+    } else {
+      var base = startOfMonth(now);
+      start = new Date(base.getFullYear(), base.getMonth()+statOffset, 1);
+      end = new Date(start.getFullYear(), start.getMonth()+1, 1);
+      dayCount = Math.round((end-start)/86400000);
+      label = statOffset===0 ? t('thisMonthLabel') : start.toLocaleDateString([],{month:'long',year:'numeric'});
+    }
+    return {start:start, end:end, dayCount:dayCount, label:label};
+  }
+  document.getElementById('statPrev').addEventListener('click', function(){ statOffset--; renderStats(); });
+  document.getElementById('statNext').addEventListener('click', function(){ if(statOffset<0){ statOffset++; renderStats(); } });
+  document.getElementById('statPeriodLabel').addEventListener('click', function(){ if(statOffset!==0){ statOffset = 0; renderStats(); } });
 
   function buildSummaryText(rangeLabel, start, end){
     var list = applyStatStreamFilter(entriesInRange(start, end));
@@ -2367,15 +2400,9 @@
   }
 
   document.getElementById('shareSummaryBtn').addEventListener('click', function(){
-    var now = new Date();
-    var start, end, rangeLabel;
-    if(statRange==='week'){
-      start = startOfWeek(now); end = new Date(start); end.setDate(end.getDate()+7);
-      rangeLabel = t('weeklySummary');
-    } else {
-      start = startOfMonth(now); end = new Date(start.getFullYear(), start.getMonth()+1, 1);
-      rangeLabel = t('monthlySummary');
-    }
+    var per = getStatPeriod();
+    var start = per.start, end = per.end;
+    var rangeLabel = statRange==='week' ? t('weeklySummary') : t('monthlySummary');
     var text = buildSummaryText(rangeLabel, start, end);
     var title = appName + ' \u2014 ' + rangeLabel;
 
@@ -2392,9 +2419,10 @@
 
   function renderStats(){
     var now = new Date();
-    var start, end, dayCount;
-    if(statRange==='week'){ start = startOfWeek(now); end = new Date(start); end.setDate(end.getDate()+7); dayCount=7; }
-    else { start = startOfMonth(now); end = new Date(start.getFullYear(), start.getMonth()+1, 1); dayCount = end.getDate()-1; dayCount = Math.round((end-start)/86400000); }
+    var per = getStatPeriod();
+    var start = per.start, end = per.end, dayCount = per.dayCount;
+    document.getElementById('statPeriodLabel').textContent = per.label;
+    document.getElementById('statNext').disabled = (statOffset >= 0);
 
     var list = applyStatStreamFilter(entriesInRange(start, end));
     var s = summarize(list);
