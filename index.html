@@ -602,6 +602,12 @@
       <div id="weeklyOdoLogList" style="font-size:13px;"></div>
     </div>
 
+    <div class="vehicle-card" id="mileageCompareCard" style="display:none;">
+      <h4 id="mileageCompareTitle">Weekly mileage comparison</h4>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;" id="mileageCompareHint">Monday–Sunday totals for each week you logged an odometer reading. The odometer change is exact when you read it on Sundays; otherwise it's marked ≈ because it covers slightly different days. The odometer also counts personal driving, so it should be the highest number.</div>
+      <div id="mileageCompareList" style="font-size:13px;"></div>
+    </div>
+
     <div class="vehicle-card">
       <h4 id="lblMaintenance">Maintenance</h4>
       <div id="maintList"></div>
@@ -801,6 +807,14 @@
         <div class="lang-options" id="unitOptions">
           <button type="button" data-unit="mi">Miles</button>
           <button type="button" data-unit="km">Kilometers</button>
+        </div>
+      </div>
+      <div class="settings-section" id="mileageSourceSection" style="display:none;">
+        <label id="lblMileageSource">Count miles from</label>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;" id="mileageSourceHint">Pick which source feeds your totals and tax deduction. The other source is kept for comparison, so nothing is counted twice. GPS needs the Android app.</div>
+        <div class="lang-options" id="mileageSourceOptions">
+          <button type="button" data-source="manual" id="srcBtnManual">Manual</button>
+          <button type="button" data-source="gps" id="srcBtnGps">GPS</button>
         </div>
       </div>
       <div class="settings-section" id="autoBackupSection">
@@ -1151,6 +1165,26 @@
     try{ localStorage.setItem(UNIT_KEY, u); }catch(e){}
   }
 
+  // Mileage source: every mileage entry is tagged 'manual' (typed or voice)
+  // or 'gps' (Start/End trip and auto-detected trips). Entries saved before
+  // this tag existed have no source and count as 'manual'. Only the chosen
+  // PRIMARY source feeds totals, net-per-mile, the estimated odometer and
+  // the tax deduction, so the same drive is never counted twice; the other
+  // source is kept for the weekly comparison.
+  var MILEAGE_SOURCE_KEY = 'routeLedger.mileageSource.v1';
+  function loadMileageSource(){
+    if(!storageWorks) return window.__memMileageSource === 'gps' ? 'gps' : 'manual';
+    try{ return localStorage.getItem(MILEAGE_SOURCE_KEY) === 'gps' ? 'gps' : 'manual'; }catch(e){ return 'manual'; }
+  }
+  function saveMileageSource(v){
+    var val = (v === 'gps') ? 'gps' : 'manual';
+    if(!storageWorks){ window.__memMileageSource = val; return; }
+    try{ localStorage.setItem(MILEAGE_SOURCE_KEY, val); }catch(e){}
+  }
+  function mileageSourceOf(e){ return (e && e.source === 'gps') ? 'gps' : 'manual'; }
+  // True for every non-mileage entry, and for mileage entries from the primary source.
+  function countsTowardMileage(e){ return e.type !== 'mileage' || mileageSourceOf(e) === loadMileageSource(); }
+
   var entries = loadEntries();
   var archivedEntries = loadArchive();
   function allEntries(){ return archivedEntries.concat(entries); }
@@ -1264,7 +1298,9 @@
       lblAutoTrip: 'Auto-detect trips', autoTripHint: "Automatically starts and stops mileage tracking based on your speed — no need to tap Start/End. Uses background location, so Android will show a small ongoing notification while it's on.",
       autoTripTurnOn: 'Turn on', autoTripTurnOff: 'Turn off',
       autoTripOnStatus: 'On — trips are detected automatically in the background.', autoTripOffStatus: 'Off — use the Start/End trip button in the Log tab instead.',
-      autoTripNotifTitle: 'GigHelper is tracking a trip', autoTripNotifBody: 'Tap to cancel if this is not a driving trip.'
+      autoTripNotifTitle: 'GigHelper is tracking a trip', autoTripNotifBody: 'Tap to cancel if this is not a driving trip.',
+      lblMileageSource: 'Count miles from', mileageSourceHint: "Pick which source feeds your totals and tax deduction. The other source is kept for comparison, so nothing is counted twice. GPS needs the Android app.", srcManual: 'Manual', srcGps: 'GPS', srcNotCounted: 'not counted', mileageSourceUpdated: 'Mileage source updated',
+      mileageCompareTitle: 'Weekly mileage comparison', mileageCompareHint: "Monday–Sunday totals for each week you logged an odometer reading. The odometer change is exact when you read it on Sundays; otherwise it's marked ≈ because it covers slightly different days. The odometer also counts personal driving, so it should be the highest number.", cmpOdometer: 'Odometer', cmpGapOk: 'GPS and manual are {{PCT}}% apart', cmpGapWarn: 'GPS and manual differ by {{PCT}}%', cmpOverOdo: 'Logged miles are higher than the odometer change — check your readings'
     },
     'es-ES': {
       micHintDefault: 'Toca y di una entrada, o <b>"llama a esta app [nombre]"</b> para renombrarla.',
@@ -1306,7 +1342,9 @@
       lblAutoTrip: 'Detección automática de viajes', autoTripHint: 'Inicia y detiene el registro de millaje automáticamente según tu velocidad — no necesitas tocar Iniciar/Finalizar. Usa ubicación en segundo plano, así que Android mostrará una pequeña notificación mientras esté activo.',
       autoTripTurnOn: 'Activar', autoTripTurnOff: 'Desactivar',
       autoTripOnStatus: 'Activado — los viajes se detectan automáticamente en segundo plano.', autoTripOffStatus: 'Desactivado — usa el botón Iniciar/Finalizar viaje en la pestaña de Registro.',
-      autoTripNotifTitle: 'GigHelper está registrando un viaje', autoTripNotifBody: 'Toca para cancelar si esto no es un viaje en auto.'
+      autoTripNotifTitle: 'GigHelper está registrando un viaje', autoTripNotifBody: 'Toca para cancelar si esto no es un viaje en auto.',
+      lblMileageSource: 'Contar millas de', mileageSourceHint: "Elige qué fuente alimenta tus totales y la deducción de impuestos. La otra se conserva para comparar, así nada se cuenta dos veces. El GPS requiere la app de Android.", srcManual: 'Manual', srcGps: 'GPS', srcNotCounted: 'no contada', mileageSourceUpdated: 'Fuente de millas actualizada',
+      mileageCompareTitle: 'Comparación semanal de millas', mileageCompareHint: "Totales de lunes a domingo de cada semana con lectura de odómetro. El cambio del odómetro es exacto si lo lees los domingos; si no, se marca con ≈ porque abarca días ligeramente distintos. El odómetro también cuenta la conducción personal, así que debería ser el número más alto.", cmpOdometer: 'Odómetro', cmpGapOk: 'GPS y manual difieren en un {{PCT}}%', cmpGapWarn: 'GPS y manual difieren en un {{PCT}}%', cmpOverOdo: 'Las millas registradas superan el cambio del odómetro — revisa tus lecturas'
     },
     'it-IT': {
       micHintDefault: 'Tocca e pronuncia una voce, oppure <b>"chiama questa app [nome]"</b> per rinominarla.',
@@ -1348,7 +1386,9 @@
       lblAutoTrip: 'Rilevamento automatico viaggi', autoTripHint: 'Avvia e interrompe automaticamente la registrazione del chilometraggio in base alla tua velocità — non serve toccare Inizia/Termina. Usa la posizione in background, quindi Android mostrerà una piccola notifica mentre è attivo.',
       autoTripTurnOn: 'Attiva', autoTripTurnOff: 'Disattiva',
       autoTripOnStatus: 'Attivo — i viaggi vengono rilevati automaticamente in background.', autoTripOffStatus: 'Disattivato — usa il pulsante Inizia/Termina viaggio nella scheda Registro.',
-      autoTripNotifTitle: 'GigHelper sta registrando un viaggio', autoTripNotifBody: 'Tocca per annullare se non è un viaggio in auto.'
+      autoTripNotifTitle: 'GigHelper sta registrando un viaggio', autoTripNotifBody: 'Tocca per annullare se non è un viaggio in auto.',
+      lblMileageSource: 'Conta le miglia da', mileageSourceHint: "Scegli quale fonte alimenta i totali e la deduzione fiscale. L'altra resta per il confronto, così nulla viene contato due volte. Il GPS richiede l'app Android.", srcManual: 'Manuale', srcGps: 'GPS', srcNotCounted: 'non conteggiato', mileageSourceUpdated: 'Fonte delle miglia aggiornata',
+      mileageCompareTitle: 'Confronto settimanale delle miglia', mileageCompareHint: "Totali da lunedì a domenica per ogni settimana con una lettura del contachilometri. La variazione è esatta se la leggi di domenica; altrimenti è contrassegnata con ≈ perché copre giorni leggermente diversi. Il contachilometri conta anche la guida personale, quindi dovrebbe essere il numero più alto.", cmpOdometer: 'Contachilometri', cmpGapOk: 'GPS e manuale differiscono del {{PCT}}%', cmpGapWarn: 'GPS e manuale differiscono del {{PCT}}%', cmpOverOdo: 'Le miglia registrate superano la variazione del contachilometri — controlla le letture'
     },
     'fr-FR': {
       micHintDefault: 'Appuyez et dites une entrée, ou <b>"appelle cette app [nom]"</b> pour la renommer.',
@@ -1390,7 +1430,9 @@
       lblAutoTrip: 'Détection automatique des trajets', autoTripHint: "Démarre et arrête automatiquement le suivi du kilométrage selon votre vitesse — pas besoin d'appuyer sur Démarrer/Terminer. Utilise la localisation en arrière-plan, Android affichera donc une petite notification tant que c'est actif.",
       autoTripTurnOn: 'Activer', autoTripTurnOff: 'Désactiver',
       autoTripOnStatus: 'Activé — les trajets sont détectés automatiquement en arrière-plan.', autoTripOffStatus: 'Désactivé — utilisez le bouton Démarrer/Terminer le trajet dans l\'onglet Journal.',
-      autoTripNotifTitle: 'GigHelper enregistre un trajet', autoTripNotifBody: "Touchez pour annuler si ce n'est pas un trajet en voiture."
+      autoTripNotifTitle: 'GigHelper enregistre un trajet', autoTripNotifBody: "Touchez pour annuler si ce n'est pas un trajet en voiture.",
+      lblMileageSource: 'Compter les miles depuis', mileageSourceHint: "Choisissez la source utilisée pour vos totaux et la déduction fiscale. L'autre est conservée pour comparaison, donc rien n'est compté deux fois. Le GPS nécessite l'app Android.", srcManual: 'Manuel', srcGps: 'GPS', srcNotCounted: 'non compté', mileageSourceUpdated: 'Source des miles mise à jour',
+      mileageCompareTitle: 'Comparaison hebdomadaire des miles', mileageCompareHint: "Totaux du lundi au dimanche pour chaque semaine avec un relevé du compteur. La variation du compteur est exacte si vous la relevez le dimanche ; sinon elle est marquée ≈ car elle couvre des jours légèrement différents. Le compteur inclut aussi la conduite personnelle, il doit donc être le chiffre le plus élevé.", cmpOdometer: 'Compteur', cmpGapOk: 'GPS et manuel diffèrent de {{PCT}} %', cmpGapWarn: 'GPS et manuel diffèrent de {{PCT}} %', cmpOverOdo: 'Les miles enregistrés dépassent la variation du compteur — vérifiez vos relevés'
     },
     'zh-CN': {
       micHintDefault: '点击并说出一条记录，或说 <b>"把这个应用叫做[名字]"</b> 来重命名。',
@@ -1432,7 +1474,9 @@
       lblAutoTrip: '自动检测行程', autoTripHint: '根据您的速度自动开始和结束里程记录 — 无需点击"开始/结束"。使用后台定位，因此在开启期间 Android 会显示一个小通知。',
       autoTripTurnOn: '开启', autoTripTurnOff: '关闭',
       autoTripOnStatus: '已开启 — 行程将在后台自动检测。', autoTripOffStatus: '已关闭 — 请改用"记录"标签页中的"开始/结束行程"按钮。',
-      autoTripNotifTitle: 'GigHelper 正在记录行程', autoTripNotifBody: '如果这不是驾车行程，请点击取消。'
+      autoTripNotifTitle: 'GigHelper 正在记录行程', autoTripNotifBody: '如果这不是驾车行程，请点击取消。',
+      lblMileageSource: '里程来源', mileageSourceHint: "选择哪个来源计入总计和税务扣除。另一个仅用于对比，因此不会重复计算。GPS 需要 Android 应用。", srcManual: '手动', srcGps: 'GPS', srcNotCounted: '未计入', mileageSourceUpdated: '里程来源已更新',
+      mileageCompareTitle: '每周里程对比', mileageCompareHint: "按周一至周日汇总，每周需有一次里程表读数。若在周日读取，里程表变化是准确的；否则标记为 ≈，因为它涵盖的日期略有不同。里程表也包含私人驾驶，所以它应该是最大的数字。", cmpOdometer: '里程表', cmpGapOk: 'GPS 与手动相差 {{PCT}}%', cmpGapWarn: 'GPS 与手动相差 {{PCT}}%', cmpOverOdo: '记录的里程高于里程表变化 — 请检查读数'
     }
   };
 
@@ -1524,8 +1568,8 @@
         { icon:'🎙️', title:'Logging by voice', body:'Tap the microphone and say what happened — for example "20 dollars income doordash", "8 dollars expense gas", or "log 12 miles". You can also say spelled-out numbers like "twenty dollars" and kilometers like "10 kilometers". Works in English, Spanish, Italian, French, and Chinese — switch the voice language in Settings.' },
         { icon:'✏️', title:'Logging manually', body:'Tap the + button to add an income, expense, or mileage entry by hand — useful if it\'s noisy, you\'re not comfortable speaking the entry aloud, or you just prefer typing. Use the Date field to log something for a past day (like income you forgot to enter yesterday) instead of it landing on today — it defaults to today and won\'t let you pick a future date.' },
         { icon:'📊', title:'Stats & Calendar', body:'The Stats tab shows your income, expenses, and net earnings per mile (or km) for the day, week, or month. The Calendar tab lets you tap any date to see everything logged that day.' },
-        { icon:'🚗', title:'Vehicle & maintenance', body:'Add your vehicle\'s make, model, and current mileage in the Vehicle tab. GigHelper tracks common maintenance items (oil changes, tires, brakes, and more) by mileage and/or time, and can send you a notification when something\'s due. Once a week, a banner reminds you to update your actual odometer reading — you can do this any day that week, not just Monday. A "Weekly odometer log" in the Vehicle tab keeps a history of these readings with how much you drove week to week.' },
-        { icon:'📍', title:'GPS mileage tracking (native app only)', body:'If you\'re using the native Android app, the Log tab has a "Start trip" / "End trip" card that measures your driving distance with GPS and logs it straight to your Driving stream — handy when you forget to log mileage by voice or hand. In Settings you can also turn on "Auto-detect trips," which starts and stops tracking on its own once your speed shows you\'re driving, so you don\'t have to remember to tap Start or End at all. This feature isn\'t available in the web version, only the installed Android app.' },
+        { icon:'🚗', title:'Vehicle & maintenance', body:'Add your vehicle\'s make, model, and current mileage in the Vehicle tab. GigHelper tracks common maintenance items (oil changes, tires, brakes, and more) by mileage and/or time, and can send you a notification when something\'s due. Once a week, a banner reminds you to update your actual odometer reading — you can do this any day that week, not just Monday. A "Weekly odometer log" in the Vehicle tab keeps a history of these readings with how much you drove week to week. Below the odometer log, a weekly comparison (Monday to Sunday) puts your odometer change next to your GPS and manual miles and flags weeks where they don\'t line up. For an exact odometer figure, take your reading on Sundays; other days are marked ≈. The odometer also counts personal driving, so it should be the highest number.' },
+        { icon:'📍', title:'GPS mileage tracking (native app only)', body:'If you\'re using the native Android app, the Log tab has a "Start trip" / "End trip" card that measures your driving distance with GPS and logs it straight to your Driving stream — handy when you forget to log mileage by voice or hand. In Settings you can also turn on "Auto-detect trips," which starts and stops tracking on its own once your speed shows you\'re driving, so you don\'t have to remember to tap Start or End at all. This feature isn\'t available in the web version, only the installed Android app. GPS-tracked trips are tagged "GPS" and typed or voice entries are tagged "Manual". In Settings, "Count miles from" picks which source feeds your totals and tax deduction — the other is kept for comparison, so nothing is counted twice.' },
         { icon:'✉️', title:'Contact support', body:'Have a problem or a suggestion? Email us at gighelper.help@gmail.com. The "Report a problem" button in Settings opens an email with a diagnostic report already attached.' },
         { icon:'💾', title:'Backing up your data', body:'Your entries live only on this device unless you back them up. In Settings, set up auto-backup to save automatically to a file you choose (for example, inside your Google Drive or OneDrive folder) — available in Chrome and Edge. On iOS Safari and other browsers without that option, Settings offers a "Share backup now" button instead — it hands a backup file straight to Files, iCloud Drive, Google Drive, or email in one tap. You can also export a CSV manually anytime.' },
         { icon:'🌍', title:'Currency, units & region', body:'In Settings, set your country, currency, and whether distances show in miles or kilometers. Changing these doesn\'t alter your past entries — they\'re stored consistently and simply displayed in whichever unit you\'ve chosen.' },
@@ -1544,8 +1588,8 @@
         { icon:'🎙️', title:'Registrar por voz', body:'Toca el micrófono y di lo que pasó — por ejemplo "20 dólares ingreso doordash", "8 dólares gasto gasolina", o "registra 12 millas". También puedes decir números escritos como "veinte dólares" y kilómetros como "10 kilómetros". Funciona en inglés, español, italiano, francés y chino — cambia el idioma de voz en Ajustes.' },
         { icon:'✏️', title:'Registrar manualmente', body:'Toca el botón + para añadir un ingreso, gasto o kilometraje a mano — útil si hay ruido, no te sientes cómodo hablando en voz alta, o simplemente prefieres escribir. Usa el campo Fecha para registrar algo de un día pasado (por ejemplo, un ingreso que olvidaste registrar ayer) en lugar de que quede en el día de hoy — viene predeterminado en hoy y no te deja elegir una fecha futura.' },
         { icon:'📊', title:'Estadísticas y calendario', body:'La pestaña Estadísticas muestra tus ingresos, gastos y ganancia neta por milla (o km) del día, semana o mes. La pestaña Calendario te deja tocar cualquier fecha para ver todo lo registrado ese día.' },
-        { icon:'🚗', title:'Vehículo y mantenimiento', body:'Añade la marca, modelo y kilometraje actual de tu vehículo en la pestaña Vehículo. GigHelper rastrea el mantenimiento común (cambios de aceite, llantas, frenos y más) por kilometraje y/o tiempo, y puede avisarte cuando algo esté por vencer. Una vez a la semana, un aviso te recuerda actualizar tu lectura real del odómetro — puedes hacerlo cualquier día de esa semana, no solo el lunes. Un "Registro semanal del odómetro" en la pestaña Vehículo guarda un historial de estas lecturas con cuánto condujiste semana a semana.' },
-        { icon:'📍', title:'Seguimiento de millaje por GPS (solo app nativa)', body:'Si usas la app nativa de Android, la pestaña Registro tiene una tarjeta "Iniciar viaje" / "Terminar viaje" que mide tu distancia recorrida por GPS y la registra directamente en tu fuente Driving — útil cuando olvidas registrar el kilometraje por voz o a mano. En Ajustes también puedes activar "Detectar viajes automáticamente", que inicia y detiene el seguimiento por sí solo en cuanto tu velocidad indica que estás conduciendo, así no tienes que recordar tocar Iniciar o Terminar. Esta función no está disponible en la versión web, solo en la app de Android instalada.' },
+        { icon:'🚗', title:'Vehículo y mantenimiento', body:'Añade la marca, modelo y kilometraje actual de tu vehículo en la pestaña Vehículo. GigHelper rastrea el mantenimiento común (cambios de aceite, llantas, frenos y más) por kilometraje y/o tiempo, y puede avisarte cuando algo esté por vencer. Una vez a la semana, un aviso te recuerda actualizar tu lectura real del odómetro — puedes hacerlo cualquier día de esa semana, no solo el lunes. Un "Registro semanal del odómetro" en la pestaña Vehículo guarda un historial de estas lecturas con cuánto condujiste semana a semana. Debajo del registro del odómetro, una comparación semanal (de lunes a domingo) pone el cambio del odómetro junto a tus millas de GPS y manuales y marca las semanas donde no coinciden. Para una cifra exacta del odómetro, toma la lectura los domingos; otros días se marcan con ≈. El odómetro también cuenta la conducción personal, así que debería ser el número más alto.' },
+        { icon:'📍', title:'Seguimiento de millaje por GPS (solo app nativa)', body:'Si usas la app nativa de Android, la pestaña Registro tiene una tarjeta "Iniciar viaje" / "Terminar viaje" que mide tu distancia recorrida por GPS y la registra directamente en tu fuente Driving — útil cuando olvidas registrar el kilometraje por voz o a mano. En Ajustes también puedes activar "Detectar viajes automáticamente", que inicia y detiene el seguimiento por sí solo en cuanto tu velocidad indica que estás conduciendo, así no tienes que recordar tocar Iniciar o Terminar. Esta función no está disponible en la versión web, solo en la app de Android instalada. Los viajes por GPS se etiquetan "GPS" y las entradas escritas o por voz se etiquetan "Manual". En Ajustes, "Contar millas de" elige qué fuente alimenta tus totales y la deducción de impuestos; la otra se conserva para comparar, así nada se cuenta dos veces.' },
         { icon:'✉️', title:'Contactar con soporte', body:'¿Tienes un problema o una sugerencia? Escríbenos a gighelper.help@gmail.com. El botón "Reportar un problema" en Ajustes prepara un correo con un informe de diagnóstico.' },
         { icon:'💾', title:'Respaldar tus datos', body:'Tus registros solo viven en este dispositivo a menos que los respaldes. En Ajustes, activa el respaldo automático para guardar en un archivo que elijas (por ejemplo, dentro de tu carpeta de Google Drive o OneDrive) — disponible en Chrome y Edge. En iOS Safari y otros navegadores sin esa opción, Ajustes ofrece un botón "Compartir respaldo ahora" — envía un archivo de respaldo directamente a Archivos, iCloud Drive, Google Drive o correo con un solo toque. También puedes exportar un CSV manualmente cuando quieras.' },
         { icon:'🌍', title:'Moneda, unidades y región', body:'En Ajustes, configura tu país, moneda y si las distancias se muestran en millas o kilómetros. Cambiar esto no altera tus registros pasados — se guardan de forma consistente y solo se muestran en la unidad que elijas.' },
@@ -1564,8 +1608,8 @@
         { icon:'🎙️', title:'Registrare con la voce', body:'Tocca il microfono e di\' cosa è successo — ad esempio "20 dollari entrata doordash", "8 dollari spesa benzina", o "registra 12 miglia". Puoi anche dire numeri scritti come "venti dollari" e chilometri come "10 chilometri". Funziona in inglese, spagnolo, italiano, francese e cinese — cambia la lingua vocale nelle Impostazioni.' },
         { icon:'✏️', title:'Registrare manualmente', body:'Tocca il pulsante + per aggiungere entrata, spesa o chilometraggio a mano — utile se c\'è rumore, non ti senti a tuo agio a parlare ad alta voce, o preferisci semplicemente digitare. Usa il campo Data per registrare qualcosa per un giorno passato (ad esempio un\'entrata che hai dimenticato di registrare ieri) invece che sul giorno di oggi — è impostato di default su oggi e non permette di scegliere una data futura.' },
         { icon:'📊', title:'Statistiche e calendario', body:'La scheda Statistiche mostra entrate, spese e guadagno netto per miglio (o km) del giorno, settimana o mese. La scheda Calendario ti permette di toccare qualsiasi data per vedere tutto ciò che è stato registrato quel giorno.' },
-        { icon:'🚗', title:'Veicolo e manutenzione', body:'Aggiungi marca, modello e chilometraggio attuale del tuo veicolo nella scheda Veicolo. GigHelper traccia la manutenzione comune (cambio olio, gomme, freni e altro) per chilometraggio e/o tempo, e può avvisarti quando qualcosa è in scadenza. Una volta a settimana, un avviso ti ricorda di aggiornare la lettura reale del contachilometri — puoi farlo in qualsiasi giorno di quella settimana, non solo lunedì. Un "Registro settimanale del contachilometri" nella scheda Veicolo conserva uno storico di queste letture con quanto hai percorso settimana per settimana.' },
-        { icon:'📍', title:'Tracciamento chilometraggio via GPS (solo app nativa)', body:'Se usi l\'app nativa Android, la scheda Registro ha una scheda "Inizia viaggio" / "Termina viaggio" che misura la distanza percorsa via GPS e la registra direttamente nel tuo flusso Driving — utile quando dimentichi di registrare il chilometraggio a voce o a mano. Nelle Impostazioni puoi anche attivare "Rileva viaggi automaticamente", che avvia e ferma il tracciamento da solo appena la tua velocità indica che stai guidando, così non devi ricordarti di toccare Inizia o Termina. Questa funzione non è disponibile nella versione web, solo nell\'app Android installata.' },
+        { icon:'🚗', title:'Veicolo e manutenzione', body:'Aggiungi marca, modello e chilometraggio attuale del tuo veicolo nella scheda Veicolo. GigHelper traccia la manutenzione comune (cambio olio, gomme, freni e altro) per chilometraggio e/o tempo, e può avvisarti quando qualcosa è in scadenza. Una volta a settimana, un avviso ti ricorda di aggiornare la lettura reale del contachilometri — puoi farlo in qualsiasi giorno di quella settimana, non solo lunedì. Un "Registro settimanale del contachilometri" nella scheda Veicolo conserva uno storico di queste letture con quanto hai percorso settimana per settimana. Sotto il registro del contachilometri, un confronto settimanale (da lunedì a domenica) affianca la variazione del contachilometri alle miglia GPS e manuali e segnala le settimane in cui non coincidono. Per un valore esatto del contachilometri, fai la lettura di domenica; gli altri giorni sono contrassegnati con ≈. Il contachilometri include anche la guida personale, quindi dovrebbe essere il numero più alto.' },
+        { icon:'📍', title:'Tracciamento chilometraggio via GPS (solo app nativa)', body:'Se usi l\'app nativa Android, la scheda Registro ha una scheda "Inizia viaggio" / "Termina viaggio" che misura la distanza percorsa via GPS e la registra direttamente nel tuo flusso Driving — utile quando dimentichi di registrare il chilometraggio a voce o a mano. Nelle Impostazioni puoi anche attivare "Rileva viaggi automaticamente", che avvia e ferma il tracciamento da solo appena la tua velocità indica che stai guidando, così non devi ricordarti di toccare Inizia o Termina. Questa funzione non è disponibile nella versione web, solo nell\'app Android installata. I viaggi tracciati via GPS sono etichettati "GPS" e le voci scritte o vocali "Manuale". In Impostazioni, "Conta le miglia da" sceglie quale fonte alimenta i totali e la deduzione fiscale; l\'altra resta per il confronto, così nulla viene contato due volte.' },
         { icon:'✉️', title:'Contatta l\'assistenza', body:'Hai un problema o un suggerimento? Scrivici a gighelper.help@gmail.com. Il pulsante "Segnala un problema" nelle Impostazioni prepara un\'email con un rapporto diagnostico.' },
         { icon:'💾', title:'Backup dei tuoi dati', body:'I tuoi dati vivono solo su questo dispositivo a meno che tu non li salvi altrove. Nelle Impostazioni, attiva il backup automatico per salvare in un file a tua scelta (ad esempio, dentro la tua cartella Google Drive o OneDrive) — disponibile su Chrome ed Edge. Su iOS Safari e altri browser senza questa opzione, Impostazioni offre invece un pulsante "Condividi backup ora" — invia un file di backup direttamente a File, iCloud Drive, Google Drive o email con un tocco. Puoi anche esportare un CSV manualmente in qualsiasi momento.' },
         { icon:'🌍', title:'Valuta, unità e regione', body:'Nelle Impostazioni, imposta il tuo paese, la valuta e se le distanze sono mostrate in miglia o chilometri. Cambiare questi valori non altera i dati passati — sono salvati in modo coerente e vengono semplicemente mostrati nell\'unità scelta.' },
@@ -1584,8 +1628,8 @@
         { icon:'🎙️', title:'Enregistrer à la voix', body:'Touchez le micro et dites ce qui s\'est passé — par exemple "20 dollars revenu doordash", "8 dollars dépense essence", ou "enregistre 12 miles". Vous pouvez aussi dire des nombres en toutes lettres comme "vingt dollars" et des kilomètres comme "10 kilomètres". Fonctionne en anglais, espagnol, italien, français et chinois — changez la langue vocale dans les Paramètres.' },
         { icon:'✏️', title:'Enregistrer manuellement', body:'Touchez le bouton + pour ajouter un revenu, une dépense ou un kilométrage à la main — utile en cas de bruit, si vous n\'êtes pas à l\'aise pour parler à voix haute, ou si vous préférez simplement taper. Utilisez le champ Date pour enregistrer quelque chose pour un jour passé (par exemple un revenu que vous avez oublié d\'enregistrer hier) au lieu qu\'il soit attribué à aujourd\'hui — il est par défaut sur aujourd\'hui et ne permet pas de choisir une date future.' },
         { icon:'📊', title:'Statistiques et calendrier', body:'L\'onglet Statistiques affiche vos revenus, dépenses et gain net par mile (ou km) du jour, de la semaine ou du mois. L\'onglet Calendrier vous permet de toucher n\'importe quelle date pour voir tout ce qui a été enregistré ce jour-là.' },
-        { icon:'🚗', title:'Véhicule et entretien', body:'Ajoutez la marque, le modèle et le kilométrage actuel de votre véhicule dans l\'onglet Véhicule. GigHelper suit l\'entretien courant (vidanges, pneus, freins, et plus) selon le kilométrage et/ou le temps, et peut vous notifier quand quelque chose arrive à échéance. Une fois par semaine, une bannière vous rappelle de mettre à jour votre relevé réel du compteur — vous pouvez le faire n\'importe quel jour de cette semaine, pas seulement le lundi. Un "Relevé hebdomadaire du compteur" dans l\'onglet Véhicule conserve un historique de ces relevés avec le kilométrage parcouru semaine après semaine.' },
-        { icon:'📍', title:'Suivi du kilométrage par GPS (application native uniquement)', body:'Si vous utilisez l\'application native Android, l\'onglet Journal comporte une carte « Démarrer le trajet » / « Terminer le trajet » qui mesure la distance parcourue par GPS et l\'enregistre directement dans votre flux Driving — pratique quand vous oubliez d\'enregistrer le kilométrage à la voix ou à la main. Dans les Paramètres, vous pouvez aussi activer « Détecter les trajets automatiquement », qui démarre et arrête le suivi tout seul dès que votre vitesse indique que vous conduisez, sans avoir à penser à toucher Démarrer ou Terminer. Cette fonctionnalité n\'est pas disponible dans la version web, uniquement dans l\'application Android installée.' },
+        { icon:'🚗', title:'Véhicule et entretien', body:'Ajoutez la marque, le modèle et le kilométrage actuel de votre véhicule dans l\'onglet Véhicule. GigHelper suit l\'entretien courant (vidanges, pneus, freins, et plus) selon le kilométrage et/ou le temps, et peut vous notifier quand quelque chose arrive à échéance. Une fois par semaine, une bannière vous rappelle de mettre à jour votre relevé réel du compteur — vous pouvez le faire n\'importe quel jour de cette semaine, pas seulement le lundi. Un "Relevé hebdomadaire du compteur" dans l\'onglet Véhicule conserve un historique de ces relevés avec le kilométrage parcouru semaine après semaine. Sous le relevé du compteur, une comparaison hebdomadaire (du lundi au dimanche) place la variation du compteur à côté de vos miles GPS et manuels et signale les semaines qui ne concordent pas. Pour un chiffre exact du compteur, faites votre relevé le dimanche ; les autres jours sont marqués ≈. Le compteur inclut aussi la conduite personnelle, il doit donc être le chiffre le plus élevé.' },
+        { icon:'📍', title:'Suivi du kilométrage par GPS (application native uniquement)', body:'Si vous utilisez l\'application native Android, l\'onglet Journal comporte une carte « Démarrer le trajet » / « Terminer le trajet » qui mesure la distance parcourue par GPS et l\'enregistre directement dans votre flux Driving — pratique quand vous oubliez d\'enregistrer le kilométrage à la voix ou à la main. Dans les Paramètres, vous pouvez aussi activer « Détecter les trajets automatiquement », qui démarre et arrête le suivi tout seul dès que votre vitesse indique que vous conduisez, sans avoir à penser à toucher Démarrer ou Terminer. Cette fonctionnalité n\'est pas disponible dans la version web, uniquement dans l\'application Android installée. Les trajets suivis par GPS sont étiquetés "GPS" et les saisies tapées ou vocales "Manuel". Dans Paramètres, "Compter les miles depuis" choisit la source utilisée pour vos totaux et la déduction fiscale ; l\'autre est conservée pour comparaison, donc rien n\'est compté deux fois.' },
         { icon:'✉️', title:'Contacter le support', body:'Un problème ou une suggestion ? Écrivez-nous à gighelper.help@gmail.com. Le bouton « Signaler un problème » dans les Paramètres prépare un e-mail avec un rapport de diagnostic.' },
         { icon:'💾', title:'Sauvegarder vos données', body:'Vos données ne vivent que sur cet appareil à moins de les sauvegarder. Dans les Paramètres, activez la sauvegarde automatique pour enregistrer dans un fichier de votre choix (par exemple, dans votre dossier Google Drive ou OneDrive) — disponible sur Chrome et Edge. Sur iOS Safari et les autres navigateurs sans cette option, les Paramètres proposent à la place un bouton « Partager une sauvegarde maintenant » — il envoie un fichier de sauvegarde directement vers Fichiers, iCloud Drive, Google Drive ou par e-mail en un geste. Vous pouvez aussi exporter un CSV manuellement à tout moment.' },
         { icon:'🌍', title:'Devise, unités et région', body:'Dans les Paramètres, définissez votre pays, votre devise et si les distances s\'affichent en miles ou en kilomètres. Ce changement n\'altère pas vos données passées — elles sont enregistrées de façon cohérente et simplement affichées dans l\'unité choisie.' },
@@ -1604,8 +1648,8 @@
         { icon:'🎙️', title:'语音记录', body:'点按麦克风并说出发生的事情 — 例如"20美元收入doordash"、"8美元支出汽油"或"记录12英里"。您也可以说出数字词，如"二十美元"，以及公里，如"10公里"。支持英语、西班牙语、意大利语、法语和中文 — 可在设置中切换语音语言。' },
         { icon:'✏️', title:'手动记录', body:'点按 + 按钮手动添加收入、支出或里程 — 在环境嘈杂、不方便说话或您只是更喜欢打字时很有用。使用"日期"字段可以为过去的某一天记录内容（例如昨天忘记记录的收入），而不是记到今天 — 该字段默认是今天，且不能选择未来的日期。' },
         { icon:'📊', title:'统计与日历', body:'"统计"选项卡显示您当天、当周或当月的收入、支出和每英里（或公里）净收益。"日历"选项卡让您点按任意日期查看当天记录的所有内容。' },
-        { icon:'🚗', title:'车辆与保养', body:'在"车辆"选项卡中添加您车辆的品牌、型号和当前里程。GigHelper 会按里程和/或时间跟踪常见保养项目（换机油、轮胎、刹车等），并在到期时提醒您。每周都会有一个提醒横幅，提示您更新实际的里程表读数 — 您可以在当周的任意一天完成，不必是周一。"车辆"选项卡中的"每周里程表记录"会保存这些读数的历史，并显示每周之间的行驶里程变化。' },
-        { icon:'📍', title:'GPS 里程追踪（仅限原生应用）', body:'如果您使用的是原生 Android 应用，"记录"选项卡中会有一个"开始行程" / "结束行程"卡片，通过 GPS 测量您的行驶距离，并直接记录到您的 Driving 收入来源 — 在您忘记用语音或手动记录里程时很有用。您也可以在设置中开启"自动检测行程"，一旦您的速度显示您正在驾驶，它就会自动开始和停止追踪，无需记得手动点击开始或结束。此功能在网页版中不可用，仅限已安装的 Android 应用。' },
+        { icon:'🚗', title:'车辆与保养', body:'在"车辆"选项卡中添加您车辆的品牌、型号和当前里程。GigHelper 会按里程和/或时间跟踪常见保养项目（换机油、轮胎、刹车等），并在到期时提醒您。每周都会有一个提醒横幅，提示您更新实际的里程表读数 — 您可以在当周的任意一天完成，不必是周一。"车辆"选项卡中的"每周里程表记录"会保存这些读数的历史，并显示每周之间的行驶里程变化。里程表记录下方的每周对比（周一至周日）会把里程表变化与您的 GPS 里程和手动里程并排显示，并标出不一致的周。若要获得准确的里程表数值，请在周日读取；其他日期会标记为 ≈。里程表也包含私人驾驶，所以它应该是最大的数字。' },
+        { icon:'📍', title:'GPS 里程追踪（仅限原生应用）', body:'如果您使用的是原生 Android 应用，"记录"选项卡中会有一个"开始行程" / "结束行程"卡片，通过 GPS 测量您的行驶距离，并直接记录到您的 Driving 收入来源 — 在您忘记用语音或手动记录里程时很有用。您也可以在设置中开启"自动检测行程"，一旦您的速度显示您正在驾驶，它就会自动开始和停止追踪，无需记得手动点击开始或结束。此功能在网页版中不可用，仅限已安装的 Android 应用。GPS 追踪的行程会标记为"GPS"，手动或语音输入的会标记为"手动"。在设置中，"里程来源"决定哪个来源计入总计和税务扣除；另一个仅用于对比，因此不会重复计算。' },
         { icon:'✉️', title:'联系支持', body:'遇到问题或有建议？请发送电子邮件至 gighelper.help@gmail.com。在“设置”中点击“报告问题”会自动生成包含诊断信息的邮件。' },
         { icon:'💾', title:'备份您的数据', body:'除非您进行备份，否则您的记录仅保存在此设备上。在设置中，开启自动备份，将数据保存到您选择的文件中（例如您的 Google Drive 或 OneDrive 文件夹内）— 该功能适用于 Chrome 和 Edge。在 iOS Safari 和其他不支持该功能的浏览器上，设置里会改为提供"立即分享备份"按钮 —— 一键将备份文件发送到"文件"、iCloud Drive、Google Drive 或邮件。您也可以随时手动导出 CSV 文件。' },
         { icon:'🌍', title:'货币、单位与地区', body:'在设置中，设置您的国家、货币，以及距离显示为英里还是公里。更改这些设置不会改变您过去的记录 — 数据的存储方式始终一致，只是按您选择的单位显示。' },
@@ -1852,7 +1896,7 @@
     var statusEl = document.getElementById('gpsTripStatus');
     statusEl.style.display = 'none';
     if(miles > 0){
-      addEntry('mileage', 0, 'Other', miles, 'Driving');
+      addEntry('mileage', 0, 'Other', miles, 'Driving', undefined, 'gps');
       showToast(t('gpsTripLogged').replace('{{MILES}}', miles.toFixed(1)));
     }
   }
@@ -1930,7 +1974,7 @@
   function startAutoTripWatch(){
     if(!isAutoTripSupported()) return;
     autoTripDetector = createTripAutoDetector(function(miles){
-      addEntry('mileage', 0, 'Other', miles, 'Driving');
+      addEntry('mileage', 0, 'Other', miles, 'Driving', undefined, 'gps');
       showToast(t('gpsTripLogged').replace('{{MILES}}', miles.toFixed(1)));
     });
     var plugin = window.Capacitor.Plugins.BackgroundGeolocation;
@@ -1974,7 +2018,7 @@
   }
 
   /* ---------------- Entry helpers ---------------- */
-  function addEntry(type, amount, category, miles, stream, ts){
+  function addEntry(type, amount, category, miles, stream, ts, source){
     var e = {
       id: Date.now()+'_'+Math.random().toString(36).slice(2,7),
       type: type,               // income | expense | mileage
@@ -1984,6 +2028,7 @@
       stream: stream || activeStream || streams[0] || DEFAULT_STREAMS[0],
       ts: ts || new Date().toISOString()
     };
+    if(type==='mileage') e.source = (source==='gps') ? 'gps' : 'manual';
     entries.push(e);
     saveEntries(entries);
     renderAll();
@@ -2034,7 +2079,7 @@
     list.forEach(function(e){
       if(e.type==='income') income += e.amount;
       else if(e.type==='expense') expense += e.amount;
-      else if(e.type==='mileage') miles += e.miles;
+      else if(e.type==='mileage' && countsTowardMileage(e)) miles += e.miles;
     });
     return {income:income, expense:expense, miles:miles, net:income-expense};
   }
@@ -2056,7 +2101,7 @@
   function mileageDeduction(list){
     var total = 0;
     list.forEach(function(e){
-      if(e.type==='mileage') total += e.miles * getMileageRate(new Date(e.ts));
+      if(e.type==='mileage' && countsTowardMileage(e)) total += e.miles * getMileageRate(new Date(e.ts));
     });
     return total;
   }
@@ -2214,8 +2259,8 @@
         .sort(function(a,b){ return byKey[b].reduce(function(s,e){return s+e.amount;},0) - byKey[a].reduce(function(s,e){return s+e.amount;},0); });
       expenseCats.forEach(function(k){ renderGroup('expense', k.slice(8), byKey[k]); });
 
-      if(s.miles>0){
-        var mileageEntries = list.filter(function(e){ return e.type==='mileage'; });
+      var mileageEntries = list.filter(function(e){ return e.type==='mileage'; });
+      if(mileageEntries.length>0){
         var mKey = keyPrefix+'|mileage';
         var mExpanded = !!expandedLogGroups[mKey];
         rowsHtml += '<div class="entry entry-group" data-key="'+encodeURIComponent(mKey)+'">'+
@@ -2226,8 +2271,10 @@
         if(mExpanded){
           mileageEntries.slice().sort(function(a,b){ return new Date(b.ts)-new Date(a.ts); }).forEach(function(e){
             var time = new Date(e.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            rowsHtml += '<div class="entry entry-sub">'+
-              '<div class="entry-info"><div class="entry-time">'+time+'</div></div>'+
+            var counted = countsTowardMileage(e);
+            var srcLabel = (mileageSourceOf(e)==='gps') ? t('srcGps') : t('srcManual');
+            rowsHtml += '<div class="entry entry-sub"'+(counted ? '' : ' style="opacity:.5"')+'>'+
+              '<div class="entry-info"><div class="entry-time">'+time+' · '+srcLabel+(counted ? '' : ' · '+t('srcNotCounted'))+'</div></div>'+
               '<div class="entry-amt mileage">'+fmtDist(e.miles)+'</div>'+
               '<button class="entry-edit" data-id="'+e.id+'">\u270E</button>'+
               '<button class="entry-del" data-id="'+e.id+'">\u2715</button>'+
@@ -2471,10 +2518,10 @@
   // themselves depending on which language happened to be active on
   // export day.
   function csvContent(){
-    var rows = [['Date','Time','Type','Stream','Category','Amount ('+currentCurrency+')','Distance ('+distUnitLabel()+')']];
+    var rows = [['Date','Time','Type','Stream','Category','Amount ('+currentCurrency+')','Distance ('+distUnitLabel()+')','Source']];
     allEntries().slice().sort(function(a,b){return new Date(a.ts)-new Date(b.ts);}).forEach(function(e){
       var d = new Date(e.ts);
-      rows.push([d.toLocaleDateString(), d.toLocaleTimeString(), e.type, (e.stream||DEFAULT_STREAMS[0]), e.category, e.amount.toFixed(2), milesToDisplay(e.miles).toFixed(1)]);
+      rows.push([d.toLocaleDateString(), d.toLocaleTimeString(), e.type, (e.stream||DEFAULT_STREAMS[0]), e.category, e.amount.toFixed(2), milesToDisplay(e.miles).toFixed(1), (e.type==='mileage' ? mileageSourceOf(e) : '')]);
     });
     return '\uFEFF' + rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
   }
@@ -2822,7 +2869,7 @@
     });
 
     // mileage, split by rate period so a mid-year rate change is shown clearly
-    var mileageEntries = list.filter(function(e){ return e.type==='mileage'; });
+    var mileageEntries = list.filter(function(e){ return e.type==='mileage' && countsTowardMileage(e); });
     var rateGroups = {};
     mileageEntries.forEach(function(e){
       var rate = getMileageRate(new Date(e.ts));
@@ -3121,7 +3168,7 @@
     var since = new Date(vehicle.baselineSetAt);
     var tripMiles = 0;
     entries.forEach(function(e){
-      if(e.type==='mileage' && new Date(e.ts) >= since) tripMiles += e.miles;
+      if(e.type==='mileage' && countsTowardMileage(e) && new Date(e.ts) >= since) tripMiles += e.miles;
     });
     return baseline + tripMiles;
   }
@@ -3409,9 +3456,101 @@
     updateVehicleNudge();
   }
 
+  // Weekly comparison, Monday through Sunday (same weeks as the odometer
+  // log). For every week with an odometer reading: GPS miles and manual
+  // miles logged Monday 00:00 up to the next Monday 00:00, next to the
+  // odometer change from the previous week's reading. The odometer figure is
+  // exact only when both readings were taken on a Sunday (end of the week);
+  // otherwise it covers slightly different days and is marked approximate.
+  // The odometer is null when the previous week has no reading. Flags: GPS
+  // vs manual more than 10% apart, or either logged total above an exact
+  // odometer change (the odometer also counts personal driving, so it should
+  // normally be the highest number).
+  var MILEAGE_GAP_WARN_PCT = 10;
+  function odoLogStamp(entry){
+    var d = entry.loggedAt ? new Date(entry.loggedAt) : null;
+    if(!d || isNaN(d.getTime())) d = new Date(entry.weekStart + 'T12:00:00');
+    return d;
+  }
+  function computeMileageComparison(odoLog, list){
+    var sorted = odoLog.slice().sort(function(a,b){ return a.weekStart.localeCompare(b.weekStart); });
+    var rows = [];
+    for(var i = 0; i < sorted.length; i++){
+      var cur = sorted[i], prev = i > 0 ? sorted[i-1] : null;
+      var start = new Date(cur.weekStart + 'T00:00:00');
+      var end = new Date(start); end.setDate(end.getDate() + 7);
+      var gps = 0, manual = 0;
+      list.forEach(function(e){
+        if(e.type !== 'mileage') return;
+        var d = new Date(e.ts);
+        if(!(d >= start && d < end)) return;
+        if(mileageSourceOf(e) === 'gps') gps += e.miles; else manual += e.miles;
+      });
+      var odoDelta = null, aligned = false;
+      if(prev){
+        var nextAfterPrev = new Date(prev.weekStart + 'T00:00:00');
+        nextAfterPrev.setDate(nextAfterPrev.getDate() + 7);
+        if(dateKeyLocal(nextAfterPrev) === cur.weekStart){
+          odoDelta = cur.mileage - prev.mileage;
+          aligned = odoLogStamp(prev).getDay() === 0 && odoLogStamp(cur).getDay() === 0;
+        }
+      }
+      var gapPct = null;
+      if(gps > 0 && manual > 0) gapPct = Math.abs(gps - manual) / Math.max(gps, manual) * 100;
+      var overOdo = odoDelta !== null && aligned && odoDelta > 0 && Math.max(gps, manual) > odoDelta * 1.02 + 0.5;
+      rows.push({
+        weekStart: cur.weekStart, odoDelta: odoDelta, aligned: aligned, gps: gps, manual: manual,
+        gapPct: gapPct, gapWarn: gapPct !== null && gapPct > MILEAGE_GAP_WARN_PCT, overOdo: overOdo
+      });
+    }
+    return rows.reverse(); // newest first
+  }
+  function renderMileageComparison(){
+    var card = document.getElementById('mileageCompareCard');
+    var container = document.getElementById('mileageCompareList');
+    if(!card || !container) return;
+    var all = allEntries();
+    var hasGps = all.some(function(e){ return e.type==='mileage' && mileageSourceOf(e)==='gps'; });
+    var showGps = isNativeApp() || hasGps;
+    var rows = computeMileageComparison(loadWeeklyOdoLog(), all);
+    // Weeks come from the odometer log, so there is nothing to show until a reading is logged.
+    card.style.display = rows.length ? '' : 'none';
+    document.getElementById('mileageCompareTitle').textContent = t('mileageCompareTitle');
+    document.getElementById('mileageCompareHint').textContent = t('mileageCompareHint');
+    if(!rows.length){ container.innerHTML = ''; return; }
+    var primary = loadMileageSource();
+    function cell(label, text, bold){
+      return '<div><div style="font-size:11px; color:var(--text-faint);">'+label+'</div>'+
+        '<div class="num" style="'+(bold ? 'color:var(--text-primary); font-weight:700;' : 'color:var(--text-muted);')+'">'+text+'</div></div>';
+    }
+    var html = '';
+    rows.forEach(function(r){
+      var wkDate = new Date(r.weekStart+'T00:00:00');
+      var wkLabel = t('weeklyOdoWeekOf') + ' ' + wkDate.toLocaleDateString(currentLang, {month:'short', day:'numeric'});
+      var status = '';
+      if(r.overOdo){
+        status = '<div style="font-size:11px; color:var(--amber); margin-top:4px;">\u26A0 '+t('cmpOverOdo')+'</div>';
+      } else if(showGps && r.gapPct !== null){
+        var pct = r.gapPct.toFixed(0);
+        status = r.gapWarn
+          ? '<div style="font-size:11px; color:var(--amber); margin-top:4px;">\u26A0 '+t('cmpGapWarn').replace('{{PCT}}', pct)+'</div>'
+          : '<div style="font-size:11px; color:var(--text-faint); margin-top:4px;">'+t('cmpGapOk').replace('{{PCT}}', pct)+'</div>';
+      }
+      html += '<div style="padding:8px 0; border-bottom:1px solid var(--hairline);">'+
+        '<div style="color:var(--text-primary); margin-bottom:4px;">'+wkLabel+'</div>'+
+        '<div style="display:flex; gap:18px; flex-wrap:wrap;">'+
+          cell(t('cmpOdometer'), (r.odoDelta === null ? '\u2014' : (r.aligned ? '' : '\u2248 ') + fmtDist(r.odoDelta, 0)), false)+
+          (showGps ? cell(t('srcGps'), fmtDist(r.gps, 1), primary==='gps') : '')+
+          cell(t('srcManual'), fmtDist(r.manual, 1), primary==='manual')+
+        '</div>'+status+'</div>';
+    });
+    container.innerHTML = html;
+  }
+
   function renderWeeklyOdoLog(){
     var container = document.getElementById('weeklyOdoLogList');
     if(!container) return;
+    renderMileageComparison();
     var log = loadWeeklyOdoLog().slice().sort(function(a,b){ return b.weekStart.localeCompare(a.weekStart); });
     if(log.length === 0){
       container.innerHTML = '<div style="color:var(--text-faint); font-size:12px;">' + t('weeklyOdoLogEmpty') + '</div>';
@@ -3623,8 +3762,43 @@
     }).join(' ');
   }
 
+  // Speech engines often split or hyphenate things the parser expects as one
+  // token: "door dash", "uber eats", "twenty-five". Join/split them back into
+  // the forms the category list and number-word converter understand. Hyphens
+  // are only touched between two number words, so a name like "Assist-Dummy"
+  // (rename command) is left alone.
+  function normalizeSpeechText(text){
+    return String(text).toLowerCase().trim()
+      .replace(/\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\s*-\s*(one|two|three|four|five|six|seven|eight|nine)\b/g, '$1 $2')
+      .replace(/\bdoor\s+dash\b/g, 'doordash')
+      .replace(/\bgrub\s+hub\b/g, 'grubhub')
+      .replace(/\binsta\s+cart\b/g, 'instacart')
+      .replace(/\buber\s*eats\b/g, 'uber eats');
+  }
+  // With maxAlternatives > 1 the engine returns several candidate transcripts
+  // for one utterance; the first one is not always the one that parses.
+  function collectAlternatives(result){
+    var out = [];
+    for(var i = 0; i < result.length; i++){
+      var tr = result[i] && result[i].transcript;
+      if(tr && out.indexOf(tr) === -1) out.push(tr);
+    }
+    return out;
+  }
+  // Returns {transcript, result} for the first alternative parseFn accepts, else null.
+  function pickParsedAlternative(alts, parseFn){
+    for(var i = 0; i < alts.length; i++){
+      var r = parseFn(alts[i]);
+      if(r) return { transcript: alts[i], result: r };
+    }
+    return null;
+  }
+  // A bare "20 dollars doordash" has an amount and a delivery platform but no
+  // income/expense keyword. In the Driving stream that can only sensibly be income.
+  var INCOME_PLATFORM_CATEGORIES = ['DoorDash','Uber Eats','Amazon Flex','Uber','Lyft','Grubhub','Instacart'];
+
   function parseVoiceCommand(raw){
-    var text = raw.toLowerCase().trim();
+    var text = normalizeSpeechText(raw);
     if(currentLang === 'en-US'){ text = wordsToDigitsEN(text); }
     else { text = wordsToDigitsBasic(text, currentLang); }
     var cmd = COMMAND_WORDS_BY_LANG[currentLang] || COMMAND_WORDS_BY_LANG['en-US'];
@@ -3690,6 +3864,10 @@
     var amtMatch = text.match(cmd.amount);
     var isExpense = cmd.expense.test(text);
     var isIncome = cmd.income.test(text);
+    if(amtMatch && !isExpense && !isIncome && activeStream === DEFAULT_STREAMS[0] &&
+       INCOME_PLATFORM_CATEGORIES.indexOf(matchCategory(text)) !== -1){
+      isIncome = true;
+    }
     if(amtMatch && (isExpense || isIncome)){
       var amount = parseFloat(amtMatch[1]);
       var category = matchCategory(text);
@@ -3790,7 +3968,7 @@
     recognition = new SpeechRecognition();
     recognition.lang = currentLang;
     recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    recognition.maxAlternatives = 5;
 
     recognition.onstart = function(){ setListening(true); };
     recognition.onend = function(){
@@ -3814,29 +3992,35 @@
       if(!wasWake) micHint.innerHTML = 'Didn\'t catch that — tap the mic and try again.';
     };
     recognition.onresult = function(ev){
-      var transcript = ev.results[ev.results.length-1][0].transcript;
+      var alts = collectAlternatives(ev.results[ev.results.length-1]);
+      var transcript = alts[0] || '';
       if(recognitionMode==='wake'){
+        var picked = pickParsedAlternative(alts, function(tr){
+          var wm = tr.trim().match(wakeWordRegex());
+          if(!wm || !wm[1] || !wm[1].trim()) return null;
+          var cmdText = wm[1].trim();
+          var res = parseVoiceCommand(cmdText);
+          return res ? { command: cmdText, text: res } : null;
+        });
+        if(picked){
+          flashWakeHint('<b>Heard:</b> "'+picked.result.command+'" → '+picked.result.text, 3000);
+          showToast(picked.result.text);
+          return;
+        }
         var m = transcript.trim().match(wakeWordRegex());
         if(!m || !m[1] || !m[1].trim()){
           // Heard speech, but it wasn't addressed to the app — say so briefly
           // instead of failing silently, so testers can tell wake mode IS
           // hearing them and just needs the app name said first.
-          flashWakeHint('<i>Heard: "'+transcript+'" — didn\'t start with "'+appName+'," so I ignored it.</i>', 3000);
+          flashWakeHint('<i>Heard: "'+transcript+'" — didn\'t start with "'+appName+',' + '" so I ignored it.</i>', 3000);
           return;
         }
-        var command = m[1].trim();
-        var result = parseVoiceCommand(command);
-        if(result){
-          flashWakeHint('<b>Heard:</b> "'+command+'" → '+result, 3000);
-          showToast(result);
-        } else {
-          flashWakeHint('<b>Heard "'+appName+'":</b> "'+command+'" — couldn\'t parse that.', 3000);
-        }
+        flashWakeHint('<b>Heard "'+appName+'":</b> "'+m[1].trim()+'" — couldn\'t parse that.', 3000);
       } else {
-        var result2 = parseVoiceCommand(transcript);
-        if(result2){
-          micHint.innerHTML = '<b>Heard:</b> "'+transcript+'" → '+result2;
-          showToast(result2);
+        var picked2 = pickParsedAlternative(alts, parseVoiceCommand);
+        if(picked2){
+          micHint.innerHTML = '<b>Heard:</b> "'+picked2.transcript+'" → '+picked2.result;
+          showToast(picked2.result);
         } else {
           micHint.innerHTML = '<b>Heard:</b> "'+transcript+'" — couldn\'t parse that. Try "20 dollars income doordash."';
         }
@@ -3880,7 +4064,29 @@
 
 
   /* ---------------- Render all ---------------- */
+  // Shows the "Count miles from" setting only where it can matter: in the
+  // native app (where GPS entries get created), or if GPS-tagged entries
+  // already exist (e.g. restored from a backup).
+  function updateMileageSourceUI(){
+    var section = document.getElementById('mileageSourceSection');
+    if(!section) return;
+    var hasGps = allEntries().some(function(e){ return e.type==='mileage' && mileageSourceOf(e)==='gps'; });
+    section.style.display = (isNativeApp() || hasGps) ? '' : 'none';
+    var cur = loadMileageSource();
+    document.querySelectorAll('#mileageSourceOptions button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.source === cur);
+    });
+    var lbl = document.getElementById('lblMileageSource');
+    if(lbl){
+      lbl.textContent = t('lblMileageSource');
+      document.getElementById('mileageSourceHint').textContent = t('mileageSourceHint');
+      document.getElementById('srcBtnManual').textContent = t('srcManual');
+      document.getElementById('srcBtnGps').textContent = t('srcGps');
+    }
+  }
+
   function renderAll(){
+    updateMileageSourceUI();
     renderOdometers();
     renderEntriesList();
     if(document.getElementById('panel-stats').classList.contains('active')) renderStats();
@@ -4020,6 +4226,14 @@
     b.addEventListener('click', function(){
       applyRegionSettings(currentCountry, currentCurrency, b.dataset.unit);
       showToast('Units updated');
+    });
+  });
+  document.querySelectorAll('#mileageSourceOptions button').forEach(function(b){
+    b.addEventListener('click', function(){
+      saveMileageSource(b.dataset.source);
+      renderAll();
+      checkTaxReminder();
+      showToast(t('mileageSourceUpdated'));
     });
   });
   if(countrySelectEl){

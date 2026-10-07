@@ -45,6 +45,22 @@ intentional change (update the test to match) or an accidental regression
   feature detection across a few mocked browsers, and the success/cancel/
   failure/guard behavior of the actual share function.
 
+- **mileage-source** — every mileage entry is tagged `manual` or `gps`
+  (untagged older entries count as manual); only the chosen primary source
+  feeds totals, the tax deduction, and the estimated odometer; both GPS entry
+  points tag their trips; the CSV export has a Source column.
+
+- **voice-parse** — speech-engine quirks: split brand names ("door dash"),
+  hyphenated numbers ("twenty-five"), picking the first of several candidate
+  transcripts that actually parses, amount + platform with no keyword logging
+  as income (Driving stream only), and unrelated speech still being rejected.
+
+- **mileage-comparison** — the weekly odometer vs GPS vs manual comparison,
+  Monday through Sunday: week boundaries, GPS/manual split (untagged old
+  entries count as manual), odometer change from the previous week's reading
+  (exact only when both readings were on a Sunday, otherwise marked ≈, and
+  blank if a week was skipped), the 10% GPS/manual gap flag, and the
+  logged-miles-above-odometer flag (exact readings only).
 ## How this works, if you're curious
 
 `index.html` is one big file with no build step, so these tests don't
