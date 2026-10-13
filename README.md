@@ -82,3 +82,5 @@ real function with `extractFn`, feed it whatever mocks it needs, assert on
 the result. Keep tests in whichever file matches the feature area, or start
 a new `something.test.js` file if it's a new area — `run.js` picks up any
 file ending in `.test.js` automatically.
+- **design-refresh** — guards the Oct 2026 color/layout refresh: palette tokens, sentence-case labels, 5-item bottom nav (no duplicate top tabs), Install moved to Settings, centered/wider "All streams" chip, grouped Today/Week/Month card, single wake-status line.
+- **stream-reports** — each stream's own report: summary header names the stream, only that stream's numbers, "All streams" gets a per-stream breakdown, per-stream CSV vs full backup CSV.

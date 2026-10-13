@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>GigHelper</title>
-<meta name="theme-color" content="#14171C">
+<meta name="theme-color" content="#12151C">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="GigHelper">
@@ -12,20 +12,20 @@
 <link rel="icon" id="favicon">
 <link rel="manifest" href="manifest.json">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
   :root{
-    --bg-deep:#14171C;
-    --bg-panel:#1B1F26;
-    --bg-panel-raised:#232833;
-    --hairline:#2C323D;
-    --amber:#E8A33D;
-    --amber-dim:#8C6526;
-    --teal:#3FA796;
-    --rose:#D1495B;
-    --text-primary:#F2EEE4;
-    --text-muted:#8A8F98;
-    --text-faint:#565C67;
+    --bg-deep:#12151C;
+    --bg-panel:#1B2030;
+    --bg-panel-raised:#242B3D;
+    --hairline:#2A3144;
+    --amber:#F5A623;
+    --amber-dim:#9A6A17;
+    --teal:#3DDBB0;
+    --rose:#FF7A8A;
+    --text-primary:#FCFDFE;
+    --text-muted:#A9B1C3;
+    --text-faint:#8892A6;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
@@ -39,13 +39,13 @@
     user-select:none;
   }
   input,textarea{-webkit-user-select:text; user-select:text;}
-  .num{font-family:'JetBrains Mono',monospace; font-variant-numeric:tabular-nums;}
+  .num{font-variant-numeric:tabular-nums;}
 
   /* ---------- Header ---------- */
   header{
     padding:18px 20px 14px;
     border-bottom:1px solid var(--hairline);
-    background:linear-gradient(180deg, #191D24 0%, var(--bg-deep) 100%);
+    background:linear-gradient(180deg, #171B24 0%, var(--bg-deep) 100%);
     position:sticky; top:0; z-index:20;
   }
   .header-row{display:flex; align-items:center; justify-content:space-between; gap:12px;}
@@ -56,83 +56,77 @@
     cursor:pointer;
   }
   .rename-pencil{color:var(--text-faint); font-size:13px; flex-shrink:0;}
+  .header-left{min-width:0;}
   .clock{
-    font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--amber);
-    text-align:right; line-height:1.3;
+    display:flex; flex-wrap:wrap; font-size:12px; color:var(--text-muted);
+    margin-top:2px; line-height:1.3; font-variant-numeric:tabular-nums;
   }
-  .clock .date{color:var(--text-muted); font-size:11px; display:block;}
+  .clock .date{color:inherit; font-size:inherit;}
+  .clock #clockTime::before{content:'\00B7'; margin:0 6px;}
 
   /* ---------- Odometer stat strip ---------- */
-  .odometer-strip{
-    display:flex; gap:10px; padding:14px 20px 4px; overflow-x:auto;
+  .odometer-strip{padding:14px 20px 4px;}
+  .odo-card-group{
+    background:var(--bg-panel); border:1px solid var(--hairline);
+    border-radius:14px; overflow:hidden;
   }
-  .odo-card{
-    flex:1 0 auto; min-width:104px;
-    background:var(--bg-panel);
-    border:1px solid var(--hairline);
-    border-radius:10px;
-    padding:10px 12px;
-  }
-  .odo-label{font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-faint);}
-  .odo-value{font-size:19px; font-weight:600; margin-top:3px;}
+  .odo-cols{display:flex; overflow-x:auto; scrollbar-width:none;}
+  .odo-cols::-webkit-scrollbar{display:none;}
+  .odo-col{flex:1 0 auto; min-width:33.33%; padding:10px 10px 10px 12px;}
+  .odo-col + .odo-col{border-left:1px solid var(--hairline);}
+  .odo-label{font-size:11px; color:var(--text-muted);}
+  .odo-value{font-size:clamp(15px, 4.4vw, 18px); font-weight:600; margin-top:2px; white-space:nowrap; color:var(--text-primary);}
   .odo-value.income{color:var(--teal);}
   .odo-value.expense{color:var(--rose);}
-  .odo-value.net{color:var(--amber);}
-  .odo-sub{font-size:10.5px; margin-top:3px; display:flex; gap:8px; font-family:'JetBrains Mono',monospace;}
+  .odo-value.net{color:var(--text-primary);}
+  .odo-sub{font-size:11px; margin-top:4px; display:flex; flex-direction:column; font-variant-numeric:tabular-nums;}
   .odo-sub-income{color:var(--teal);}
   .odo-sub-expense{color:var(--rose);}
-
-  /* ---------- Tabs ---------- */
-  .tabs{
-    display:flex; gap:4px; padding:16px 20px 0;
-    overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+  .odo-miles-row{
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding:8px 12px; border-top:1px solid var(--hairline);
   }
-  .tabs::-webkit-scrollbar{display:none;}
-  .tab{
-    padding:8px 12px; font-size:13px; font-weight:500; white-space:nowrap; flex-shrink:0;
-    color:var(--text-muted); background:transparent; border:none;
-    border-bottom:2px solid transparent; cursor:pointer;
-  }
-  .tab.active{color:var(--text-primary); border-bottom-color:var(--amber);}
+  .odo-miles{font-size:13px; font-weight:500; color:var(--text-primary); font-variant-numeric:tabular-nums;}
 
   main{padding:14px 20px 20px;}
   .panel{display:none;}
   .panel.active{display:block;}
 
   /* ---------- Mic button ---------- */
-  .mic-wrap{display:flex; flex-direction:column; align-items:center; padding:26px 0 10px;}
+  .mic-wrap{display:flex; flex-direction:column; align-items:center; padding:34px 0 10px;}
   .mic-btn{
     width:96px; height:96px; border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, #2A2018, var(--bg-panel-raised));
-    border:2px solid var(--amber-dim);
+    background:var(--amber); border:none;
+    box-shadow:0 0 0 16px rgba(245,166,35,0.14);
     display:flex; align-items:center; justify-content:center;
     cursor:pointer; position:relative;
-    transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    transition:transform .15s ease, box-shadow .15s ease;
   }
-  .mic-btn svg{width:34px; height:34px; fill:var(--amber);}
-  .mic-btn.listening{
-    border-color:var(--amber);
-    box-shadow:0 0 0 8px rgba(232,163,61,0.08), 0 0 0 16px rgba(232,163,61,0.04);
-    animation:pulse 1.4s infinite;
-  }
+  .mic-btn:active{transform:scale(.97);}
+  .mic-btn svg{width:42px; height:42px; fill:#2B1B00;}
+  .mic-btn.listening{animation:pulse 1.4s infinite;}
   @keyframes pulse{
-    0%{box-shadow:0 0 0 0 rgba(232,163,61,0.25);}
-    70%{box-shadow:0 0 0 18px rgba(232,163,61,0);}
-    100%{box-shadow:0 0 0 0 rgba(232,163,61,0);}
+    0%{box-shadow:0 0 0 16px rgba(245,166,35,0.14), 0 0 0 16px rgba(245,166,35,0.30);}
+    70%{box-shadow:0 0 0 16px rgba(245,166,35,0.14), 0 0 0 34px rgba(245,166,35,0);}
+    100%{box-shadow:0 0 0 16px rgba(245,166,35,0.14), 0 0 0 16px rgba(245,166,35,0);}
   }
-  .mic-hint{margin-top:12px; font-size:13px; color:var(--text-muted); text-align:center; min-height:34px; padding:0 24px;}
+  .mic-hint{margin-top:10px; font-size:13px; color:var(--text-muted); text-align:center; padding:0 24px;}
+  .mic-hint:empty{margin-top:0;}
   .mic-hint b{color:var(--text-primary); font-weight:600;}
-  .mic-examples{font-size:11px; color:var(--text-faint); text-align:center; margin-top:6px; line-height:1.6;}
+  .mic-examples{font-size:12px; color:var(--text-muted); text-align:center; margin-top:10px; line-height:1.6; padding:0 12px;}
   .wake-toggle{
-    margin-top:14px; padding:6px 14px; border-radius:999px; border:1px solid var(--hairline);
-    background:var(--bg-panel-raised); color:var(--text-muted); font-size:12px; font-weight:600; cursor:pointer;
+    margin-top:28px; padding:7px 16px; border-radius:999px; border:1px solid var(--hairline);
+    background:var(--bg-panel-raised); color:var(--text-primary); font-size:14px; font-weight:500; cursor:pointer;
+    display:inline-flex; align-items:center; gap:8px;
   }
-  .wake-toggle.active{background:rgba(232,163,61,.15); border-color:var(--amber); color:var(--amber);}
-  .wake-toggle.paused{border-color:var(--rose); color:var(--rose); background:rgba(224,90,90,.08);}
+  .wake-toggle.active, .wake-toggle.paused{border-color:transparent; background:none; font-size:15px; font-weight:400;}
+  .wake-toggle.active::before, .wake-toggle.paused::before{content:''; width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+  .wake-toggle.active::before{background:var(--teal);}
+  .wake-toggle.paused::before{background:var(--rose);}
 
   .manual-toggle{
     display:block; margin:14px auto 0; background:none; border:none;
-    color:var(--text-faint); font-size:12px; text-decoration:underline; cursor:pointer;
+    color:var(--amber); font-size:14px; text-decoration:underline; cursor:pointer;
   }
 
   /* ---------- Manual form ---------- */
@@ -146,19 +140,22 @@
     flex:1; padding:9px; border-radius:8px; border:1px solid var(--hairline);
     background:var(--bg-panel-raised); color:var(--text-muted); font-size:13px; font-weight:600; cursor:pointer;
   }
-  .seg button.active[data-type="income"]{background:rgba(63,167,150,.15); border-color:var(--teal); color:var(--teal);}
-  .seg button.active[data-type="expense"]{background:rgba(209,73,91,.15); border-color:var(--rose); color:var(--rose);}
-  .seg button.active[data-type="mileage"]{background:rgba(232,163,61,.15); border-color:var(--amber); color:var(--amber);}
-  .stream-bar{display:flex; align-items:center; gap:8px; padding:10px 16px; overflow-x:auto; -webkit-overflow-scrolling:touch;}
-  .stream-bar-label{font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; flex-shrink:0;}
-  .stream-chips{display:flex; gap:6px; overflow-x:auto;}
+  .seg button.active[data-type="income"]{background:rgba(61,219,176,.15); border-color:var(--teal); color:var(--teal);}
+  .seg button.active[data-type="expense"]{background:rgba(255,122,138,.15); border-color:var(--rose); color:var(--rose);}
+  .seg button.active[data-type="mileage"]{background:rgba(245,166,35,.15); border-color:var(--amber); color:var(--amber);}
+  .stream-bar{display:flex; flex-direction:column; align-items:stretch; gap:6px; padding:12px 20px 0;}
+  .stream-bar-label{font-size:11px; color:var(--text-muted);}
+  .stream-chips{display:flex; gap:4px; overflow-x:auto; scrollbar-width:none; width:100%;}
+  .stream-chips::-webkit-scrollbar{display:none;}
   .stream-chip{
-    flex-shrink:0; padding:6px 12px; border-radius:999px; border:1px solid var(--hairline);
-    background:var(--bg-panel-raised); color:var(--text-muted); font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap;
+    flex:1 1 0; min-width:64px; padding:7px 6px; border-radius:999px; border:1px solid var(--hairline);
+    background:var(--bg-panel); color:var(--text-primary); font-size:13px; font-weight:400; cursor:pointer;
+    white-space:nowrap; text-align:center; overflow:hidden; text-overflow:ellipsis;
   }
-  .stream-chip.active{background:rgba(232,163,61,.15); border-color:var(--amber); color:var(--amber);}
+  .stream-chip.all{flex:1.4 1 0; min-width:88px;}
+  .stream-chip.active{background:rgba(245,166,35,.14); border-color:var(--amber); color:var(--amber); font-weight:500;}
   .field{margin-bottom:10px;}
-  .field label{display:block; font-size:11px; color:var(--text-faint); margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em;}
+  .field label{display:block; font-size:11px; color:var(--text-faint); margin-bottom:4px;}
   .field input, .field select{
     width:100%; background:var(--bg-deep); border:1px solid var(--hairline);
     border-radius:8px; padding:10px; color:var(--text-primary); font-size:14px; font-family:inherit;
@@ -170,9 +167,9 @@
 
   /* ---------- Entries list ---------- */
   .day-group{margin-bottom:18px;}
-  .day-group-title{font-size:12px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px;}
+  .day-group-title{font-size:13px; color:var(--text-muted); margin-bottom:8px;}
   .day-group-title.with-net{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
-  .week-net{font-family:'JetBrains Mono',monospace; color:var(--amber); font-size:12.5px; letter-spacing:0; text-transform:none;}
+  .week-net{color:var(--text-primary); font-size:15px; font-weight:500; font-variant-numeric:tabular-nums;}
   .entry-stream-subhead{display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-size:11.5px; font-weight:600; color:var(--text-muted); margin:10px 0 4px; padding-top:8px; border-top:1px solid var(--border, rgba(255,255,255,.06));}
   .entry-stream-subhead:first-of-type{border-top:none; padding-top:0; margin-top:2px;}
   .entry-time.entry-count{text-transform:lowercase;}
@@ -185,13 +182,13 @@
     width:34px; height:34px; border-radius:8px; flex-shrink:0;
     display:flex; align-items:center; justify-content:center; font-size:15px;
   }
-  .entry-icon.income{background:rgba(63,167,150,.15); color:var(--teal);}
-  .entry-icon.expense{background:rgba(209,73,91,.15); color:var(--rose);}
-  .entry-icon.mileage{background:rgba(232,163,61,.15); color:var(--amber);}
+  .entry-icon.income{background:rgba(61,219,176,.15); color:var(--teal);}
+  .entry-icon.expense{background:rgba(255,122,138,.15); color:var(--rose);}
+  .entry-icon.mileage{background:rgba(245,166,35,.15); color:var(--amber);}
   .entry-info{flex:1; min-width:0;}
   .entry-cat{font-size:13.5px; font-weight:600; text-transform:capitalize;}
-  .entry-time{font-size:11px; color:var(--text-faint); font-family:'JetBrains Mono',monospace;}
-  .entry-amt{font-size:14px; font-weight:700; font-family:'JetBrains Mono',monospace;}
+  .entry-time{font-size:11px; color:var(--text-faint); font-variant-numeric:tabular-nums;}
+  .entry-amt{font-size:14px; font-weight:700; font-variant-numeric:tabular-nums;}
   .entry-amt.income{color:var(--teal);}
   .entry-amt.expense{color:var(--rose);}
   .entry-amt.mileage{color:var(--amber);}
@@ -205,19 +202,19 @@
   /* ---------- Stats panel ---------- */
   .stat-toggle{display:flex; gap:8px; margin-bottom:16px;}
   .stat-toggle button{
-    flex:1; padding:9px; border-radius:8px; border:1px solid var(--hairline);
-    background:var(--bg-panel); color:var(--text-muted); font-weight:600; font-size:13px; cursor:pointer;
+    flex:1; padding:9px; border-radius:10px; border:1px solid var(--hairline);
+    background:var(--bg-panel); color:var(--text-primary); font-weight:400; font-size:13px; cursor:pointer;
   }
-  .stat-toggle button.active{background:var(--bg-panel-raised); color:var(--amber); border-color:var(--amber-dim);}
+  .stat-toggle button.active{background:rgba(245,166,35,.14); color:var(--amber); border-color:var(--amber); font-weight:500;}
   .log-gran-toggle{display:flex; gap:8px; margin-bottom:14px;}
   .log-gran-toggle button{
-    flex:1; padding:8px; border-radius:8px; border:1px solid var(--hairline);
-    background:var(--bg-panel); color:var(--text-muted); font-weight:600; font-size:12.5px; cursor:pointer;
+    flex:1; padding:9px; border-radius:10px; border:1px solid var(--hairline);
+    background:var(--bg-panel); color:var(--text-primary); font-weight:400; font-size:13px; cursor:pointer;
   }
-  .log-gran-toggle button.active{background:var(--bg-panel-raised); color:var(--amber); border-color:var(--amber-dim);}
+  .log-gran-toggle button.active{background:rgba(245,166,35,.14); color:var(--amber); border-color:var(--amber); font-weight:500;}
   .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;}
   .stat-card{background:var(--bg-panel); border:1px solid var(--hairline); border-radius:12px; padding:14px;}
-  .stat-card .label{font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em;}
+  .stat-card .label{font-size:11px; color:var(--text-faint);}
   .stat-card .value{font-size:22px; font-weight:700; margin-top:6px;}
   .stat-card.wide{grid-column:1/-1;}
   .bar-chart{display:flex; align-items:flex-end; gap:6px; height:120px; margin-top:10px;}
@@ -251,16 +248,20 @@
   nav.bottom{
     position:fixed; bottom:0; left:0; right:0; z-index:20;
     background:var(--bg-panel); border-top:1px solid var(--hairline);
-    display:flex; padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+    display:flex; padding:0 6px calc(8px + env(safe-area-inset-bottom));
   }
   nav.bottom button{
-    flex:1; background:none; border:none; color:var(--text-faint);
+    flex:1; background:none; border:none; color:var(--text-primary);
     display:flex; flex-direction:column; align-items:center; gap:3px;
-    font-size:10px; padding:6px 0; cursor:pointer;
+    font-size:11px; padding:10px 0 4px; cursor:pointer; position:relative;
   }
-  nav.bottom button svg{width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8;}
-  nav.bottom button.active{color:var(--amber);}
-  nav.bottom button.active svg{fill:rgba(232,163,61,.15);}
+  nav.bottom button svg{width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8;}
+  nav.bottom button.active{color:var(--amber); font-weight:500;}
+  nav.bottom button.active::before{
+    content:''; position:absolute; top:0; left:30%; right:30%; height:3px;
+    border-radius:0 0 3px 3px; background:var(--amber);
+  }
+  nav.bottom button.active svg{fill:rgba(245,166,35,.15);}
 
   /* ---------- Modal ---------- */
   .modal-backdrop{
@@ -294,7 +295,7 @@
   .toast.show{opacity:1; transform:translateX(-50%) translateY(-6px);}
 
   /* ---------- Settings gear ---------- */
-  .settings-btn{background:none; border:none; color:var(--text-faint); font-size:18px; cursor:pointer; padding:4px 6px; flex-shrink:0;}
+  .settings-btn{background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer; padding:4px 6px; flex-shrink:0;}
 
   /* ---------- Vehicle panel ---------- */
   .vehicle-card{background:var(--bg-panel); border:1px solid var(--hairline); border-radius:12px; padding:16px; margin-bottom:16px;}
@@ -311,11 +312,11 @@
   .help-item.open .chevron{transform:rotate(90deg);}
   .help-item-body{display:none; padding:0 16px 16px; font-size:13px; line-height:1.55; color:var(--text-muted); white-space:pre-line;}
   .help-item.open .help-item-body{display:block;}
-  .vehicle-card h4{margin:0 0 12px; font-size:14px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em;}
+  .vehicle-card h4{margin:0 0 12px; font-size:14px; color:var(--text-muted);}
   .vehicle-row{display:flex; gap:8px; margin-bottom:10px;}
   .vehicle-row .field{flex:1; margin-bottom:0;}
-  .odo-current{font-size:26px; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--text-primary);}
-  .odo-current-label{font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px;}
+  .odo-current{font-size:26px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--text-primary);}
+  .odo-current-label{font-size:11px; color:var(--text-faint); margin-bottom:2px;}
   .resync-link{background:none; border:none; color:var(--amber); font-size:12px; text-decoration:underline; cursor:pointer; padding:0; margin-top:6px;}
   .maint-item{
     display:flex; align-items:center; gap:10px;
@@ -339,13 +340,13 @@
 
   /* ---------- Settings modal extras ---------- */
   .settings-section{margin-bottom:18px;}
-  .settings-section label{display:block; font-size:11px; color:var(--text-faint); margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em;}
+  .settings-section label{display:block; font-size:11px; color:var(--text-faint); margin-bottom:6px;}
   .lang-options{display:flex; gap:8px;}
   .lang-options button{
     flex:1; padding:10px 6px; border-radius:8px; border:1px solid var(--hairline);
     background:var(--bg-panel-raised); color:var(--text-muted); font-size:13px; font-weight:600; cursor:pointer;
   }
-  .lang-options button.active{background:rgba(232,163,61,.15); border-color:var(--amber); color:var(--amber);}
+  .lang-options button.active{background:rgba(245,166,35,.15); border-color:var(--amber); color:var(--amber);}
   .platform-row{display:flex; align-items:center; gap:10px; padding:9px 8px; border-radius:8px;}
   .platform-row:hover{background:var(--bg-panel-raised);}
   .platform-row input[type="checkbox"]{width:18px; height:18px; accent-color:var(--amber); flex-shrink:0;}
@@ -397,17 +398,17 @@
 
 <header>
   <div class="header-row">
-    <div class="app-title-wrap" id="titleClickable">
-      <span id="appTitle">GigHelper</span>
-      <span class="rename-pencil">✎</span>
-    </div>
-    <div style="display:flex; align-items:center; gap:10px;">
+    <div class="header-left">
+      <div class="app-title-wrap" id="titleClickable">
+        <span id="appTitle">GigHelper</span>
+        <span class="rename-pencil">✎</span>
+      </div>
       <div class="clock">
         <span class="date" id="clockDate">—</span>
-        <span id="clockTime" class="num">--:--:--</span>
+        <span id="clockTime" class="num">--:--</span>
       </div>
-      <button class="settings-btn" id="settingsBtn" aria-label="Settings">⚙</button>
     </div>
+    <button class="settings-btn" id="settingsBtn" aria-label="Settings">⚙</button>
   </div>
 </header>
 
@@ -417,16 +418,20 @@
 </div>
 
 <div class="odometer-strip">
-  <div class="odo-card"><div class="odo-label">Today net</div><div class="odo-value net num" id="odoToday">$0.00</div>
-    <div class="odo-sub num"><span class="odo-sub-income" id="odoTodayIncome">+$0.00</span><span class="odo-sub-expense" id="odoTodayExpense">-$0.00</span></div></div>
-  <div class="odo-card"><div class="odo-label">Week net</div><div class="odo-value net num" id="odoWeek">$0.00</div>
-    <div class="odo-sub num"><span class="odo-sub-income" id="odoWeekIncome">+$0.00</span><span class="odo-sub-expense" id="odoWeekExpense">-$0.00</span></div></div>
-  <div class="odo-card"><div class="odo-label">Month net</div><div class="odo-value net num" id="odoMonth">$0.00</div>
-    <div class="odo-sub num"><span class="odo-sub-income" id="odoMonthIncome">+$0.00</span><span class="odo-sub-expense" id="odoMonthExpense">-$0.00</span></div></div>
-  <div class="odo-card"><div class="odo-label">Month miles</div><div class="odo-value num" id="odoMiles" style="color:var(--text-primary)">0.0</div></div>
+  <div class="odo-card-group">
+    <div class="odo-cols">
+      <div class="odo-col"><div class="odo-label">Today net</div><div class="odo-value net num" id="odoToday">$0.00</div>
+        <div class="odo-sub num"><span class="odo-sub-income" id="odoTodayIncome">+$0.00</span><span class="odo-sub-expense" id="odoTodayExpense">−$0.00</span></div></div>
+      <div class="odo-col"><div class="odo-label">Week net</div><div class="odo-value net num" id="odoWeek">$0.00</div>
+        <div class="odo-sub num"><span class="odo-sub-income" id="odoWeekIncome">+$0.00</span><span class="odo-sub-expense" id="odoWeekExpense">−$0.00</span></div></div>
+      <div class="odo-col"><div class="odo-label">Month net</div><div class="odo-value net num" id="odoMonth">$0.00</div>
+        <div class="odo-sub num"><span class="odo-sub-income" id="odoMonthIncome">+$0.00</span><span class="odo-sub-expense" id="odoMonthExpense">−$0.00</span></div></div>
+    </div>
+    <div class="odo-miles-row"><span class="odo-label">Month miles</span><span class="odo-miles num" id="odoMiles">0.0</span></div>
+  </div>
 </div>
 
-<div class="vehicle-card" id="backupBanner" style="display:none; border-color:var(--amber); background:rgba(232,163,61,.08); margin:0 16px 12px; align-items:center;">
+<div class="vehicle-card" id="backupBanner" style="display:none; border-color:var(--amber); background:rgba(245,166,35,.08); margin:0 16px 12px; align-items:center;">
   <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%;">
     <div style="flex:1;">
       <div style="font-size:13px; color:var(--text-primary); margin-bottom:2px;" id="backupBannerTitle">Back up your data</div>
@@ -459,14 +464,6 @@
   </div>
 </div>
 
-<div class="tabs">
-  <button class="tab active" data-panel="log">Log</button>
-  <button class="tab" data-panel="stats">Stats</button>
-  <button class="tab" data-panel="calendar">Calendar</button>
-  <button class="tab" data-panel="vehicle">Vehicle</button>
-  <button class="tab" data-panel="help">Help</button>
-</div>
-
 <main>
 
   <!-- LOG PANEL -->
@@ -475,9 +472,9 @@
       <button class="mic-btn" id="micBtn" aria-label="Voice entry">
         <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
       </button>
+      <button class="wake-toggle" id="wakeToggle"></button>
       <div class="mic-hint" id="micHint">Tap and say an entry, or <b>"call this app [name]"</b> to rename it.</div>
       <div class="mic-examples">"20 dollars income doordash" · "8 dollars expense gas" · "log 12 miles"</div>
-      <button class="wake-toggle" id="wakeToggle"></button>
     </div>
     <div class="vehicle-card" id="gpsTripCard" style="display:none; margin-bottom:14px;">
       <button class="save-btn" id="gpsTripBtn" style="margin-top:0;">Start trip</button>
@@ -533,7 +530,7 @@
     <div class="stat-grid">
       <div class="stat-card"><div class="label">Income</div><div class="value num" id="statIncome" style="color:var(--teal)">$0.00</div></div>
       <div class="stat-card"><div class="label">Expenses</div><div class="value num" id="statExpense" style="color:var(--rose)">$0.00</div></div>
-      <div class="stat-card"><div class="label">Net</div><div class="value num" id="statNet" style="color:var(--amber)">$0.00</div></div>
+      <div class="stat-card"><div class="label">Net</div><div class="value num" id="statNet" style="color:var(--text-primary)">$0.00</div></div>
       <div class="stat-card"><div class="label">Miles driven</div><div class="value num" id="statMiles">0.0</div></div>
       <div class="stat-card wide"><div class="label">Net per <span id="perDistUnitLabel">mile</span></div><div class="value num" id="statPerMile">$0.00 / mi</div></div>
       <div class="stat-card wide">
@@ -559,7 +556,7 @@
 
   <!-- VEHICLE PANEL -->
   <section class="panel" id="panel-vehicle">
-    <div class="vehicle-card" id="vehicleNudge" style="display:none; border-color:var(--amber); background:rgba(232,163,61,.08);">
+    <div class="vehicle-card" id="vehicleNudge" style="display:none; border-color:var(--amber); background:rgba(245,166,35,.08);">
       <div style="display:flex; gap:10px; align-items:flex-start;">
         <div style="font-size:20px; line-height:1;">🚗</div>
         <div style="flex:1; min-width:0;">
@@ -646,9 +643,9 @@
     <svg viewBox="0 0 24 24"><path d="M5 17h14M5 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm14 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM5 17l1.5-6h11L19 17M6.5 11l1-3.5h9l1 3.5"/></svg>
     Vehicle
   </button>
-  <button class="nav-btn" id="installNavBtn">
-    <svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
-    Install
+  <button class="nav-btn" data-panel="help">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1.1.9-1.1 1.7M12 17h.01"/></svg>
+    Help
   </button>
 </nav>
 
@@ -873,6 +870,7 @@
       </div>
       <div class="settings-section">
         <label id="lblSupport">Support</label>
+        <button type="button" class="save-btn" id="installSettingsBtn" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline); margin-bottom:8px;">Install app</button>
         <button type="button" class="save-btn" id="reportProblemBtn" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline);">Report a problem</button>
         <button type="button" class="save-btn" id="privacyPolicyBtn" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline); margin-top:8px;">Privacy policy</button>
         <button type="button" class="save-btn" id="termsOfServiceBtn" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline); margin-top:8px;">Terms of service</button>
@@ -1288,7 +1286,7 @@
       todayLabel: 'Today', yesterdayLabel: 'Yesterday', thisMonthLabel: 'This month', dailyToggle: 'Daily', weeklyToggle: 'Weekly', monthlyToggle: 'Monthly',
       wakeToggleOffLabel: 'Turn on voice activation', wakeListeningLabel: 'Listening for “{{APP}}”', wakePausedLabel: 'Voice activation paused — tap to resume', micHintWake: 'Say “{{APP}}” then your entry — e.g. “{{APP}}, 20 dollars income doordash.”',
       incomeLabel: 'Income', expenseLabel: 'Expenses', netLabel: 'Net', milesLabel: 'Miles driven',
-      netPerMileLabel: 'Net per mile', byCategoryLabel: 'By category', copiedToClipboard: 'Summary copied to clipboard',
+      netPerMileLabel: 'Net per mile', byCategoryLabel: 'By category', byStreamLabel: 'By stream', copiedToClipboard: 'Summary copied to clipboard',
       welcomeTitle: 'Welcome to GigHelper', welcomeBody: 'Track income, expenses, mileage, and maintenance — hands-free with voice entry.',
       getStarted: 'Get started', choosePlatforms: 'Which platforms do you work with?', addPlatform: 'Add platform',
       addPlatformPlaceholder: 'e.g. Roadie, Shipt...', platformAdded: 'Platform added', platformsLabel: 'Platforms',
@@ -1332,7 +1330,7 @@
       todayLabel: 'Hoy', yesterdayLabel: 'Ayer', thisMonthLabel: 'Este mes', dailyToggle: 'Diario', weeklyToggle: 'Semanal', monthlyToggle: 'Mensual',
       wakeToggleOffLabel: 'Activar por voz', wakeListeningLabel: 'Escuchando “{{APP}}”', wakePausedLabel: 'Activación por voz en pausa — toca para reanudar', micHintWake: 'Di “{{APP}}” y luego tu entrada — ej. “{{APP}}, 20 dólares de ingreso doordash.”',
       incomeLabel: 'Ingresos', expenseLabel: 'Gastos', netLabel: 'Neto', milesLabel: 'Millas recorridas',
-      netPerMileLabel: 'Neto por milla', byCategoryLabel: 'Por categoría', copiedToClipboard: 'Resumen copiado al portapapeles',
+      netPerMileLabel: 'Neto por milla', byCategoryLabel: 'Por categoría', byStreamLabel: 'Por fuente', copiedToClipboard: 'Resumen copiado al portapapeles',
       welcomeTitle: 'Bienvenido a GigHelper', welcomeBody: 'Registra ingresos, gastos, millaje y mantenimiento — con entrada de voz manos libres.',
       getStarted: 'Comenzar', choosePlatforms: '¿Con qué plataformas trabajas?', addPlatform: 'Añadir plataforma',
       addPlatformPlaceholder: 'p. ej. Roadie, Shipt...', platformAdded: 'Plataforma añadida', platformsLabel: 'Plataformas',
@@ -1376,7 +1374,7 @@
       todayLabel: 'Oggi', yesterdayLabel: 'Ieri', thisMonthLabel: 'Questo mese', dailyToggle: 'Giornaliero', weeklyToggle: 'Settimanale', monthlyToggle: 'Mensile',
       wakeToggleOffLabel: 'Attiva comando vocale', wakeListeningLabel: 'In ascolto di “{{APP}}”', wakePausedLabel: 'Attivazione vocale in pausa — tocca per riprendere', micHintWake: 'Di\' “{{APP}}” seguito dalla voce da registrare — es. “{{APP}}, 20 dollari entrata doordash.”',
       incomeLabel: 'Entrate', expenseLabel: 'Spese', netLabel: 'Netto', milesLabel: 'Miglia percorse',
-      netPerMileLabel: 'Netto per miglio', byCategoryLabel: 'Per categoria', copiedToClipboard: 'Riepilogo copiato negli appunti',
+      netPerMileLabel: 'Netto per miglio', byCategoryLabel: 'Per categoria', byStreamLabel: 'Per flusso', copiedToClipboard: 'Riepilogo copiato negli appunti',
       welcomeTitle: 'Benvenuto in GigHelper', welcomeBody: 'Traccia entrate, spese, chilometraggio e manutenzione — a mani libere con la voce.',
       getStarted: 'Inizia', choosePlatforms: 'Con quali piattaforme lavori?', addPlatform: 'Aggiungi piattaforma',
       addPlatformPlaceholder: 'es. Roadie, Shipt...', platformAdded: 'Piattaforma aggiunta', platformsLabel: 'Piattaforme',
@@ -1420,7 +1418,7 @@
       todayLabel: 'Aujourd\'hui', yesterdayLabel: 'Hier', thisMonthLabel: 'Ce mois-ci', dailyToggle: 'Quotidien', weeklyToggle: 'Hebdomadaire', monthlyToggle: 'Mensuel',
       wakeToggleOffLabel: 'Activer par la voix', wakeListeningLabel: 'À l\'écoute de « {{APP}} »', wakePausedLabel: 'Activation vocale en pause — appuyez pour reprendre', micHintWake: 'Dites « {{APP}} » puis votre entrée — ex. « {{APP}}, 20 dollars revenu doordash. »',
       incomeLabel: 'Revenus', expenseLabel: 'Dépenses', netLabel: 'Net', milesLabel: 'Miles parcourus',
-      netPerMileLabel: 'Net par mile', byCategoryLabel: 'Par catégorie', copiedToClipboard: 'Résumé copié dans le presse-papiers',
+      netPerMileLabel: 'Net par mile', byCategoryLabel: 'Par catégorie', byStreamLabel: 'Par flux', copiedToClipboard: 'Résumé copié dans le presse-papiers',
       welcomeTitle: 'Bienvenue sur GigHelper', welcomeBody: 'Suivez revenus, dépenses, kilométrage et entretien — mains libres avec la saisie vocale.',
       getStarted: 'Commencer', choosePlatforms: 'Avec quelles plateformes travaillez-vous ?', addPlatform: 'Ajouter une plateforme',
       addPlatformPlaceholder: 'ex. Roadie, Shipt...', platformAdded: 'Plateforme ajoutée', platformsLabel: 'Plateformes',
@@ -1464,7 +1462,7 @@
       todayLabel: '今天', yesterdayLabel: '昨天', thisMonthLabel: '本月', dailyToggle: '每日', weeklyToggle: '每周', monthlyToggle: '每月',
       wakeToggleOffLabel: '开启语音唤醒', wakeListeningLabel: '正在监听"{{APP}}"', wakePausedLabel: '语音唤醒已暂停 — 点击恢复', micHintWake: '说"{{APP}}"，然后说出内容 —— 例如"{{APP}}，20美元收入doordash"。',
       incomeLabel: '收入', expenseLabel: '支出', netLabel: '净额', milesLabel: '行驶英里数',
-      netPerMileLabel: '每英里净额', byCategoryLabel: '按类别', copiedToClipboard: '摘要已复制到剪贴板',
+      netPerMileLabel: '每英里净额', byCategoryLabel: '按类别', byStreamLabel: '按来源', copiedToClipboard: '摘要已复制到剪贴板',
       welcomeTitle: '欢迎使用 GigHelper', welcomeBody: '记录收入、支出、里程和保养 — 支持免提语音输入。',
       getStarted: '开始使用', choosePlatforms: '您在哪些平台工作？', addPlatform: '添加平台',
       addPlatformPlaceholder: '例如 Roadie、Shipt...', platformAdded: '平台已添加', platformsLabel: '平台',
@@ -1750,6 +1748,7 @@
     if(typeof updateLogGranTexts === 'function') updateLogGranTexts();
     document.querySelector('.mic-examples').innerHTML = t('micExamples');
     document.getElementById('shareSummaryBtn').textContent = t('shareSummary');
+    if(typeof updateReportButtonLabels === 'function') updateReportButtonLabels();
     renderMaintList();
     renderFirstTimeMaintInputs();
     renderHelpPanel();
@@ -1778,7 +1777,7 @@
   /* ---------------- Clock (real device clock, used for all timestamps) ---------------- */
   function tickClock(){
     var now = new Date();
-    document.getElementById('clockTime').textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    document.getElementById('clockTime').textContent = now.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
     document.getElementById('clockDate').textContent = now.toLocaleDateString([], {weekday:'short', month:'short', day:'numeric'});
   }
   tickClock();
@@ -1786,16 +1785,18 @@
 
   /* ---------------- Tabs ---------------- */
   var panels = ['log','stats','calendar','vehicle','help'];
+  var lastPanel = 'log';
   function showPanel(name){
     panels.forEach(function(p){
       document.getElementById('panel-'+p).classList.toggle('active', p===name);
     });
     document.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('active', b.dataset.panel===name); });
     document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.panel===name); });
-    if(name==='stats'){ renderStatsStreamChips(); renderStats(); }
+    if(name==='stats'){ if(lastPanel!=='stats') syncStatStreamToLog(); renderStatsStreamChips(); renderStats(); }
     if(name==='calendar') renderCalendar();
     if(name==='log') renderEntriesList();
     if(name==='vehicle') renderVehiclePanel();
+    lastPanel = name;
   }
   document.querySelectorAll('.tab').forEach(function(b){ b.addEventListener('click', function(){ showPanel(b.dataset.panel); }); });
   document.querySelectorAll('.nav-btn[data-panel]').forEach(function(b){ b.addEventListener('click', function(){ showPanel(b.dataset.panel); }); });
@@ -1824,7 +1825,14 @@
   });
   initGpsTripUI();
   initAutoTripUI();
-  document.getElementById('installNavBtn').addEventListener('click', function(){ openModal('installModal'); });
+  (function(){
+    var installBtn = document.getElementById('installSettingsBtn');
+    if(!installBtn) return;
+    var standalone = false;
+    try { standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true; } catch(e){}
+    if(standalone){ installBtn.style.display = 'none'; return; }
+    installBtn.addEventListener('click', function(){ closeModal('settingsModal'); openModal('installModal'); });
+  })();
   document.getElementById('settingsBtn').addEventListener('click', function(){ openModal('settingsModal'); });
   document.querySelectorAll('#langOptions button').forEach(function(b){
     b.addEventListener('click', function(){ applyLanguage(b.dataset.lang); showToast('Voice language updated'); });
@@ -2144,11 +2152,11 @@
     document.getElementById('odoWeek').textContent = fmtMoney(week.net);
     document.getElementById('odoMonth').textContent = fmtMoney(month.net);
     document.getElementById('odoTodayIncome').textContent = '+'+fmtMoney(today.income);
-    document.getElementById('odoTodayExpense').textContent = '-'+fmtMoney(today.expense);
+    document.getElementById('odoTodayExpense').textContent = '\u2212'+fmtMoney(today.expense);
     document.getElementById('odoWeekIncome').textContent = '+'+fmtMoney(week.income);
-    document.getElementById('odoWeekExpense').textContent = '-'+fmtMoney(week.expense);
+    document.getElementById('odoWeekExpense').textContent = '\u2212'+fmtMoney(week.expense);
     document.getElementById('odoMonthIncome').textContent = '+'+fmtMoney(month.income);
-    document.getElementById('odoMonthExpense').textContent = '-'+fmtMoney(month.expense);
+    document.getElementById('odoMonthExpense').textContent = '\u2212'+fmtMoney(month.expense);
     document.getElementById('odoMiles').textContent = milesToDisplay(month.miles).toFixed(1);
   }
 
@@ -2352,13 +2360,14 @@
     var box = document.getElementById('statsStreamChips');
     if(!box) return;
     // Same as the Log tab bar: nothing to filter when there's only one stream.
+    if(statStreamFilter!=='all' && streams.indexOf(statStreamFilter)===-1){ statStreamFilter = 'all'; }
+    updateReportButtonLabels();
     if(streams.length <= 1){ box.style.display = 'none'; return; }
     box.style.display = 'flex';
     box.innerHTML = '';
-    if(statStreamFilter!=='all' && streams.indexOf(statStreamFilter)===-1){ statStreamFilter = 'all'; }
     var allChip = document.createElement('button');
     allChip.type = 'button';
-    allChip.className = 'stream-chip' + (statStreamFilter==='all' ? ' active' : '');
+    allChip.className = 'stream-chip all' + (statStreamFilter==='all' ? ' active' : '');
     allChip.textContent = t('allStreamsLabel');
     allChip.addEventListener('click', function(){ statStreamFilter = 'all'; renderStatsStreamChips(); renderStats(); });
     box.appendChild(allChip);
@@ -2374,6 +2383,27 @@
   // Applies the current Stats-tab stream filter on top of any other list of
   // entries (e.g. already narrowed to a date range). Kept separate from
   // entriesInRange so the Log tab / Calendar / exports are unaffected.
+  function streamScopeName(){
+    if(typeof statStreamFilter !== 'string' || statStreamFilter === 'all') return '';
+    return streams.length > 1 ? statStreamFilter : '';
+  }
+  // Stats opens on whichever stream the Log tab is showing, so each stream's
+  // report is already in front of you; the chips still switch to any other
+  // stream or to the combined "All streams" view.
+  function syncStatStreamToLog(){
+    statStreamFilter = (streams.length > 1 && !logViewAll && activeStream) ? activeStream : 'all';
+  }
+  // Report buttons name the stream they will report on.
+  function updateReportButtonLabels(){
+    var scope = (typeof streamScopeName === 'function') ? streamScopeName() : '';
+    var suffix = scope ? ' \u2014 ' + scope : '';
+    var csvBtn = document.getElementById('exportCsv');
+    var taxBtn = document.getElementById('exportTaxSummary');
+    var shareBtn = document.getElementById('shareSummaryBtn');
+    if(csvBtn) csvBtn.textContent = 'Export CSV' + suffix;
+    if(taxBtn) taxBtn.textContent = 'Export tax summary' + suffix;
+    if(shareBtn) shareBtn.textContent = t('shareSummary') + suffix;
+  }
   function applyStatStreamFilter(list){
     if(statStreamFilter==='all') return list;
     return list.filter(function(e){ return (e.stream || DEFAULT_STREAMS[0]) === statStreamFilter; });
@@ -2387,7 +2417,7 @@
       renderStats();
     });
   });
-  document.getElementById('exportCsv').addEventListener('click', exportCsv);
+  document.getElementById('exportCsv').addEventListener('click', function(){ exportCsv(streamScopeName()); });
 
   function getStatPeriod(){
     var now = new Date();
@@ -2422,7 +2452,8 @@
       else byCat[e.category].expense += e.amount;
     });
     var lines = [];
-    lines.push(appName + ' — ' + rangeLabel);
+    var scopeName = streamScopeName();
+    lines.push(appName + ' — ' + (scopeName ? scopeName + ' — ' : '') + rangeLabel);
     lines.push(start.toLocaleDateString() + ' \u2013 ' + new Date(end - 1).toLocaleDateString());
     lines.push('');
     lines.push(t('incomeLabel') + ': ' + fmtMoney(s.income));
@@ -2430,6 +2461,14 @@
     lines.push(t('netLabel') + ': ' + fmtMoney(s.net));
     lines.push(t('milesLabel') + ': ' + milesToDisplay(s.miles).toFixed(1) + ' ' + distUnitLabel());
     lines.push(t('netPerMileLabel') + ': ' + (s.miles>0 ? fmtMoney(s.net/s.miles) : fmtMoney(0)));
+    if(!scopeName && streams.length > 1){
+      lines.push('');
+      lines.push(t('byStreamLabel') + ':');
+      streams.forEach(function(sn){
+        var ss = summarize(list.filter(function(e){ return (e.stream || DEFAULT_STREAMS[0]) === sn; }));
+        lines.push('  ' + sn + ': ' + t('netLabel') + ' ' + fmtMoney(ss.net) + ' (+' + fmtMoney(ss.income) + ' / -' + fmtMoney(ss.expense) + ') \u00B7 ' + milesToDisplay(ss.miles).toFixed(1) + ' ' + distUnitLabel());
+      });
+    }
     var catKeys = Object.keys(byCat);
     if(catKeys.length){
       lines.push('');
@@ -2451,7 +2490,7 @@
     var start = per.start, end = per.end;
     var rangeLabel = statRange==='week' ? t('weeklySummary') : t('monthlySummary');
     var text = buildSummaryText(rangeLabel, start, end);
-    var title = appName + ' \u2014 ' + rangeLabel;
+    var title = appName + ' \u2014 ' + (streamScopeName() ? streamScopeName() + ' \u2014 ' : '') + rangeLabel;
 
     if(navigator.share){
       navigator.share({ title: title, text: text }).catch(function(){ /* user cancelled, ignore */ });
@@ -2517,29 +2556,34 @@
   // this is meant to be a durable backup file, and rows shouldn't relabel
   // themselves depending on which language happened to be active on
   // export day.
-  function csvContent(){
+  function csvContent(streamOnly){
     var rows = [['Date','Time','Type','Stream','Category','Amount ('+currentCurrency+')','Distance ('+distUnitLabel()+')','Source']];
-    allEntries().slice().sort(function(a,b){return new Date(a.ts)-new Date(b.ts);}).forEach(function(e){
+    allEntries().filter(function(e){ return !streamOnly || (e.stream||DEFAULT_STREAMS[0]) === streamOnly; }).sort(function(a,b){return new Date(a.ts)-new Date(b.ts);}).forEach(function(e){
       var d = new Date(e.ts);
       rows.push([d.toLocaleDateString(), d.toLocaleTimeString(), e.type, (e.stream||DEFAULT_STREAMS[0]), e.category, e.amount.toFixed(2), milesToDisplay(e.miles).toFixed(1), (e.type==='mileage' ? mileageSourceOf(e) : '')]);
     });
     return '\uFEFF' + rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
   }
 
-  function exportCsv(){
-    var csv = csvContent();
+  function exportCsv(streamOnly){
+    // A stream name = that stream's own report (not a full backup); nothing = every entry.
+    var scoped = (typeof streamOnly === 'string' && streamOnly) ? streamOnly : '';
+    var csv = csvContent(scoped);
     var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     var now = new Date(); var dateStamp = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
-    a.href = url; a.download = appName.replace(/\s+/g,'_')+'_export_'+dateStamp+'.csv';
+    a.href = url; a.download = appName.replace(/\s+/g,'_')+(scoped ? '_'+scoped.replace(/\s+/g,'_') : '')+'_export_'+dateStamp+'.csv';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    try{ localStorage.setItem('gh_last_export', String(Date.now())); }catch(e){}
-    var banner = document.getElementById('backupBanner');
-    if(banner) banner.style.display = 'none';
-    updateAutoBackupStatusUi();
-    showToast('Exported ' + allEntries().length + ' entries to CSV');
+    if(!scoped){
+      // Only a full export counts as a backup.
+      try{ localStorage.setItem('gh_last_export', String(Date.now())); }catch(e){}
+      var banner = document.getElementById('backupBanner');
+      if(banner) banner.style.display = 'none';
+      updateAutoBackupStatusUi();
+    }
+    showToast('Exported ' + (scoped ? countEntriesForStream(scoped) + ' ' + scoped : allEntries().length) + ' entries to CSV');
   }
 
   /* ---------------- Auto-backup (bring-your-own-cloud) ----------------
@@ -3899,12 +3943,12 @@
     listening = state;
     if(wakeModeEnabled && wakeUIActive()){
       micBtn.classList.add('listening');
-      if(!wakeFlashActive) micHint.innerHTML = fillAppName(t('wakeListeningLabel'));
+      if(!wakeFlashActive) micHint.innerHTML = '';
       return;
     }
     micBtn.classList.toggle('listening', state);
     if(state){
-      micHint.innerHTML = recognitionMode==='wake' ? fillAppName(t('wakeListeningLabel')) : 'Listening…';
+      micHint.innerHTML = recognitionMode==='wake' ? '' : 'Listening…';
     } else if(recognitionMode==='idle'){
       micHint.innerHTML = wakeModeEnabled ? fillAppName(t('micHintWake')) : t('micHintDefault');
     }
@@ -3919,7 +3963,7 @@
     if(wakeHintRevertTimer) clearTimeout(wakeHintRevertTimer);
     wakeHintRevertTimer = setTimeout(function(){
       wakeFlashActive = false;
-      if(shouldBeListeningForWake()) micHint.innerHTML = fillAppName(t('wakeListeningLabel'));
+      if(shouldBeListeningForWake()) micHint.innerHTML = '';
     }, ms || 3000);
   }
 
@@ -3956,9 +4000,9 @@
     if(!wakeToggle) return;
     wakeToggle.classList.toggle('active', wakeModeEnabled && !wakePaused);
     wakeToggle.classList.toggle('paused', wakeModeEnabled && wakePaused);
-    if(!wakeModeEnabled) wakeToggle.textContent = '🎙️ ' + t('wakeToggleOffLabel');
-    else if(wakePaused) wakeToggle.textContent = '⏸ ' + t('wakePausedLabel');
-    else wakeToggle.textContent = '🎙️ ' + fillAppName(t('wakeListeningLabel'));
+    if(!wakeModeEnabled) wakeToggle.textContent = t('wakeToggleOffLabel');
+    else if(wakePaused) wakeToggle.textContent = t('wakePausedLabel');
+    else wakeToggle.textContent = fillAppName(t('wakeListeningLabel'));
     if(recognitionMode==='idle' && !listening){
       micHint.innerHTML = wakeModeEnabled && !wakePaused ? fillAppName(t('micHintWake')) : t('micHintDefault');
     }
@@ -4305,7 +4349,7 @@
     // stream was last selected (shown next time you switch off "All").
     var allChip = document.createElement('button');
     allChip.type = 'button';
-    allChip.className = 'stream-chip' + (logViewAll ? ' active' : '');
+    allChip.className = 'stream-chip all' + (logViewAll ? ' active' : '');
     allChip.textContent = t('allStreamsLabel');
     allChip.addEventListener('click', function(){
       logViewAll = true;
