@@ -74,19 +74,20 @@
   .odo-cols::-webkit-scrollbar{display:none;}
   .odo-col{flex:1 0 auto; min-width:33.33%; padding:10px 10px 10px 12px;}
   .odo-col + .odo-col{border-left:1px solid var(--hairline);}
-  .odo-label{font-size:11px; color:var(--text-muted);}
-  .odo-value{font-size:clamp(15px, 4.4vw, 18px); font-weight:600; margin-top:2px; white-space:nowrap; color:var(--text-primary);}
+  .odo-label{font-size:clamp(15px, 4.3vw, 17px); font-weight:500; color:var(--text-primary); line-height:1.25;}
+  .odo-value{font-size:clamp(13px, 3.7vw, 15px); font-weight:600; margin-top:4px; white-space:nowrap; color:var(--text-primary);}
   .odo-value.income{color:var(--teal);}
   .odo-value.expense{color:var(--rose);}
   .odo-value.net{color:var(--text-primary);}
-  .odo-sub{font-size:11px; margin-top:4px; display:flex; flex-direction:column; font-variant-numeric:tabular-nums;}
+  .odo-sub{font-size:12px; margin-top:4px; display:flex; flex-direction:column; font-variant-numeric:tabular-nums;}
   .odo-sub-income{color:var(--teal);}
   .odo-sub-expense{color:var(--rose);}
   .odo-miles-row{
     display:flex; justify-content:space-between; align-items:baseline;
     padding:8px 12px; border-top:1px solid var(--hairline);
   }
-  .odo-miles{font-size:13px; font-weight:500; color:var(--text-primary); font-variant-numeric:tabular-nums;}
+  .odo-miles-row .odo-label{font-size:15px;}
+  .odo-miles{font-size:15px; font-weight:500; color:var(--text-primary); font-variant-numeric:tabular-nums;}
 
   main{padding:14px 20px 20px;}
   .panel{display:none;}
