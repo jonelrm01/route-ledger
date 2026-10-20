@@ -166,8 +166,9 @@ test('csvContent: adds a Source column that is filled for mileage rows only', fu
   ]);
   const sb = runInSandbox(sources, { localStorage: makeLocalStorageMock(), window: {} });
   const rows = sb.csvContent().replace('\uFEFF', '').split('\n').map(function(r){ return r.split('","').map(function(c){ return c.replace(/^"|"$/g, ''); }); });
-  assert.strictEqual(rows[0][rows[0].length - 1], 'Source');
-  assert.strictEqual(rows[1][rows[1].length - 1], 'gps');
-  assert.strictEqual(rows[2][rows[2].length - 1], 'manual', 'legacy untagged mileage exports as manual');
-  assert.strictEqual(rows[3][rows[3].length - 1], '', 'income rows have no source');
+  const src = rows[0].indexOf('Source');   // ID + ISO timestamp columns follow it, so find it by name
+  assert.ok(src !== -1, 'Source column present');
+  assert.strictEqual(rows[1][src], 'gps');
+  assert.strictEqual(rows[2][src], 'manual', 'legacy untagged mileage exports as manual');
+  assert.strictEqual(rows[3][src], '', 'income rows have no source');
 });

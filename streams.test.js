@@ -13,7 +13,7 @@ test('categoriesForStream: Driving keeps its curated platform categories', funct
   // Arrays built inside a vm sandbox are a different realm than this file's
   // Array, so assert.deepStrictEqual's prototype check fails even when the
   // contents match — compare via a plain value join instead.
-  assert.strictEqual(sandbox.categoriesForStream('Driving').join('|'), ['Uber', 'DoorDash', 'Gas', 'Other'].join('|'));
+  assert.strictEqual(sandbox.categoriesForStream('Driving').join('|'), ['Uber', 'DoorDash', 'Gas', 'Restaurant', 'Other'].join('|'));
 });
 
 test('categoriesForStream: every non-Driving stream gets the expanded set, and never the Driving-only ones', function(){

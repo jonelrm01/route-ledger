@@ -84,3 +84,7 @@ a new `something.test.js` file if it's a new area — `run.js` picks up any
 file ending in `.test.js` automatically.
 - **design-refresh** — guards the Oct 2026 color/layout refresh: palette tokens, sentence-case labels, 5-item bottom nav (no duplicate top tabs), Install moved to Settings, centered/wider "All streams" chip, grouped Today/Week/Month card, single wake-status line.
 - **stream-reports** — each stream's own report: summary header names the stream, only that stream's numbers, "All streams" gets a per-stream breakdown, per-stream CSV vs full backup CSV.
+- **storage-restore** — "Where your data is kept" chooser and restore: backup CSV round-trips exactly (ids, ISO timestamps, km→mi), restoring is additive and never duplicates, old exports still load, junk rows are counted, chooser/i18n wiring.
+- **celebrations** — confetti: burst geometry/lifetime, no stacking, Settings off-switch, reduced-motion respected, triggers (mileage, downloads, shared backup, odometer update — not restore), 5-language strings.
+- **weekly-start-end** — weekly mileage as Start / End / Driven (End − Start), in-progress current week, skipped weeks, Monday-morning reading closing last week, Vehicle-tab rendering and wiring.
+- **categories** — Restaurant category: in every stream before Other, translated in 5 languages, understood by voice (category + expense signal) without disturbing existing categories.

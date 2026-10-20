@@ -154,6 +154,16 @@
     white-space:nowrap; text-align:center; overflow:hidden; text-overflow:ellipsis;
   }
   .stream-chip.all{flex:1.4 1 0; min-width:88px;}
+  .storage-opt{
+    display:flex; flex-direction:column; align-items:flex-start; gap:2px; width:100%; text-align:left;
+    padding:10px 12px; border-radius:10px; border:1px solid var(--hairline); background:var(--bg-panel);
+    color:var(--text-primary); cursor:pointer; margin-bottom:6px; font-family:inherit;
+  }
+  .storage-opt .t{font-size:14px; font-weight:500;}
+  .storage-opt .s{font-size:12px; color:var(--text-muted); font-weight:400;}
+  .storage-opt.active{background:rgba(245,166,35,.14); border-color:var(--amber);}
+  .storage-opt.active .t{color:var(--amber);}
+  .storage-opt:disabled{opacity:.5; cursor:not-allowed;}
   .stream-chip.active{background:rgba(245,166,35,.14); border-color:var(--amber); color:var(--amber); font-weight:500;}
   .field{margin-bottom:10px;}
   .field label{display:block; font-size:11px; color:var(--text-faint); margin-bottom:4px;}
@@ -597,6 +607,7 @@
 
     <div class="vehicle-card">
       <h4 id="weeklyOdoLogTitle">Weekly odometer log</h4>
+      <div id="weeklyOdoLogHint" style="font-size:12px; color:var(--text-muted); margin-bottom:8px;"></div>
       <div id="weeklyOdoLogList" style="font-size:13px;"></div>
     </div>
 
@@ -666,6 +677,22 @@
   </div>
 </div>
 
+<!-- Where should your data be kept? (shown once, also reachable from Settings) -->
+<div class="modal-backdrop" id="storageModal">
+  <div class="modal">
+    <div class="modal-inner">
+      <button class="close-x" data-close="storageModal">×</button>
+      <h3 id="storageModalTitle">Where should your data be kept?</h3>
+      <p id="storageModalIntro" style="font-size:13px; color:var(--text-muted);"></p>
+      <div id="storageModalOptions"></div>
+      <button type="button" class="storage-opt" id="restoreBackupBtn2"><span class="t"></span></button>
+      <div class="row-btns" style="margin-top:14px;">
+        <button class="primary" data-close="storageModal" id="storageLaterBtn">Decide later</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Install modal -->
 <div class="modal-backdrop" id="installModal">
   <div class="modal">
@@ -701,6 +728,8 @@
       <h3 id="resyncTitle">Update odometer</h3>
       <p id="resyncSub">Enter your vehicle's actual current mileage from the dashboard. Future trip miles you log will be added on top of this number.</p>
       <input type="number" inputmode="numeric" id="resyncInput" placeholder="e.g. 62000">
+      <label id="resyncWeekLabel" for="resyncWeekSelect" style="display:block; font-size:12px; color:var(--text-muted); margin:12px 0 4px;"></label>
+      <select id="resyncWeekSelect"><option value="start"></option><option value="end"></option></select>
       <div class="row-btns">
         <button data-close="resyncModal">Cancel</button>
         <button class="primary" id="resyncSave">Save</button>
@@ -815,6 +844,15 @@
           <button type="button" data-source="gps" id="srcBtnGps">GPS</button>
         </div>
       </div>
+      <div class="settings-section" id="storageSection">
+        <label id="lblStorage">Where your data is kept</label>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;" id="storageIntro"></div>
+        <div style="font-size:13px; color:var(--text-primary); margin-bottom:10px;" id="storageStatus"></div>
+        <div id="storageOptions"></div>
+        <button type="button" class="storage-opt" id="restoreBackupBtn"><span class="t"></span></button>
+        <div style="font-size:12px; color:var(--text-muted);" id="restoreHint"></div>
+        <input type="file" id="restoreFileInput" accept=".csv,text/csv,text/plain" style="display:none">
+      </div>
       <div class="settings-section" id="autoBackupSection">
         <label id="lblAutoBackup">Auto-backup</label>
         <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;" id="autoBackupStatus">Checking availability…</div>
@@ -863,6 +901,14 @@
         <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;" id="autoTripHint">Automatically starts and stops mileage tracking based on your speed — no need to tap Start/End. Uses background location, so Android will show a small ongoing notification while it's on.</div>
         <button type="button" class="save-btn" id="autoTripToggleBtn" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline);">Turn on</button>
         <div style="font-size:11px; color:var(--text-faint); margin-top:6px;" id="autoTripStatus"></div>
+      </div>
+      <div class="settings-section" id="celebrationsSection">
+        <label id="lblCelebrations">Confetti celebrations</label>
+        <button type="button" class="save-btn" id="celebrationsToggleBtn" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline);"></button>
+      </div>
+      <div class="settings-section" id="celebrationSoundSection">
+        <label id="lblCelebrationSound">Celebration sound</label>
+        <button type="button" class="save-btn" id="celebrationSoundToggleBtn" style="background:var(--bg-panel-raised); color:var(--text-primary); border:1px solid var(--hairline);"></button>
       </div>
       <div class="settings-section">
         <label id="lblNotifications">Notifications</label>
@@ -1269,10 +1315,10 @@
       streamDeleteTitle: 'Remove "{{STREAM}}"?', streamDeleteBody: 'This stream has {{COUNT}} entries. Removing it won\'t delete them, but they\'ll disappear from your Log and Stats until you move them to another stream (edit an entry to change its stream). Remove anyway?', streamDeleteConfirm: 'Remove anyway',
       maintDisclaimer: "These are general industry-standard intervals, not manufacturer-specific figures. Check your owner's manual for your vehicle's exact schedule, and tap a service to update it when you know the real interval.",
       resyncTitle: 'Update odometer', resyncSub: "Enter your vehicle's actual current mileage from the dashboard. Future trip miles you log will be added on top of this number.",
-      odoWeeklyBannerTitle: "Update this week's odometer", odoWeeklyBannerBody: "You haven't logged your actual mileage reading this week yet.",
+      odoWeeklyBannerTitle: 'Log your odometer for the new week', odoWeeklyBannerBody: 'One reading now closes last week and starts this one, so we can show your weekly miles.',
       odoWeeklyBannerBtn: 'Update now', weeklyOdoLogTitle: 'Weekly odometer log',
       weeklyOdoLogEmpty: 'No readings logged yet — update your odometer to start a history.',
-      weeklyOdoWeekOf: 'Week of', weeklyOdoVsLastWeek: 'vs last week',
+      weeklyOdoWeekOf: 'Week of', weeklyOdoVsLastWeek: 'vs last week', weeklyOdoStart: 'Start', weeklyOdoEnd: 'End', weeklyOdoDriven: 'Driven', weeklyOdoSoFar: 'so far (estimated from your logged miles)', weeklyOdoCheck: 'Check your readings — the end is lower than the start.', weeklyOdoHint: 'Take one odometer reading at the start of each week. It ends last week and starts the new one — the difference is the miles you drove that week.', weeklyOdoTakenAt: 'This reading is the…', weeklyOdoStartOfWeek: 'Start of this week (closes last week)', weeklyOdoEndOfWeek: 'End of this week',
       markDone: 'Mark done', edit: 'Edit',
       statusOk: 'OK', statusSoon: 'due soon', statusOverdue: 'overdue',
       dueAt: 'next due at', milesShort: 'mi',
@@ -1287,7 +1333,7 @@
       todayLabel: 'Today', yesterdayLabel: 'Yesterday', thisMonthLabel: 'This month', dailyToggle: 'Daily', weeklyToggle: 'Weekly', monthlyToggle: 'Monthly',
       wakeToggleOffLabel: 'Turn on voice activation', wakeListeningLabel: 'Listening for “{{APP}}”', wakePausedLabel: 'Voice activation paused — tap to resume', micHintWake: 'Say “{{APP}}” then your entry — e.g. “{{APP}}, 20 dollars income doordash.”',
       incomeLabel: 'Income', expenseLabel: 'Expenses', netLabel: 'Net', milesLabel: 'Miles driven',
-      netPerMileLabel: 'Net per mile', byCategoryLabel: 'By category', byStreamLabel: 'By stream', copiedToClipboard: 'Summary copied to clipboard',
+      netPerMileLabel: 'Net per mile', byCategoryLabel: 'By category', byStreamLabel: 'By stream', storageTitle: 'Where your data is kept', storageIntro: 'Your entries are always saved on this phone first. You can also keep an extra copy somewhere you choose.', storageModalTitle: 'Where should your data be kept?', storagePhone: 'This phone only', storagePhoneSub: 'Nothing leaves your device.', storageFile: 'A file or folder I choose', storageFileSub: 'Automatic copy, for example inside Google Drive or OneDrive.', storageShare: 'Share to Drive, Files or email', storageShareSub: 'One tap to send yourself a backup copy.', storageUnavailable: 'Not available in this browser.', storageStatusPhone: 'Kept on this phone only.', storageStatusFile: 'On this phone, plus an automatic copy in “{file}”.', storageStatusShare: 'On this phone, plus backup copies you share.', storageRestoreBtn: 'Restore from a backup file', storageRestoreHint: 'Adds the entries from a GigHelper backup (.csv). Nothing already on this phone is deleted.', storageRestoreDone: '{n} entries restored, {d} already here skipped.', storageRestoreNone: 'No entries found in that file.', storageRestoreError: 'Could not read that file.', storageRestoreInvalid: 'Rows that could not be read: {i}.', storageLater: 'Decide later', celebrationsTitle: 'Confetti celebrations', celebrationsOn: 'On — tap to turn off', celebrationsOff: 'Off — tap to turn on', celebrationSoundTitle: 'Celebration sound', copiedToClipboard: 'Summary copied to clipboard',
       welcomeTitle: 'Welcome to GigHelper', welcomeBody: 'Track income, expenses, mileage, and maintenance — hands-free with voice entry.',
       getStarted: 'Get started', choosePlatforms: 'Which platforms do you work with?', addPlatform: 'Add platform',
       addPlatformPlaceholder: 'e.g. Roadie, Shipt...', platformAdded: 'Platform added', platformsLabel: 'Platforms',
@@ -1313,10 +1359,10 @@
       streamDeleteTitle: '¿Eliminar "{{STREAM}}"?', streamDeleteBody: 'Esta secuencia tiene {{COUNT}} movimientos. Eliminarla no los borrará, pero desaparecerán de tu Registro y Estadísticas hasta que los muevas a otra secuencia (edita un movimiento para cambiar su secuencia). ¿Eliminar de todos modos?', streamDeleteConfirm: 'Eliminar de todos modos',
       maintDisclaimer: 'Estos son intervalos generales de la industria, no cifras específicas del fabricante. Consulta el manual de tu vehículo para el programa exacto, y toca un servicio para actualizarlo cuando conozcas el intervalo real.',
       resyncTitle: 'Actualizar odómetro', resyncSub: 'Ingresa el kilometraje real actual de tu vehículo desde el tablero. Las millas de viajes futuros se sumarán a este número.',
-      odoWeeklyBannerTitle: 'Actualiza el odómetro de esta semana', odoWeeklyBannerBody: 'Aún no has registrado tu kilometraje real esta semana.',
+      odoWeeklyBannerTitle: 'Registra el odómetro de la nueva semana', odoWeeklyBannerBody: 'Una lectura ahora cierra la semana pasada y abre esta, así podemos mostrar tu recorrido semanal.',
       odoWeeklyBannerBtn: 'Actualizar ahora', weeklyOdoLogTitle: 'Registro semanal del odómetro',
       weeklyOdoLogEmpty: 'Aún no hay lecturas registradas — actualiza tu odómetro para comenzar un historial.',
-      weeklyOdoWeekOf: 'Semana del', weeklyOdoVsLastWeek: 'vs. semana pasada',
+      weeklyOdoWeekOf: 'Semana del', weeklyOdoVsLastWeek: 'vs. semana pasada', weeklyOdoStart: 'Inicio', weeklyOdoEnd: 'Fin', weeklyOdoDriven: 'Recorrido', weeklyOdoSoFar: 'hasta ahora (estimado con tu millaje registrado)', weeklyOdoCheck: 'Revisa tus lecturas: el final es menor que el inicio.', weeklyOdoHint: 'Toma una lectura del odómetro al comienzo de cada semana. Cierra la semana pasada y abre la nueva: la diferencia es lo que recorriste esa semana.', weeklyOdoTakenAt: 'Esta lectura es…', weeklyOdoStartOfWeek: 'Inicio de esta semana (cierra la semana pasada)', weeklyOdoEndOfWeek: 'Fin de esta semana',
       maintEditTitle: 'Editar servicio', maintEditSub: 'Configura seguimiento por kilometraje, por tiempo, o ambos — deja un intervalo en blanco para usar solo uno.',
       lastServiceDateLabel: 'Última vez (fecha)',
       markDone: 'Marcar hecho', edit: 'Editar',
@@ -1331,7 +1377,7 @@
       todayLabel: 'Hoy', yesterdayLabel: 'Ayer', thisMonthLabel: 'Este mes', dailyToggle: 'Diario', weeklyToggle: 'Semanal', monthlyToggle: 'Mensual',
       wakeToggleOffLabel: 'Activar por voz', wakeListeningLabel: 'Escuchando “{{APP}}”', wakePausedLabel: 'Activación por voz en pausa — toca para reanudar', micHintWake: 'Di “{{APP}}” y luego tu entrada — ej. “{{APP}}, 20 dólares de ingreso doordash.”',
       incomeLabel: 'Ingresos', expenseLabel: 'Gastos', netLabel: 'Neto', milesLabel: 'Millas recorridas',
-      netPerMileLabel: 'Neto por milla', byCategoryLabel: 'Por categoría', byStreamLabel: 'Por fuente', copiedToClipboard: 'Resumen copiado al portapapeles',
+      netPerMileLabel: 'Neto por milla', byCategoryLabel: 'Por categoría', byStreamLabel: 'Por fuente', storageTitle: 'Dónde se guardan tus datos', storageIntro: 'Tus registros siempre se guardan primero en este teléfono. También puedes guardar una copia extra donde tú elijas.', storageModalTitle: '¿Dónde quieres guardar tus datos?', storagePhone: 'Solo este teléfono', storagePhoneSub: 'Nada sale de tu dispositivo.', storageFile: 'Un archivo o carpeta que yo elija', storageFileSub: 'Copia automática, por ejemplo dentro de Google Drive u OneDrive.', storageShare: 'Compartir a Drive, Archivos o correo', storageShareSub: 'Un toque para enviarte una copia de respaldo.', storageUnavailable: 'No disponible en este navegador.', storageStatusPhone: 'Guardado solo en este teléfono.', storageStatusFile: 'En este teléfono, más una copia automática en “{file}”.', storageStatusShare: 'En este teléfono, más copias de respaldo que compartes.', storageRestoreBtn: 'Restaurar desde un archivo de respaldo', storageRestoreHint: 'Agrega los registros de un respaldo de GigHelper (.csv). No se borra nada de lo que ya está en este teléfono.', storageRestoreDone: '{n} registros restaurados, {d} que ya estaban aquí omitidos.', storageRestoreNone: 'No se encontraron registros en ese archivo.', storageRestoreError: 'No se pudo leer ese archivo.', storageRestoreInvalid: 'Filas que no se pudieron leer: {i}.', storageLater: 'Decidir después', celebrationsTitle: 'Celebraciones con confeti', celebrationsOn: 'Activadas — toca para desactivar', celebrationsOff: 'Desactivadas — toca para activar', celebrationSoundTitle: 'Sonido de celebración', copiedToClipboard: 'Resumen copiado al portapapeles',
       welcomeTitle: 'Bienvenido a GigHelper', welcomeBody: 'Registra ingresos, gastos, millaje y mantenimiento — con entrada de voz manos libres.',
       getStarted: 'Comenzar', choosePlatforms: '¿Con qué plataformas trabajas?', addPlatform: 'Añadir plataforma',
       addPlatformPlaceholder: 'p. ej. Roadie, Shipt...', platformAdded: 'Plataforma añadida', platformsLabel: 'Plataformas',
@@ -1357,10 +1403,10 @@
       streamDeleteTitle: 'Rimuovere "{{STREAM}}"?', streamDeleteBody: 'Questo flusso ha {{COUNT}} voci. Rimuoverlo non le eliminerà, ma spariranno dal Registro e dalle Statistiche finché non le sposti in un altro flusso (modifica una voce per cambiarne il flusso). Rimuovere comunque?', streamDeleteConfirm: 'Rimuovi comunque',
       maintDisclaimer: "Questi sono intervalli generici del settore, non dati specifici del costruttore. Controlla il libretto del tuo veicolo per il programma esatto, e tocca un intervento per aggiornarlo quando conosci l'intervallo reale.",
       resyncTitle: 'Aggiorna contachilometri', resyncSub: 'Inserisci il chilometraggio reale attuale del tuo veicolo dal cruscotto. I chilometri dei viaggi futuri si aggiungeranno a questo numero.',
-      odoWeeklyBannerTitle: 'Aggiorna il contachilometri di questa settimana', odoWeeklyBannerBody: 'Non hai ancora registrato il chilometraggio reale di questa settimana.',
+      odoWeeklyBannerTitle: 'Registra il contachilometri della nuova settimana', odoWeeklyBannerBody: 'Una lettura ora chiude la settimana scorsa e apre questa, così possiamo mostrare i tuoi chilometri settimanali.',
       odoWeeklyBannerBtn: 'Aggiorna ora', weeklyOdoLogTitle: 'Registro settimanale del contachilometri',
       weeklyOdoLogEmpty: 'Nessuna lettura registrata ancora — aggiorna il contachilometri per iniziare uno storico.',
-      weeklyOdoWeekOf: 'Settimana del', weeklyOdoVsLastWeek: 'rispetto alla settimana scorsa',
+      weeklyOdoWeekOf: 'Settimana del', weeklyOdoVsLastWeek: 'rispetto alla settimana scorsa', weeklyOdoStart: 'Inizio', weeklyOdoEnd: 'Fine', weeklyOdoDriven: 'Percorsi', weeklyOdoSoFar: 'finora (stimati dai tuoi chilometri registrati)', weeklyOdoCheck: 'Controlla le letture: la fine è inferiore all’inizio.', weeklyOdoHint: 'Fai una lettura del contachilometri all’inizio di ogni settimana. Chiude la settimana scorsa e apre quella nuova: la differenza sono i chilometri percorsi in quella settimana.', weeklyOdoTakenAt: 'Questa lettura è…', weeklyOdoStartOfWeek: 'Inizio di questa settimana (chiude la scorsa)', weeklyOdoEndOfWeek: 'Fine di questa settimana',
       maintEditTitle: 'Modifica intervento', maintEditSub: "Imposta il monitoraggio per chilometraggio, per tempo, o entrambi — lascia un intervallo vuoto per usarne solo uno.",
       lastServiceDateLabel: 'Ultima volta (data)',
       markDone: 'Segna fatto', edit: 'Modifica',
@@ -1375,7 +1421,7 @@
       todayLabel: 'Oggi', yesterdayLabel: 'Ieri', thisMonthLabel: 'Questo mese', dailyToggle: 'Giornaliero', weeklyToggle: 'Settimanale', monthlyToggle: 'Mensile',
       wakeToggleOffLabel: 'Attiva comando vocale', wakeListeningLabel: 'In ascolto di “{{APP}}”', wakePausedLabel: 'Attivazione vocale in pausa — tocca per riprendere', micHintWake: 'Di\' “{{APP}}” seguito dalla voce da registrare — es. “{{APP}}, 20 dollari entrata doordash.”',
       incomeLabel: 'Entrate', expenseLabel: 'Spese', netLabel: 'Netto', milesLabel: 'Miglia percorse',
-      netPerMileLabel: 'Netto per miglio', byCategoryLabel: 'Per categoria', byStreamLabel: 'Per flusso', copiedToClipboard: 'Riepilogo copiato negli appunti',
+      netPerMileLabel: 'Netto per miglio', byCategoryLabel: 'Per categoria', byStreamLabel: 'Per flusso', storageTitle: 'Dove sono salvati i tuoi dati', storageIntro: 'Le tue voci vengono sempre salvate prima su questo telefono. Puoi anche tenere una copia extra dove preferisci.', storageModalTitle: 'Dove vuoi salvare i tuoi dati?', storagePhone: 'Solo questo telefono', storagePhoneSub: 'Nulla lascia il tuo dispositivo.', storageFile: 'Un file o una cartella a mia scelta', storageFileSub: 'Copia automatica, ad esempio dentro Google Drive o OneDrive.', storageShare: 'Condividi su Drive, File o email', storageShareSub: 'Un tocco per inviarti una copia di backup.', storageUnavailable: 'Non disponibile in questo browser.', storageStatusPhone: 'Salvati solo su questo telefono.', storageStatusFile: 'Su questo telefono, più una copia automatica in “{file}”.', storageStatusShare: 'Su questo telefono, più le copie di backup che condividi.', storageRestoreBtn: 'Ripristina da un file di backup', storageRestoreHint: 'Aggiunge le voci di un backup di GigHelper (.csv). Non viene eliminato nulla di ciò che è già su questo telefono.', storageRestoreDone: '{n} voci ripristinate, {d} già presenti saltate.', storageRestoreNone: 'Nessuna voce trovata in quel file.', storageRestoreError: 'Impossibile leggere quel file.', storageRestoreInvalid: 'Righe non leggibili: {i}.', storageLater: 'Decido più tardi', celebrationsTitle: 'Festeggiamenti con coriandoli', celebrationsOn: 'Attivi — tocca per disattivare', celebrationsOff: 'Disattivati — tocca per attivare', celebrationSoundTitle: 'Suono di festeggiamento', copiedToClipboard: 'Riepilogo copiato negli appunti',
       welcomeTitle: 'Benvenuto in GigHelper', welcomeBody: 'Traccia entrate, spese, chilometraggio e manutenzione — a mani libere con la voce.',
       getStarted: 'Inizia', choosePlatforms: 'Con quali piattaforme lavori?', addPlatform: 'Aggiungi piattaforma',
       addPlatformPlaceholder: 'es. Roadie, Shipt...', platformAdded: 'Piattaforma aggiunta', platformsLabel: 'Piattaforme',
@@ -1401,10 +1447,10 @@
       streamDeleteTitle: 'Supprimer « {{STREAM}} » ?', streamDeleteBody: 'Ce flux contient {{COUNT}} entrées. Le supprimer ne les effacera pas, mais elles disparaîtront de votre Journal et de vos Statistiques jusqu\'à ce que vous les déplaciez vers un autre flux (modifiez une entrée pour changer son flux). Supprimer quand même ?', streamDeleteConfirm: 'Supprimer quand même',
       maintDisclaimer: "Ce sont des intervalles standards du secteur, pas des chiffres spécifiques au fabricant. Consultez le manuel de votre véhicule pour le calendrier exact, et touchez un service pour le mettre à jour lorsque vous connaissez l'intervalle réel.",
       resyncTitle: 'Mettre à jour le compteur', resyncSub: 'Entrez le kilométrage réel actuel de votre véhicule depuis le tableau de bord. Les kilomètres des futurs trajets s\'ajouteront à ce nombre.',
-      odoWeeklyBannerTitle: 'Mettez à jour le compteur de cette semaine', odoWeeklyBannerBody: "Vous n'avez pas encore enregistré votre kilométrage réel cette semaine.",
+      odoWeeklyBannerTitle: 'Relevez le compteur pour la nouvelle semaine', odoWeeklyBannerBody: 'Un relevé maintenant clôt la semaine passée et ouvre celle-ci, pour afficher vos kilomètres de la semaine.',
       odoWeeklyBannerBtn: 'Mettre à jour', weeklyOdoLogTitle: 'Relevé hebdomadaire du compteur',
       weeklyOdoLogEmpty: "Aucun relevé enregistré pour l'instant — mettez à jour votre compteur pour démarrer un historique.",
-      weeklyOdoWeekOf: 'Semaine du', weeklyOdoVsLastWeek: 'par rapport à la semaine dernière',
+      weeklyOdoWeekOf: 'Semaine du', weeklyOdoVsLastWeek: 'par rapport à la semaine dernière', weeklyOdoStart: 'Début', weeklyOdoEnd: 'Fin', weeklyOdoDriven: 'Parcourus', weeklyOdoSoFar: 'jusqu’ici (estimé d’après vos kilomètres enregistrés)', weeklyOdoCheck: 'Vérifiez vos relevés : la fin est inférieure au début.', weeklyOdoHint: 'Relevez le compteur une fois au début de chaque semaine. Ce relevé clôt la semaine passée et ouvre la nouvelle : la différence correspond aux kilomètres parcourus cette semaine-là.', weeklyOdoTakenAt: 'Ce relevé correspond…', weeklyOdoStartOfWeek: 'Début de cette semaine (clôt la semaine passée)', weeklyOdoEndOfWeek: 'Fin de cette semaine',
       maintEditTitle: "Modifier l'entretien", maintEditSub: "Configurez le suivi par kilométrage, par durée, ou les deux — laissez un intervalle vide pour n'en utiliser qu'un seul.",
       lastServiceDateLabel: 'Dernière fois (date)',
       markDone: 'Marquer fait', edit: 'Modifier',
@@ -1419,7 +1465,7 @@
       todayLabel: 'Aujourd\'hui', yesterdayLabel: 'Hier', thisMonthLabel: 'Ce mois-ci', dailyToggle: 'Quotidien', weeklyToggle: 'Hebdomadaire', monthlyToggle: 'Mensuel',
       wakeToggleOffLabel: 'Activer par la voix', wakeListeningLabel: 'À l\'écoute de « {{APP}} »', wakePausedLabel: 'Activation vocale en pause — appuyez pour reprendre', micHintWake: 'Dites « {{APP}} » puis votre entrée — ex. « {{APP}}, 20 dollars revenu doordash. »',
       incomeLabel: 'Revenus', expenseLabel: 'Dépenses', netLabel: 'Net', milesLabel: 'Miles parcourus',
-      netPerMileLabel: 'Net par mile', byCategoryLabel: 'Par catégorie', byStreamLabel: 'Par flux', copiedToClipboard: 'Résumé copié dans le presse-papiers',
+      netPerMileLabel: 'Net par mile', byCategoryLabel: 'Par catégorie', byStreamLabel: 'Par flux', storageTitle: 'Où sont conservées vos données', storageIntro: 'Vos saisies sont toujours enregistrées d’abord sur ce téléphone. Vous pouvez aussi garder une copie supplémentaire où vous voulez.', storageModalTitle: 'Où voulez-vous conserver vos données ?', storagePhone: 'Ce téléphone uniquement', storagePhoneSub: 'Rien ne quitte votre appareil.', storageFile: 'Un fichier ou dossier de mon choix', storageFileSub: 'Copie automatique, par exemple dans Google Drive ou OneDrive.', storageShare: 'Partager vers Drive, Fichiers ou e-mail', storageShareSub: 'Un appui pour vous envoyer une copie de sauvegarde.', storageUnavailable: 'Non disponible dans ce navigateur.', storageStatusPhone: 'Conservées sur ce téléphone uniquement.', storageStatusFile: 'Sur ce téléphone, plus une copie automatique dans « {file} ».', storageStatusShare: 'Sur ce téléphone, plus les copies de sauvegarde que vous partagez.', storageRestoreBtn: 'Restaurer depuis un fichier de sauvegarde', storageRestoreHint: 'Ajoute les saisies d’une sauvegarde GigHelper (.csv). Rien de ce qui est déjà sur ce téléphone n’est supprimé.', storageRestoreDone: '{n} saisies restaurées, {d} déjà présentes ignorées.', storageRestoreNone: 'Aucune saisie trouvée dans ce fichier.', storageRestoreError: 'Impossible de lire ce fichier.', storageRestoreInvalid: 'Lignes illisibles : {i}.', storageLater: 'Décider plus tard', celebrationsTitle: 'Célébrations en confettis', celebrationsOn: 'Activées — touchez pour désactiver', celebrationsOff: 'Désactivées — touchez pour activer', celebrationSoundTitle: 'Son de célébration', copiedToClipboard: 'Résumé copié dans le presse-papiers',
       welcomeTitle: 'Bienvenue sur GigHelper', welcomeBody: 'Suivez revenus, dépenses, kilométrage et entretien — mains libres avec la saisie vocale.',
       getStarted: 'Commencer', choosePlatforms: 'Avec quelles plateformes travaillez-vous ?', addPlatform: 'Ajouter une plateforme',
       addPlatformPlaceholder: 'ex. Roadie, Shipt...', platformAdded: 'Plateforme ajoutée', platformsLabel: 'Plateformes',
@@ -1445,10 +1491,10 @@
       streamDeleteTitle: '删除"{{STREAM}}"？', streamDeleteBody: '此收支类别下有 {{COUNT}} 条记录。删除该类别不会删除这些记录，但在您把它们移到其他类别之前（编辑记录即可更改类别），它们会从"记录"和"统计"中消失。仍要删除吗？', streamDeleteConfirm: '仍要删除',
       maintDisclaimer: '这些是行业通用的间隔标准，并非制造商专属数据。请查阅您车辆的车主手册以获取准确的保养计划，并在了解实际间隔后点击某项服务进行更新。',
       resyncTitle: '更新里程表', resyncSub: '请输入仪表盘上显示的车辆实际当前里程。之后记录的行程里程将累加到此数字上。',
-      odoWeeklyBannerTitle: '更新本周的里程表读数', odoWeeklyBannerBody: '您本周还未记录实际里程表读数。',
+      odoWeeklyBannerTitle: '记录新一周的里程表读数', odoWeeklyBannerBody: '现在记录一次读数，即可结束上周并开启本周，这样我们就能显示每周行驶里程。',
       odoWeeklyBannerBtn: '立即更新', weeklyOdoLogTitle: '每周里程表记录',
       weeklyOdoLogEmpty: '暂无记录 — 更新里程表以开始记录历史。',
-      weeklyOdoWeekOf: '当周', weeklyOdoVsLastWeek: '与上周相比',
+      weeklyOdoWeekOf: '当周', weeklyOdoVsLastWeek: '与上周相比', weeklyOdoStart: '起始', weeklyOdoEnd: '结束', weeklyOdoDriven: '行驶里程', weeklyOdoSoFar: '目前为止（根据您记录的里程估算）', weeklyOdoCheck: '请检查读数：结束读数低于起始读数。', weeklyOdoHint: '每周开始时记录一次里程表读数。它既是上周的结束读数，也是新一周的起始读数——两者之差就是该周的行驶里程。', weeklyOdoTakenAt: '这次读数是……', weeklyOdoStartOfWeek: '本周开始（结束上周）', weeklyOdoEndOfWeek: '本周结束',
       maintEditTitle: '编辑保养项目', maintEditSub: '设置按里程、按时间或两者结合的追踪方式——留空其中一项即可仅按另一项追踪。',
       lastServiceDateLabel: '上次日期',
       markDone: '标记完成', edit: '编辑',
@@ -1463,7 +1509,7 @@
       todayLabel: '今天', yesterdayLabel: '昨天', thisMonthLabel: '本月', dailyToggle: '每日', weeklyToggle: '每周', monthlyToggle: '每月',
       wakeToggleOffLabel: '开启语音唤醒', wakeListeningLabel: '正在监听"{{APP}}"', wakePausedLabel: '语音唤醒已暂停 — 点击恢复', micHintWake: '说"{{APP}}"，然后说出内容 —— 例如"{{APP}}，20美元收入doordash"。',
       incomeLabel: '收入', expenseLabel: '支出', netLabel: '净额', milesLabel: '行驶英里数',
-      netPerMileLabel: '每英里净额', byCategoryLabel: '按类别', byStreamLabel: '按来源', copiedToClipboard: '摘要已复制到剪贴板',
+      netPerMileLabel: '每英里净额', byCategoryLabel: '按类别', byStreamLabel: '按来源', storageTitle: '数据保存位置', storageIntro: '你的记录总是先保存在这部手机上。你也可以在自己选择的位置另存一份副本。', storageModalTitle: '你想把数据保存在哪里？', storagePhone: '仅保存在这部手机', storagePhoneSub: '数据不会离开你的设备。', storageFile: '我选择的文件或文件夹', storageFileSub: '自动备份副本，例如放在 Google Drive 或 OneDrive 中。', storageShare: '分享到云盘、文件或邮箱', storageShareSub: '轻点一下，给自己发送一份备份。', storageUnavailable: '此浏览器不支持。', storageStatusPhone: '仅保存在这部手机上。', storageStatusFile: '保存在这部手机上，并自动备份到“{file}”。', storageStatusShare: '保存在这部手机上，另有你分享出去的备份副本。', storageRestoreBtn: '从备份文件恢复', storageRestoreHint: '从 GigHelper 备份 (.csv) 中添加记录。这部手机上已有的内容不会被删除。', storageRestoreDone: '已恢复 {n} 条记录，跳过 {d} 条已存在的记录。', storageRestoreNone: '该文件中没有找到记录。', storageRestoreError: '无法读取该文件。', storageRestoreInvalid: '无法读取的行数：{i}。', storageLater: '稍后再决定', celebrationsTitle: '彩纸庆祝', celebrationsOn: '已开启 — 点按关闭', celebrationsOff: '已关闭 — 点按开启', celebrationSoundTitle: '庆祝音效', copiedToClipboard: '摘要已复制到剪贴板',
       welcomeTitle: '欢迎使用 GigHelper', welcomeBody: '记录收入、支出、里程和保养 — 支持免提语音输入。',
       getStarted: '开始使用', choosePlatforms: '您在哪些平台工作？', addPlatform: '添加平台',
       addPlatformPlaceholder: '例如 Roadie、Shipt...', platformAdded: '平台已添加', platformsLabel: '平台',
@@ -1480,19 +1526,19 @@
   };
 
   var CATEGORY_WORDS_BY_LANG = {
-    'en-US': {'doordash':'DoorDash','uber eats':'Uber Eats','ubereats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','gas':'Gas','fuel':'Gas','maintenance':'Maintenance','repair':'Maintenance','parking':'Parking / Tolls','tolls':'Parking / Tolls','toll':'Parking / Tolls','phone':'Phone / Data','data':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart'},
-    'es-ES': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','gasolina':'Gas','combustible':'Gas','mantenimiento':'Maintenance','reparación':'Maintenance','estacionamiento':'Parking / Tolls','peaje':'Parking / Tolls','peajes':'Parking / Tolls','teléfono':'Phone / Data','datos':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart'},
-    'it-IT': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','benzina':'Gas','carburante':'Gas','manutenzione':'Maintenance','riparazione':'Maintenance','parcheggio':'Parking / Tolls','pedaggio':'Parking / Tolls','pedaggi':'Parking / Tolls','telefono':'Phone / Data','dati':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart'},
-    'fr-FR': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','essence':'Gas','carburant':'Gas','entretien':'Maintenance','réparation':'Maintenance','stationnement':'Parking / Tolls','péage':'Parking / Tolls','péages':'Parking / Tolls','téléphone':'Phone / Data','données':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart'},
-    'zh-CN': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','汽油':'Gas','燃油':'Gas','保养':'Maintenance','维修':'Maintenance','停车':'Parking / Tolls','过路费':'Parking / Tolls','收费':'Parking / Tolls','电话':'Phone / Data','数据':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart'}
+    'en-US': {'doordash':'DoorDash','uber eats':'Uber Eats','ubereats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','gas':'Gas','fuel':'Gas','maintenance':'Maintenance','repair':'Maintenance','parking':'Parking / Tolls','tolls':'Parking / Tolls','toll':'Parking / Tolls','phone':'Phone / Data','data':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart', 'restaurant':'Restaurant','restaurants':'Restaurant','breakfast':'Restaurant','lunch':'Restaurant','dinner':'Restaurant','takeout':'Restaurant','take out':'Restaurant','fast food':'Restaurant'},
+    'es-ES': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','gasolina':'Gas','combustible':'Gas','mantenimiento':'Maintenance','reparación':'Maintenance','estacionamiento':'Parking / Tolls','peaje':'Parking / Tolls','peajes':'Parking / Tolls','teléfono':'Phone / Data','datos':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart', 'restaurante':'Restaurant','almuerzo':'Restaurant','cena':'Restaurant','desayuno':'Restaurant'},
+    'it-IT': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','benzina':'Gas','carburante':'Gas','manutenzione':'Maintenance','riparazione':'Maintenance','parcheggio':'Parking / Tolls','pedaggio':'Parking / Tolls','pedaggi':'Parking / Tolls','telefono':'Phone / Data','dati':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart', 'ristorante':'Restaurant','pranzo':'Restaurant','cena':'Restaurant','colazione':'Restaurant'},
+    'fr-FR': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','essence':'Gas','carburant':'Gas','entretien':'Maintenance','réparation':'Maintenance','stationnement':'Parking / Tolls','péage':'Parking / Tolls','péages':'Parking / Tolls','téléphone':'Phone / Data','données':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart', 'restaurant':'Restaurant','déjeuner':'Restaurant','dîner':'Restaurant','petit-déjeuner':'Restaurant'},
+    'zh-CN': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','汽油':'Gas','燃油':'Gas','保养':'Maintenance','维修':'Maintenance','停车':'Parking / Tolls','过路费':'Parking / Tolls','收费':'Parking / Tolls','电话':'Phone / Data','数据':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart', '餐厅':'Restaurant','饭店':'Restaurant','餐馆':'Restaurant','午餐':'Restaurant','晚餐':'Restaurant','早餐':'Restaurant'}
   };
 
   var COMMAND_WORDS_BY_LANG = {
-    'en-US': { rename:/(?:call this app|rename (?:the )?app to|name this app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miles|mile|mi)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:kilometers?|kilometres?|km)\b/, mileTrigger:/mile|drove|drive|trip|log/, amount:/(\d+(?:\.\d+)?)\s*(?:dollars?|bucks|\$)?/, expense:/expense|spent|paid|cost|gas|fuel|maintenance|repair|parking|toll/, income:/income|earned|made|got paid|payout|tip/ },
-    'es-ES': { rename:/(?:llama a esta app|renombra la app a|nombra esta app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:millas|milla)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:kil[oó]metros|km)\b/, mileTrigger:/milla|conduje|conducir|viaje|registra/, amount:/(\d+(?:\.\d+)?)\s*(?:dólares|pesos|d[oó]lares)?/, expense:/gasto|gaste|gast[eé]|pagu[eé]|costo|gasolina|combustible|mantenimiento|reparaci[oó]n|estacionamiento|peaje/, income:/ingreso|gan[eé]|me pagaron|pago|propina/ },
-    'it-IT': { rename:/(?:chiama questa app|rinomina l'app in|rinomina questa app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miglia|miglio)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:chilometri|km)\b/, mileTrigger:/miglia|guidato|guidare|viaggio|registra/, amount:/(\d+(?:\.\d+)?)\s*(?:dollari|euro)?/, expense:/spesa|speso|pagato|costo|benzina|carburante|manutenzione|riparazione|parcheggio|pedaggio/, income:/entrata|guadagnato|pagato ricevuto|mancia/ },
-    'fr-FR': { rename:/(?:appelle cette app|renomme l'app en|nomme cette app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miles|mile|mi)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:kilomètres|km)\b/, mileTrigger:/mile|conduit|conduire|trajet|enregistre/, amount:/(\d+(?:\.\d+)?)\s*(?:dollars?|euros?|\$)?/, expense:/dépense|dépensé|payé|coût|essence|carburant|entretien|réparation|stationnement|péage/, income:/revenu|gagné|payé reçu|pourboire/ },
-    'zh-CN': { rename:/(?:把这个应用叫做|重命名应用为|把应用改名为)\s*(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:英里|里)/, mileKm:/(\d+(?:\.\d+)?)\s*(?:公里|千米)/, mileTrigger:/英里|开车|行程|记录/, amount:/(\d+(?:\.\d+)?)\s*(?:美元|元|块)?/, expense:/支出|花了|付了|费用|汽油|燃油|保养|维修|停车|过路费/, income:/收入|赚了|收到|小费/ }
+    'en-US': { rename:/(?:call this app|rename (?:the )?app to|name this app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miles|mile|mi)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:kilometers?|kilometres?|km)\b/, mileTrigger:/mile|drove|drive|trip|log/, amount:/(\d+(?:\.\d+)?)\s*(?:dollars?|bucks|\$)?/, expense:/expense|spent|paid|cost|gas|fuel|maintenance|repair|parking|toll|restaurant|breakfast|lunch|dinner|takeout/, income:/income|earned|made|got paid|payout|tip/ },
+    'es-ES': { rename:/(?:llama a esta app|renombra la app a|nombra esta app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:millas|milla)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:kil[oó]metros|km)\b/, mileTrigger:/milla|conduje|conducir|viaje|registra/, amount:/(\d+(?:\.\d+)?)\s*(?:dólares|pesos|d[oó]lares)?/, expense:/gasto|gaste|gast[eé]|pagu[eé]|costo|gasolina|combustible|mantenimiento|reparaci[oó]n|estacionamiento|peaje|restaurante|almuerzo|cena|desayuno/, income:/ingreso|gan[eé]|me pagaron|pago|propina/ },
+    'it-IT': { rename:/(?:chiama questa app|rinomina l'app in|rinomina questa app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miglia|miglio)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:chilometri|km)\b/, mileTrigger:/miglia|guidato|guidare|viaggio|registra/, amount:/(\d+(?:\.\d+)?)\s*(?:dollari|euro)?/, expense:/spesa|speso|pagato|costo|benzina|carburante|manutenzione|riparazione|parcheggio|pedaggio|ristorante|pranzo|cena|colazione/, income:/entrata|guadagnato|pagato ricevuto|mancia/ },
+    'fr-FR': { rename:/(?:appelle cette app|renomme l'app en|nomme cette app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miles|mile|mi)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:kilomètres|km)\b/, mileTrigger:/mile|conduit|conduire|trajet|enregistre/, amount:/(\d+(?:\.\d+)?)\s*(?:dollars?|euros?|\$)?/, expense:/dépense|dépensé|payé|coût|essence|carburant|entretien|réparation|stationnement|péage|restaurant|déjeuner|dîner/, income:/revenu|gagné|payé reçu|pourboire/ },
+    'zh-CN': { rename:/(?:把这个应用叫做|重命名应用为|把应用改名为)\s*(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:英里|里)/, mileKm:/(\d+(?:\.\d+)?)\s*(?:公里|千米)/, mileTrigger:/英里|开车|行程|记录/, amount:/(\d+(?:\.\d+)?)\s*(?:美元|元|块)?/, expense:/支出|花了|付了|费用|汽油|燃油|保养|维修|停车|过路费|餐厅|饭店|餐馆|午餐|晚餐|早餐/, income:/收入|赚了|收到|小费/ }
   };
 
   var NAV_WORDS_BY_LANG = {
@@ -1543,11 +1589,11 @@
   // this map (a future custom category, say) fall back to the stored name
   // unchanged, so nothing ever renders blank.
   var CATEGORY_LABELS = {
-    'en-US': { Gas:'Gas', Other:'Other', Housing:'Housing', Services:'Services', Groceries:'Groceries', 'Credit Card Payment':'Credit Card Payment', Insurance:'Insurance', Subscriptions:'Subscriptions', Transportation:'Transportation', Healthcare:'Healthcare', 'Debt Payment':'Debt Payment', Shopping:'Shopping', Salary:'Salary' },
-    'es-ES': { Gas:'Gasolina', Other:'Otro', Housing:'Vivienda', Services:'Servicios', Groceries:'Comestibles', 'Credit Card Payment':'Pago de tarjeta de crédito', Insurance:'Seguro', Subscriptions:'Suscripciones', Transportation:'Transporte', Healthcare:'Salud', 'Debt Payment':'Pago de deuda', Shopping:'Compras', Salary:'Salario' },
-    'it-IT': { Gas:'Benzina', Other:'Altro', Housing:'Alloggio', Services:'Servizi', Groceries:'Alimentari', 'Credit Card Payment':'Pagamento carta di credito', Insurance:'Assicurazione', Subscriptions:'Abbonamenti', Transportation:'Trasporti', Healthcare:'Sanità', 'Debt Payment':'Pagamento debito', Shopping:'Acquisti', Salary:'Stipendio' },
-    'fr-FR': { Gas:'Essence', Other:'Autre', Housing:'Logement', Services:'Services', Groceries:'Courses', 'Credit Card Payment':'Paiement carte de crédit', Insurance:'Assurance', Subscriptions:'Abonnements', Transportation:'Transport', Healthcare:'Santé', 'Debt Payment':'Remboursement de dette', Shopping:'Achats', Salary:'Salaire' },
-    'zh-CN': { Gas:'汽油', Other:'其他', Housing:'住房', Services:'服务', Groceries:'食品杂货', 'Credit Card Payment':'信用卡还款', Insurance:'保险', Subscriptions:'订阅服务', Transportation:'交通', Healthcare:'医疗保健', 'Debt Payment':'偿还债务', Shopping:'购物', Salary:'工资' }
+    'en-US': { Gas:'Gas', Other:'Other', Housing:'Housing', Services:'Services', Groceries:'Groceries', Restaurant:'Restaurant', 'Credit Card Payment':'Credit Card Payment', Insurance:'Insurance', Subscriptions:'Subscriptions', Transportation:'Transportation', Healthcare:'Healthcare', 'Debt Payment':'Debt Payment', Shopping:'Shopping', Salary:'Salary' },
+    'es-ES': { Gas:'Gasolina', Other:'Otro', Housing:'Vivienda', Services:'Servicios', Groceries:'Comestibles', Restaurant:'Restaurante', 'Credit Card Payment':'Pago de tarjeta de crédito', Insurance:'Seguro', Subscriptions:'Suscripciones', Transportation:'Transporte', Healthcare:'Salud', 'Debt Payment':'Pago de deuda', Shopping:'Compras', Salary:'Salario' },
+    'it-IT': { Gas:'Benzina', Other:'Altro', Housing:'Alloggio', Services:'Servizi', Groceries:'Alimentari', Restaurant:'Ristorante', 'Credit Card Payment':'Pagamento carta di credito', Insurance:'Assicurazione', Subscriptions:'Abbonamenti', Transportation:'Trasporti', Healthcare:'Sanità', 'Debt Payment':'Pagamento debito', Shopping:'Acquisti', Salary:'Stipendio' },
+    'fr-FR': { Gas:'Essence', Other:'Autre', Housing:'Logement', Services:'Services', Groceries:'Courses', Restaurant:'Restaurant', 'Credit Card Payment':'Paiement carte de crédit', Insurance:'Assurance', Subscriptions:'Abonnements', Transportation:'Transport', Healthcare:'Santé', 'Debt Payment':'Remboursement de dette', Shopping:'Achats', Salary:'Salaire' },
+    'zh-CN': { Gas:'汽油', Other:'其他', Housing:'住房', Services:'服务', Groceries:'食品杂货', Restaurant:'餐厅', 'Credit Card Payment':'信用卡还款', Insurance:'保险', Subscriptions:'订阅服务', Transportation:'交通', Healthcare:'医疗保健', 'Debt Payment':'偿还债务', Shopping:'购物', Salary:'工资' }
   };
   function categoryLabel(cat){
     var dict = CATEGORY_LABELS[currentLang] || CATEGORY_LABELS['en-US'];
@@ -1567,10 +1613,10 @@
         { icon:'🎙️', title:'Logging by voice', body:'Tap the microphone and say what happened — for example "20 dollars income doordash", "8 dollars expense gas", or "log 12 miles". You can also say spelled-out numbers like "twenty dollars" and kilometers like "10 kilometers". Works in English, Spanish, Italian, French, and Chinese — switch the voice language in Settings.' },
         { icon:'✏️', title:'Logging manually', body:'Tap the + button to add an income, expense, or mileage entry by hand — useful if it\'s noisy, you\'re not comfortable speaking the entry aloud, or you just prefer typing. Use the Date field to log something for a past day (like income you forgot to enter yesterday) instead of it landing on today — it defaults to today and won\'t let you pick a future date.' },
         { icon:'📊', title:'Stats & Calendar', body:'The Stats tab shows your income, expenses, and net earnings per mile (or km) for the day, week, or month. The Calendar tab lets you tap any date to see everything logged that day.' },
-        { icon:'🚗', title:'Vehicle & maintenance', body:'Add your vehicle\'s make, model, and current mileage in the Vehicle tab. GigHelper tracks common maintenance items (oil changes, tires, brakes, and more) by mileage and/or time, and can send you a notification when something\'s due. Once a week, a banner reminds you to update your actual odometer reading — you can do this any day that week, not just Monday. A "Weekly odometer log" in the Vehicle tab keeps a history of these readings with how much you drove week to week. Below the odometer log, a weekly comparison (Monday to Sunday) puts your odometer change next to your GPS and manual miles and flags weeks where they don\'t line up. For an exact odometer figure, take your reading on Sundays; other days are marked ≈. The odometer also counts personal driving, so it should be the highest number.' },
+        { icon:'🚗', title:'Vehicle & maintenance', body:'Add your vehicle\'s make, model, and current mileage in the Vehicle tab. GigHelper tracks common maintenance items (oil changes, tires, brakes, and more) by mileage and/or time, and can send you a notification when something\'s due. Once a week, a banner reminds you to update your actual odometer reading — you can do this any day that week, not just Monday. A "Weekly odometer log" in the Vehicle tab keeps a history of these readings with how much you drove week to week. Below the odometer log, a weekly comparison (Monday to Sunday) puts your odometer change next to your GPS and manual miles and flags weeks where they don\'t line up. For an exact odometer figure, take your reading on Sundays; other days are marked ≈. The odometer also counts personal driving, so it should be the highest number. Weekly mileage: take one odometer reading at the start of each week — it closes last week and opens the new one. The Weekly odometer log then shows each week’s Start, End and the miles you drove (End minus Start).' },
         { icon:'📍', title:'GPS mileage tracking (native app only)', body:'If you\'re using the native Android app, the Log tab has a "Start trip" / "End trip" card that measures your driving distance with GPS and logs it straight to your Driving stream — handy when you forget to log mileage by voice or hand. In Settings you can also turn on "Auto-detect trips," which starts and stops tracking on its own once your speed shows you\'re driving, so you don\'t have to remember to tap Start or End at all. This feature isn\'t available in the web version, only the installed Android app. GPS-tracked trips are tagged "GPS" and typed or voice entries are tagged "Manual". In Settings, "Count miles from" picks which source feeds your totals and tax deduction — the other is kept for comparison, so nothing is counted twice.' },
         { icon:'✉️', title:'Contact support', body:'Have a problem or a suggestion? Email us at gighelper.help@gmail.com. The "Report a problem" button in Settings opens an email with a diagnostic report already attached.' },
-        { icon:'💾', title:'Backing up your data', body:'Your entries live only on this device unless you back them up. In Settings, set up auto-backup to save automatically to a file you choose (for example, inside your Google Drive or OneDrive folder) — available in Chrome and Edge. On iOS Safari and other browsers without that option, Settings offers a "Share backup now" button instead — it hands a backup file straight to Files, iCloud Drive, Google Drive, or email in one tap. You can also export a CSV manually anytime.' },
+        { icon:'💾', title:'Backing up your data', body:'Your entries live only on this device unless you back them up. In Settings, set up auto-backup to save automatically to a file you choose (for example, inside your Google Drive or OneDrive folder) — available in Chrome and Edge. On iOS Safari and other browsers without that option, Settings offers a "Share backup now" button instead — it hands a backup file straight to Files, iCloud Drive, Google Drive, or email in one tap. You can also export a CSV manually anytime. In Settings, “Where your data is kept” lets you choose: this phone only, an automatic copy in a file or folder you pick, or a copy you share. To bring your data back (for example on a new phone), tap “Restore from a backup file” and choose a GigHelper backup — nothing already on the phone is deleted.' },
         { icon:'🌍', title:'Currency, units & region', body:'In Settings, set your country, currency, and whether distances show in miles or kilometers. Changing these doesn\'t alter your past entries — they\'re stored consistently and simply displayed in whichever unit you\'ve chosen.' },
         { icon:'🧾', title:'Tax tools (US only)', body:'If your country is set to United States, GigHelper reminds you about quarterly estimated tax deadlines and can export a tax summary using the IRS standard mileage deduction. These tools are hidden for other countries since they\'re specific to US tax rules.' },
         { icon:'✂️', title:'Renaming the app', body:'Say "call this app [name]" to the microphone, or change it directly in Settings.' }
@@ -1587,10 +1633,10 @@
         { icon:'🎙️', title:'Registrar por voz', body:'Toca el micrófono y di lo que pasó — por ejemplo "20 dólares ingreso doordash", "8 dólares gasto gasolina", o "registra 12 millas". También puedes decir números escritos como "veinte dólares" y kilómetros como "10 kilómetros". Funciona en inglés, español, italiano, francés y chino — cambia el idioma de voz en Ajustes.' },
         { icon:'✏️', title:'Registrar manualmente', body:'Toca el botón + para añadir un ingreso, gasto o kilometraje a mano — útil si hay ruido, no te sientes cómodo hablando en voz alta, o simplemente prefieres escribir. Usa el campo Fecha para registrar algo de un día pasado (por ejemplo, un ingreso que olvidaste registrar ayer) en lugar de que quede en el día de hoy — viene predeterminado en hoy y no te deja elegir una fecha futura.' },
         { icon:'📊', title:'Estadísticas y calendario', body:'La pestaña Estadísticas muestra tus ingresos, gastos y ganancia neta por milla (o km) del día, semana o mes. La pestaña Calendario te deja tocar cualquier fecha para ver todo lo registrado ese día.' },
-        { icon:'🚗', title:'Vehículo y mantenimiento', body:'Añade la marca, modelo y kilometraje actual de tu vehículo en la pestaña Vehículo. GigHelper rastrea el mantenimiento común (cambios de aceite, llantas, frenos y más) por kilometraje y/o tiempo, y puede avisarte cuando algo esté por vencer. Una vez a la semana, un aviso te recuerda actualizar tu lectura real del odómetro — puedes hacerlo cualquier día de esa semana, no solo el lunes. Un "Registro semanal del odómetro" en la pestaña Vehículo guarda un historial de estas lecturas con cuánto condujiste semana a semana. Debajo del registro del odómetro, una comparación semanal (de lunes a domingo) pone el cambio del odómetro junto a tus millas de GPS y manuales y marca las semanas donde no coinciden. Para una cifra exacta del odómetro, toma la lectura los domingos; otros días se marcan con ≈. El odómetro también cuenta la conducción personal, así que debería ser el número más alto.' },
+        { icon:'🚗', title:'Vehículo y mantenimiento', body:'Añade la marca, modelo y kilometraje actual de tu vehículo en la pestaña Vehículo. GigHelper rastrea el mantenimiento común (cambios de aceite, llantas, frenos y más) por kilometraje y/o tiempo, y puede avisarte cuando algo esté por vencer. Una vez a la semana, un aviso te recuerda actualizar tu lectura real del odómetro — puedes hacerlo cualquier día de esa semana, no solo el lunes. Un "Registro semanal del odómetro" en la pestaña Vehículo guarda un historial de estas lecturas con cuánto condujiste semana a semana. Debajo del registro del odómetro, una comparación semanal (de lunes a domingo) pone el cambio del odómetro junto a tus millas de GPS y manuales y marca las semanas donde no coinciden. Para una cifra exacta del odómetro, toma la lectura los domingos; otros días se marcan con ≈. El odómetro también cuenta la conducción personal, así que debería ser el número más alto. Kilometraje semanal: toma una lectura del odómetro al comienzo de cada semana: cierra la semana pasada y abre la nueva. El registro semanal del odómetro muestra el Inicio, el Fin y lo recorrido de cada semana (Fin menos Inicio).' },
         { icon:'📍', title:'Seguimiento de millaje por GPS (solo app nativa)', body:'Si usas la app nativa de Android, la pestaña Registro tiene una tarjeta "Iniciar viaje" / "Terminar viaje" que mide tu distancia recorrida por GPS y la registra directamente en tu fuente Driving — útil cuando olvidas registrar el kilometraje por voz o a mano. En Ajustes también puedes activar "Detectar viajes automáticamente", que inicia y detiene el seguimiento por sí solo en cuanto tu velocidad indica que estás conduciendo, así no tienes que recordar tocar Iniciar o Terminar. Esta función no está disponible en la versión web, solo en la app de Android instalada. Los viajes por GPS se etiquetan "GPS" y las entradas escritas o por voz se etiquetan "Manual". En Ajustes, "Contar millas de" elige qué fuente alimenta tus totales y la deducción de impuestos; la otra se conserva para comparar, así nada se cuenta dos veces.' },
         { icon:'✉️', title:'Contactar con soporte', body:'¿Tienes un problema o una sugerencia? Escríbenos a gighelper.help@gmail.com. El botón "Reportar un problema" en Ajustes prepara un correo con un informe de diagnóstico.' },
-        { icon:'💾', title:'Respaldar tus datos', body:'Tus registros solo viven en este dispositivo a menos que los respaldes. En Ajustes, activa el respaldo automático para guardar en un archivo que elijas (por ejemplo, dentro de tu carpeta de Google Drive o OneDrive) — disponible en Chrome y Edge. En iOS Safari y otros navegadores sin esa opción, Ajustes ofrece un botón "Compartir respaldo ahora" — envía un archivo de respaldo directamente a Archivos, iCloud Drive, Google Drive o correo con un solo toque. También puedes exportar un CSV manualmente cuando quieras.' },
+        { icon:'💾', title:'Respaldar tus datos', body:'Tus registros solo viven en este dispositivo a menos que los respaldes. En Ajustes, activa el respaldo automático para guardar en un archivo que elijas (por ejemplo, dentro de tu carpeta de Google Drive o OneDrive) — disponible en Chrome y Edge. En iOS Safari y otros navegadores sin esa opción, Ajustes ofrece un botón "Compartir respaldo ahora" — envía un archivo de respaldo directamente a Archivos, iCloud Drive, Google Drive o correo con un solo toque. También puedes exportar un CSV manualmente cuando quieras. En Ajustes, “Dónde se guardan tus datos” te deja elegir: solo este teléfono, una copia automática en un archivo o carpeta que elijas, o una copia que compartes. Para recuperar tus datos (por ejemplo en un teléfono nuevo), toca “Restaurar desde un archivo de respaldo” y elige un respaldo de GigHelper — no se borra nada de lo que ya está en el teléfono.' },
         { icon:'🌍', title:'Moneda, unidades y región', body:'En Ajustes, configura tu país, moneda y si las distancias se muestran en millas o kilómetros. Cambiar esto no altera tus registros pasados — se guardan de forma consistente y solo se muestran en la unidad que elijas.' },
         { icon:'🧾', title:'Herramientas fiscales (solo EE. UU.)', body:'Si tu país está configurado como Estados Unidos, GigHelper te recuerda las fechas límite de impuestos estimados trimestrales y puede exportar un resumen fiscal usando la deducción estándar del IRS por milla. Estas herramientas están ocultas para otros países porque son específicas de las reglas fiscales de EE. UU.' },
         { icon:'✂️', title:'Renombrar la app', body:'Dile al micrófono "llama a esta app [nombre]", o cámbialo directamente en Ajustes.' }
@@ -1607,10 +1653,10 @@
         { icon:'🎙️', title:'Registrare con la voce', body:'Tocca il microfono e di\' cosa è successo — ad esempio "20 dollari entrata doordash", "8 dollari spesa benzina", o "registra 12 miglia". Puoi anche dire numeri scritti come "venti dollari" e chilometri come "10 chilometri". Funziona in inglese, spagnolo, italiano, francese e cinese — cambia la lingua vocale nelle Impostazioni.' },
         { icon:'✏️', title:'Registrare manualmente', body:'Tocca il pulsante + per aggiungere entrata, spesa o chilometraggio a mano — utile se c\'è rumore, non ti senti a tuo agio a parlare ad alta voce, o preferisci semplicemente digitare. Usa il campo Data per registrare qualcosa per un giorno passato (ad esempio un\'entrata che hai dimenticato di registrare ieri) invece che sul giorno di oggi — è impostato di default su oggi e non permette di scegliere una data futura.' },
         { icon:'📊', title:'Statistiche e calendario', body:'La scheda Statistiche mostra entrate, spese e guadagno netto per miglio (o km) del giorno, settimana o mese. La scheda Calendario ti permette di toccare qualsiasi data per vedere tutto ciò che è stato registrato quel giorno.' },
-        { icon:'🚗', title:'Veicolo e manutenzione', body:'Aggiungi marca, modello e chilometraggio attuale del tuo veicolo nella scheda Veicolo. GigHelper traccia la manutenzione comune (cambio olio, gomme, freni e altro) per chilometraggio e/o tempo, e può avvisarti quando qualcosa è in scadenza. Una volta a settimana, un avviso ti ricorda di aggiornare la lettura reale del contachilometri — puoi farlo in qualsiasi giorno di quella settimana, non solo lunedì. Un "Registro settimanale del contachilometri" nella scheda Veicolo conserva uno storico di queste letture con quanto hai percorso settimana per settimana. Sotto il registro del contachilometri, un confronto settimanale (da lunedì a domenica) affianca la variazione del contachilometri alle miglia GPS e manuali e segnala le settimane in cui non coincidono. Per un valore esatto del contachilometri, fai la lettura di domenica; gli altri giorni sono contrassegnati con ≈. Il contachilometri include anche la guida personale, quindi dovrebbe essere il numero più alto.' },
+        { icon:'🚗', title:'Veicolo e manutenzione', body:'Aggiungi marca, modello e chilometraggio attuale del tuo veicolo nella scheda Veicolo. GigHelper traccia la manutenzione comune (cambio olio, gomme, freni e altro) per chilometraggio e/o tempo, e può avvisarti quando qualcosa è in scadenza. Una volta a settimana, un avviso ti ricorda di aggiornare la lettura reale del contachilometri — puoi farlo in qualsiasi giorno di quella settimana, non solo lunedì. Un "Registro settimanale del contachilometri" nella scheda Veicolo conserva uno storico di queste letture con quanto hai percorso settimana per settimana. Sotto il registro del contachilometri, un confronto settimanale (da lunedì a domenica) affianca la variazione del contachilometri alle miglia GPS e manuali e segnala le settimane in cui non coincidono. Per un valore esatto del contachilometri, fai la lettura di domenica; gli altri giorni sono contrassegnati con ≈. Il contachilometri include anche la guida personale, quindi dovrebbe essere il numero più alto. Chilometraggio settimanale: fai una lettura del contachilometri all’inizio di ogni settimana: chiude la settimana scorsa e apre la nuova. Il registro settimanale mostra Inizio, Fine e i chilometri percorsi (Fine meno Inizio).' },
         { icon:'📍', title:'Tracciamento chilometraggio via GPS (solo app nativa)', body:'Se usi l\'app nativa Android, la scheda Registro ha una scheda "Inizia viaggio" / "Termina viaggio" che misura la distanza percorsa via GPS e la registra direttamente nel tuo flusso Driving — utile quando dimentichi di registrare il chilometraggio a voce o a mano. Nelle Impostazioni puoi anche attivare "Rileva viaggi automaticamente", che avvia e ferma il tracciamento da solo appena la tua velocità indica che stai guidando, così non devi ricordarti di toccare Inizia o Termina. Questa funzione non è disponibile nella versione web, solo nell\'app Android installata. I viaggi tracciati via GPS sono etichettati "GPS" e le voci scritte o vocali "Manuale". In Impostazioni, "Conta le miglia da" sceglie quale fonte alimenta i totali e la deduzione fiscale; l\'altra resta per il confronto, così nulla viene contato due volte.' },
         { icon:'✉️', title:'Contatta l\'assistenza', body:'Hai un problema o un suggerimento? Scrivici a gighelper.help@gmail.com. Il pulsante "Segnala un problema" nelle Impostazioni prepara un\'email con un rapporto diagnostico.' },
-        { icon:'💾', title:'Backup dei tuoi dati', body:'I tuoi dati vivono solo su questo dispositivo a meno che tu non li salvi altrove. Nelle Impostazioni, attiva il backup automatico per salvare in un file a tua scelta (ad esempio, dentro la tua cartella Google Drive o OneDrive) — disponibile su Chrome ed Edge. Su iOS Safari e altri browser senza questa opzione, Impostazioni offre invece un pulsante "Condividi backup ora" — invia un file di backup direttamente a File, iCloud Drive, Google Drive o email con un tocco. Puoi anche esportare un CSV manualmente in qualsiasi momento.' },
+        { icon:'💾', title:'Backup dei tuoi dati', body:'I tuoi dati vivono solo su questo dispositivo a meno che tu non li salvi altrove. Nelle Impostazioni, attiva il backup automatico per salvare in un file a tua scelta (ad esempio, dentro la tua cartella Google Drive o OneDrive) — disponibile su Chrome ed Edge. Su iOS Safari e altri browser senza questa opzione, Impostazioni offre invece un pulsante "Condividi backup ora" — invia un file di backup direttamente a File, iCloud Drive, Google Drive o email con un tocco. Puoi anche esportare un CSV manualmente in qualsiasi momento. In Impostazioni, “Dove sono salvati i tuoi dati” ti permette di scegliere: solo questo telefono, una copia automatica in un file o cartella a tua scelta, oppure una copia che condividi. Per recuperare i tuoi dati (ad esempio su un telefono nuovo), tocca “Ripristina da un file di backup” e scegli un backup di GigHelper — non viene eliminato nulla di ciò che è già sul telefono.' },
         { icon:'🌍', title:'Valuta, unità e regione', body:'Nelle Impostazioni, imposta il tuo paese, la valuta e se le distanze sono mostrate in miglia o chilometri. Cambiare questi valori non altera i dati passati — sono salvati in modo coerente e vengono semplicemente mostrati nell\'unità scelta.' },
         { icon:'🧾', title:'Strumenti fiscali (solo USA)', body:'Se il tuo paese è impostato su Stati Uniti, GigHelper ti ricorda le scadenze fiscali trimestrali stimate e può esportare un riepilogo fiscale usando la deduzione chilometrica standard dell\'IRS. Questi strumenti sono nascosti per gli altri paesi perché specifici delle regole fiscali statunitensi.' },
         { icon:'✂️', title:'Rinominare l\'app', body:'Di\' al microfono "chiama questa app [nome]", oppure cambialo direttamente nelle Impostazioni.' }
@@ -1627,10 +1673,10 @@
         { icon:'🎙️', title:'Enregistrer à la voix', body:'Touchez le micro et dites ce qui s\'est passé — par exemple "20 dollars revenu doordash", "8 dollars dépense essence", ou "enregistre 12 miles". Vous pouvez aussi dire des nombres en toutes lettres comme "vingt dollars" et des kilomètres comme "10 kilomètres". Fonctionne en anglais, espagnol, italien, français et chinois — changez la langue vocale dans les Paramètres.' },
         { icon:'✏️', title:'Enregistrer manuellement', body:'Touchez le bouton + pour ajouter un revenu, une dépense ou un kilométrage à la main — utile en cas de bruit, si vous n\'êtes pas à l\'aise pour parler à voix haute, ou si vous préférez simplement taper. Utilisez le champ Date pour enregistrer quelque chose pour un jour passé (par exemple un revenu que vous avez oublié d\'enregistrer hier) au lieu qu\'il soit attribué à aujourd\'hui — il est par défaut sur aujourd\'hui et ne permet pas de choisir une date future.' },
         { icon:'📊', title:'Statistiques et calendrier', body:'L\'onglet Statistiques affiche vos revenus, dépenses et gain net par mile (ou km) du jour, de la semaine ou du mois. L\'onglet Calendrier vous permet de toucher n\'importe quelle date pour voir tout ce qui a été enregistré ce jour-là.' },
-        { icon:'🚗', title:'Véhicule et entretien', body:'Ajoutez la marque, le modèle et le kilométrage actuel de votre véhicule dans l\'onglet Véhicule. GigHelper suit l\'entretien courant (vidanges, pneus, freins, et plus) selon le kilométrage et/ou le temps, et peut vous notifier quand quelque chose arrive à échéance. Une fois par semaine, une bannière vous rappelle de mettre à jour votre relevé réel du compteur — vous pouvez le faire n\'importe quel jour de cette semaine, pas seulement le lundi. Un "Relevé hebdomadaire du compteur" dans l\'onglet Véhicule conserve un historique de ces relevés avec le kilométrage parcouru semaine après semaine. Sous le relevé du compteur, une comparaison hebdomadaire (du lundi au dimanche) place la variation du compteur à côté de vos miles GPS et manuels et signale les semaines qui ne concordent pas. Pour un chiffre exact du compteur, faites votre relevé le dimanche ; les autres jours sont marqués ≈. Le compteur inclut aussi la conduite personnelle, il doit donc être le chiffre le plus élevé.' },
+        { icon:'🚗', title:'Véhicule et entretien', body:'Ajoutez la marque, le modèle et le kilométrage actuel de votre véhicule dans l\'onglet Véhicule. GigHelper suit l\'entretien courant (vidanges, pneus, freins, et plus) selon le kilométrage et/ou le temps, et peut vous notifier quand quelque chose arrive à échéance. Une fois par semaine, une bannière vous rappelle de mettre à jour votre relevé réel du compteur — vous pouvez le faire n\'importe quel jour de cette semaine, pas seulement le lundi. Un "Relevé hebdomadaire du compteur" dans l\'onglet Véhicule conserve un historique de ces relevés avec le kilométrage parcouru semaine après semaine. Sous le relevé du compteur, une comparaison hebdomadaire (du lundi au dimanche) place la variation du compteur à côté de vos miles GPS et manuels et signale les semaines qui ne concordent pas. Pour un chiffre exact du compteur, faites votre relevé le dimanche ; les autres jours sont marqués ≈. Le compteur inclut aussi la conduite personnelle, il doit donc être le chiffre le plus élevé. Kilométrage hebdomadaire : relevez le compteur une fois au début de chaque semaine ; il clôt la semaine passée et ouvre la nouvelle. Le relevé hebdomadaire affiche le Début, la Fin et les kilomètres parcourus (Fin moins Début).' },
         { icon:'📍', title:'Suivi du kilométrage par GPS (application native uniquement)', body:'Si vous utilisez l\'application native Android, l\'onglet Journal comporte une carte « Démarrer le trajet » / « Terminer le trajet » qui mesure la distance parcourue par GPS et l\'enregistre directement dans votre flux Driving — pratique quand vous oubliez d\'enregistrer le kilométrage à la voix ou à la main. Dans les Paramètres, vous pouvez aussi activer « Détecter les trajets automatiquement », qui démarre et arrête le suivi tout seul dès que votre vitesse indique que vous conduisez, sans avoir à penser à toucher Démarrer ou Terminer. Cette fonctionnalité n\'est pas disponible dans la version web, uniquement dans l\'application Android installée. Les trajets suivis par GPS sont étiquetés "GPS" et les saisies tapées ou vocales "Manuel". Dans Paramètres, "Compter les miles depuis" choisit la source utilisée pour vos totaux et la déduction fiscale ; l\'autre est conservée pour comparaison, donc rien n\'est compté deux fois.' },
         { icon:'✉️', title:'Contacter le support', body:'Un problème ou une suggestion ? Écrivez-nous à gighelper.help@gmail.com. Le bouton « Signaler un problème » dans les Paramètres prépare un e-mail avec un rapport de diagnostic.' },
-        { icon:'💾', title:'Sauvegarder vos données', body:'Vos données ne vivent que sur cet appareil à moins de les sauvegarder. Dans les Paramètres, activez la sauvegarde automatique pour enregistrer dans un fichier de votre choix (par exemple, dans votre dossier Google Drive ou OneDrive) — disponible sur Chrome et Edge. Sur iOS Safari et les autres navigateurs sans cette option, les Paramètres proposent à la place un bouton « Partager une sauvegarde maintenant » — il envoie un fichier de sauvegarde directement vers Fichiers, iCloud Drive, Google Drive ou par e-mail en un geste. Vous pouvez aussi exporter un CSV manuellement à tout moment.' },
+        { icon:'💾', title:'Sauvegarder vos données', body:'Vos données ne vivent que sur cet appareil à moins de les sauvegarder. Dans les Paramètres, activez la sauvegarde automatique pour enregistrer dans un fichier de votre choix (par exemple, dans votre dossier Google Drive ou OneDrive) — disponible sur Chrome et Edge. Sur iOS Safari et les autres navigateurs sans cette option, les Paramètres proposent à la place un bouton « Partager une sauvegarde maintenant » — il envoie un fichier de sauvegarde directement vers Fichiers, iCloud Drive, Google Drive ou par e-mail en un geste. Vous pouvez aussi exporter un CSV manuellement à tout moment. Dans Paramètres, « Où sont conservées vos données » vous laisse choisir : ce téléphone uniquement, une copie automatique dans un fichier ou dossier de votre choix, ou une copie que vous partagez. Pour récupérer vos données (par exemple sur un nouveau téléphone), touchez « Restaurer depuis un fichier de sauvegarde » et choisissez une sauvegarde GigHelper — rien de ce qui est déjà sur le téléphone n’est supprimé.' },
         { icon:'🌍', title:'Devise, unités et région', body:'Dans les Paramètres, définissez votre pays, votre devise et si les distances s\'affichent en miles ou en kilomètres. Ce changement n\'altère pas vos données passées — elles sont enregistrées de façon cohérente et simplement affichées dans l\'unité choisie.' },
         { icon:'🧾', title:'Outils fiscaux (États-Unis uniquement)', body:'Si votre pays est défini sur États-Unis, GigHelper vous rappelle les échéances fiscales trimestrielles estimées et peut exporter un résumé fiscal utilisant la déduction kilométrique standard de l\'IRS. Ces outils sont masqués pour les autres pays car spécifiques aux règles fiscales américaines.' },
         { icon:'✂️', title:'Renommer l\'application', body:'Dites au micro "appelle cette app [nom]", ou changez-le directement dans les Paramètres.' }
@@ -1647,10 +1693,10 @@
         { icon:'🎙️', title:'语音记录', body:'点按麦克风并说出发生的事情 — 例如"20美元收入doordash"、"8美元支出汽油"或"记录12英里"。您也可以说出数字词，如"二十美元"，以及公里，如"10公里"。支持英语、西班牙语、意大利语、法语和中文 — 可在设置中切换语音语言。' },
         { icon:'✏️', title:'手动记录', body:'点按 + 按钮手动添加收入、支出或里程 — 在环境嘈杂、不方便说话或您只是更喜欢打字时很有用。使用"日期"字段可以为过去的某一天记录内容（例如昨天忘记记录的收入），而不是记到今天 — 该字段默认是今天，且不能选择未来的日期。' },
         { icon:'📊', title:'统计与日历', body:'"统计"选项卡显示您当天、当周或当月的收入、支出和每英里（或公里）净收益。"日历"选项卡让您点按任意日期查看当天记录的所有内容。' },
-        { icon:'🚗', title:'车辆与保养', body:'在"车辆"选项卡中添加您车辆的品牌、型号和当前里程。GigHelper 会按里程和/或时间跟踪常见保养项目（换机油、轮胎、刹车等），并在到期时提醒您。每周都会有一个提醒横幅，提示您更新实际的里程表读数 — 您可以在当周的任意一天完成，不必是周一。"车辆"选项卡中的"每周里程表记录"会保存这些读数的历史，并显示每周之间的行驶里程变化。里程表记录下方的每周对比（周一至周日）会把里程表变化与您的 GPS 里程和手动里程并排显示，并标出不一致的周。若要获得准确的里程表数值，请在周日读取；其他日期会标记为 ≈。里程表也包含私人驾驶，所以它应该是最大的数字。' },
+        { icon:'🚗', title:'车辆与保养', body:'在"车辆"选项卡中添加您车辆的品牌、型号和当前里程。GigHelper 会按里程和/或时间跟踪常见保养项目（换机油、轮胎、刹车等），并在到期时提醒您。每周都会有一个提醒横幅，提示您更新实际的里程表读数 — 您可以在当周的任意一天完成，不必是周一。"车辆"选项卡中的"每周里程表记录"会保存这些读数的历史，并显示每周之间的行驶里程变化。里程表记录下方的每周对比（周一至周日）会把里程表变化与您的 GPS 里程和手动里程并排显示，并标出不一致的周。若要获得准确的里程表数值，请在周日读取；其他日期会标记为 ≈。里程表也包含私人驾驶，所以它应该是最大的数字。 每周里程：每周开始时记录一次里程表读数——它结束上周并开启新的一周。每周里程表记录会显示每周的起始、结束读数以及行驶里程（结束减起始）。' },
         { icon:'📍', title:'GPS 里程追踪（仅限原生应用）', body:'如果您使用的是原生 Android 应用，"记录"选项卡中会有一个"开始行程" / "结束行程"卡片，通过 GPS 测量您的行驶距离，并直接记录到您的 Driving 收入来源 — 在您忘记用语音或手动记录里程时很有用。您也可以在设置中开启"自动检测行程"，一旦您的速度显示您正在驾驶，它就会自动开始和停止追踪，无需记得手动点击开始或结束。此功能在网页版中不可用，仅限已安装的 Android 应用。GPS 追踪的行程会标记为"GPS"，手动或语音输入的会标记为"手动"。在设置中，"里程来源"决定哪个来源计入总计和税务扣除；另一个仅用于对比，因此不会重复计算。' },
         { icon:'✉️', title:'联系支持', body:'遇到问题或有建议？请发送电子邮件至 gighelper.help@gmail.com。在“设置”中点击“报告问题”会自动生成包含诊断信息的邮件。' },
-        { icon:'💾', title:'备份您的数据', body:'除非您进行备份，否则您的记录仅保存在此设备上。在设置中，开启自动备份，将数据保存到您选择的文件中（例如您的 Google Drive 或 OneDrive 文件夹内）— 该功能适用于 Chrome 和 Edge。在 iOS Safari 和其他不支持该功能的浏览器上，设置里会改为提供"立即分享备份"按钮 —— 一键将备份文件发送到"文件"、iCloud Drive、Google Drive 或邮件。您也可以随时手动导出 CSV 文件。' },
+        { icon:'💾', title:'备份您的数据', body:'除非您进行备份，否则您的记录仅保存在此设备上。在设置中，开启自动备份，将数据保存到您选择的文件中（例如您的 Google Drive 或 OneDrive 文件夹内）— 该功能适用于 Chrome 和 Edge。在 iOS Safari 和其他不支持该功能的浏览器上，设置里会改为提供"立即分享备份"按钮 —— 一键将备份文件发送到"文件"、iCloud Drive、Google Drive 或邮件。您也可以随时手动导出 CSV 文件。在设置的“数据保存位置”中，您可以选择：仅保存在这部手机、自动备份到您选择的文件或文件夹，或分享备份副本。要找回数据（例如换了新手机），请点按“从备份文件恢复”并选择 GigHelper 备份文件 —— 手机上已有的内容不会被删除。' },
         { icon:'🌍', title:'货币、单位与地区', body:'在设置中，设置您的国家、货币，以及距离显示为英里还是公里。更改这些设置不会改变您过去的记录 — 数据的存储方式始终一致，只是按您选择的单位显示。' },
         { icon:'🧾', title:'税务工具（仅限美国）', body:'如果您的国家设置为美国，GigHelper 会提醒您季度预估税的截止日期，并可使用 IRS 标准里程扣除额导出税务摘要。其他国家/地区因涉及美国特定税务规则而不显示这些工具。' },
         { icon:'✂️', title:'重命名应用', body:'对麦克风说"把这个应用叫做[名称]"，或直接在设置中更改。' }
@@ -1750,6 +1796,8 @@
     document.querySelector('.mic-examples').innerHTML = t('micExamples');
     document.getElementById('shareSummaryBtn').textContent = t('shareSummary');
     if(typeof updateReportButtonLabels === 'function') updateReportButtonLabels();
+    if(typeof renderStorageChooser === 'function') renderStorageChooser();
+    if(typeof renderCelebrationsUi === 'function') renderCelebrationsUi();
     renderMaintList();
     renderFirstTimeMaintInputs();
     renderHelpPanel();
@@ -2042,6 +2090,7 @@
     saveEntries(entries);
     renderAll();
     maybeAutoBackup(true);
+    if(type === 'mileage' && typeof celebrate === 'function') celebrate('small');   // manual, voice and GPS trips alike
     return e;
   }
   // Builds a timestamp for a chosen calendar date (from a <input type="date">
@@ -2558,10 +2607,10 @@
   // themselves depending on which language happened to be active on
   // export day.
   function csvContent(streamOnly){
-    var rows = [['Date','Time','Type','Stream','Category','Amount ('+currentCurrency+')','Distance ('+distUnitLabel()+')','Source']];
+    var rows = [['Date','Time','Type','Stream','Category','Amount ('+currentCurrency+')','Distance ('+distUnitLabel()+')','Source','ID','Timestamp (ISO)']];
     allEntries().filter(function(e){ return !streamOnly || (e.stream||DEFAULT_STREAMS[0]) === streamOnly; }).sort(function(a,b){return new Date(a.ts)-new Date(b.ts);}).forEach(function(e){
       var d = new Date(e.ts);
-      rows.push([d.toLocaleDateString(), d.toLocaleTimeString(), e.type, (e.stream||DEFAULT_STREAMS[0]), e.category, e.amount.toFixed(2), milesToDisplay(e.miles).toFixed(1), (e.type==='mileage' ? mileageSourceOf(e) : '')]);
+      rows.push([d.toLocaleDateString(), d.toLocaleTimeString(), e.type, (e.stream||DEFAULT_STREAMS[0]), e.category, e.amount.toFixed(2), milesToDisplay(e.miles).toFixed(1), (e.type==='mileage' ? mileageSourceOf(e) : ''), e.id, e.ts]);
     });
     return '\uFEFF' + rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
   }
@@ -2585,6 +2634,7 @@
       updateAutoBackupStatusUi();
     }
     showToast('Exported ' + (scoped ? countEntriesForStream(scoped) + ' ' + scoped : allEntries().length) + ' entries to CSV');
+    if(typeof celebrate === 'function') celebrate('big');
   }
 
   /* ---------------- Auto-backup (bring-your-own-cloud) ----------------
@@ -2669,6 +2719,7 @@
     }).then(function(ok){
       if(ok){ showToast('Auto-backup set up'); }
       updateAutoBackupStatusUi();
+      renderStorageChooser();
     }).catch(function(err){
       if(err && err.name !== 'AbortError'){ showToast('Could not set up auto-backup'); }
     });
@@ -2711,6 +2762,7 @@
       if(banner) banner.style.display = 'none';
       updateAutoBackupStatusUi();
       showToast('Backup shared');
+      if(typeof celebrate === 'function') celebrate('big');
     }).catch(function(err){
       if(err && err.name !== 'AbortError'){ showToast('Could not share backup'); }
     });
@@ -2822,6 +2874,358 @@
     });
   }
 
+  /* ---------------- Celebrations (confetti) ----------------
+     A short confetti burst when the person does something worth rewarding:
+     logs mileage, downloads a report/export, or shares a backup. Drawn on a
+     throwaway canvas (no library, works offline). Off if they switch it off
+     in Settings or their phone asks for reduced motion. */
+  var CELEBRATE_KEY = 'routeLedger.celebrations.v1';
+  function celebrationsEnabled(){ try{ return localStorage.getItem(CELEBRATE_KEY) !== 'off'; }catch(e){ return true; } }
+  function setCelebrationsEnabled(on){ try{ localStorage.setItem(CELEBRATE_KEY, on ? 'on' : 'off'); }catch(e){} }
+  function prefersReducedMotion(){
+    try{ return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }catch(e){ return false; }
+  }
+  var CONFETTI_COLORS = ['#F5A623', '#3DDBB0', '#FF7A8A', '#FCFDFE', '#7CC4FF'];
+  var lastCelebrateAt = 0;
+  // Builds one burst of particles, fanning mostly upward from (originX, originY).
+  function makeConfetti(count, w, h, originX, originY, rand){
+    rand = rand || Math.random;
+    var out = [];
+    for(var i = 0; i < count; i++){
+      var angle = (-Math.PI / 2) + (rand() - 0.5) * Math.PI * 0.8;   // +/-72 degrees, always launches upward
+      var speed = (rand() * 0.5 + 0.5) * Math.min(w, h) * 0.022 + 6;
+      out.push({
+        x: originX, y: originY, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+        size: 5 + rand() * 6, rot: rand() * Math.PI * 2, vr: (rand() - 0.5) * 0.4,
+        color: CONFETTI_COLORS[Math.floor(rand() * CONFETTI_COLORS.length)],
+        life: 0, ttl: 70 + rand() * 40
+      });
+    }
+    return out;
+  }
+  // Advances one particle a frame; false once it has finished.
+  function stepConfetti(p){
+    p.vy += 0.35; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life++;
+    return p.life < p.ttl;
+  }
+  var SOUND_KEY = 'routeLedger.celebrationSound.v1';
+  var cheerCtx = null;
+  function celebrationSoundEnabled(){ try{ return localStorage.getItem(SOUND_KEY) !== 'off'; }catch(e){ return true; } }
+  function setCelebrationSoundEnabled(on){ try{ localStorage.setItem(SOUND_KEY, on ? 'on' : 'off'); }catch(e){} }
+  // Notes (Hz) of the little fanfare: a short rising chime, or a longer one.
+  function cheerNotes(kind){ return kind === 'big' ? [523.25, 659.25, 783.99, 1046.5] : [659.25, 987.77]; }
+  // A synthesized "tada + applause" (no audio files, so it works offline).
+  function playCheer(kind){
+    if(!celebrationSoundEnabled()) return false;
+    if(typeof document !== 'undefined' && document.hidden) return false;   // app is in the background
+    var Ctor = window.AudioContext || window.webkitAudioContext;
+    if(!Ctor) return false;
+    try{
+      if(!cheerCtx) cheerCtx = new Ctor();
+      var ctx = cheerCtx;
+      if(ctx.state === 'suspended' && ctx.resume) ctx.resume();
+      var t0 = ctx.currentTime + 0.02;
+      var master = ctx.createGain(); master.gain.value = 0.18; master.connect(ctx.destination);
+      cheerNotes(kind).forEach(function(freq, i){
+        var osc = ctx.createOscillator(), g = ctx.createGain(), st = t0 + i * 0.09;
+        osc.type = 'triangle'; osc.frequency.value = freq;
+        g.gain.setValueAtTime(0.0001, st);
+        g.gain.exponentialRampToValueAtTime(0.9, st + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, st + 0.35);
+        osc.connect(g); g.connect(master); osc.start(st); osc.stop(st + 0.4);
+      });
+      var dur = kind === 'big' ? 1.1 : 0.6;
+      var len = Math.floor(ctx.sampleRate * dur), buf = ctx.createBuffer(1, len, ctx.sampleRate), data = buf.getChannelData(0);
+      for(var i = 0; i < len; i++){
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.5) * (Math.random() < 0.5 ? 1 : 0.35);   // ragged, fading clapping
+      }
+      var src = ctx.createBufferSource(); src.buffer = buf;
+      var bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2200; bp.Q.value = 0.7;
+      var ng = ctx.createGain(); ng.gain.value = 0.5;
+      src.connect(bp); bp.connect(ng); ng.connect(master); src.start(t0 + 0.1);
+      return true;
+    }catch(e){ return false; }
+  }
+  function drawConfetti(kind){
+    var canvas, ctx;
+    try{
+      canvas = document.createElement('canvas');
+      ctx = canvas.getContext && canvas.getContext('2d');
+    }catch(e){ return false; }
+    if(!ctx) return false;
+    var w = window.innerWidth || 360, h = window.innerHeight || 640, dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    canvas.style.cssText = 'position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
+    canvas.setAttribute('aria-hidden', 'true');
+    ctx.scale(dpr, dpr);
+    document.body.appendChild(canvas);
+    var parts = (kind === 'big')
+      ? makeConfetti(70, w, h, w * 0.25, h * 0.66).concat(makeConfetti(70, w, h, w * 0.75, h * 0.66))
+      : makeConfetti(45, w, h, w / 2, h * 0.72);
+    function cleanup(){ if(canvas.parentNode) canvas.parentNode.removeChild(canvas); }
+    setTimeout(cleanup, 3500);   // safety net if animation frames are throttled
+    (function frame(){
+      ctx.clearRect(0, 0, w, h);
+      parts = parts.filter(function(p){
+        var alive = stepConfetti(p);
+        if(alive){
+          ctx.save();
+          ctx.globalAlpha = Math.min(1, (p.ttl - p.life) / 25);
+          ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+          ctx.restore();
+        }
+        return alive;
+      });
+      if(parts.length){ requestAnimationFrame(frame); } else { cleanup(); }
+    })();
+    return true;
+  }
+  // kind: 'small' (e.g. a mileage entry) or 'big' (e.g. a download). Confetti and
+  // sound are separate Settings switches; confetti also respects reduced motion.
+  function celebrate(kind){
+    var visuals = celebrationsEnabled() && !prefersReducedMotion();
+    var sound = celebrationSoundEnabled();
+    if(!visuals && !sound) return false;
+    var nowMs = Date.now();
+    if(nowMs - lastCelebrateAt < 700) return false;   // never stack bursts
+    lastCelebrateAt = nowMs;
+    var played = sound ? playCheer(kind) : false;
+    var drawn = visuals ? drawConfetti(kind) : false;
+    return played || drawn;
+  }
+  function renderCelebrationsUi(){
+    var lbl = document.getElementById('lblCelebrations');
+    var btn = document.getElementById('celebrationsToggleBtn');
+    if(lbl) lbl.textContent = t('celebrationsTitle');
+    if(btn) btn.textContent = celebrationsEnabled() ? t('celebrationsOn') : t('celebrationsOff');
+    var sl = document.getElementById('lblCelebrationSound');
+    var sb = document.getElementById('celebrationSoundToggleBtn');
+    if(sl) sl.textContent = t('celebrationSoundTitle');
+    if(sb) sb.textContent = celebrationSoundEnabled() ? t('celebrationsOn') : t('celebrationsOff');
+  }
+
+  /* ---------------- Where your data is kept + restore ----------------
+     Entries always live on this phone first (browser storage). This section
+     lets the person choose where an extra copy goes — nowhere, an automatic
+     file/folder they pick (Drive, OneDrive...), or the phone's share sheet —
+     and lets them load a backup file back in (additive, never deletes). */
+  var STORAGE_MODE_KEY = 'routeLedger.storageMode.v1';
+  var STORAGE_PROMPTED_KEY = 'routeLedger.storagePrompted.v1';
+  function loadStorageMode(){ try{ return localStorage.getItem(STORAGE_MODE_KEY) || ''; }catch(e){ return ''; } }
+  function saveStorageMode(m){ try{ localStorage.setItem(STORAGE_MODE_KEY, m); }catch(e){} }
+  function shareModeActive(){ return loadStorageMode() === 'share' && webShareFilesSupported; }
+  function markStoragePrompted(){ try{ localStorage.setItem(STORAGE_PROMPTED_KEY, '1'); }catch(e){} }
+  function newEntryId(){ return Date.now()+'_'+Math.random().toString(36).slice(2,7); }
+
+  function parseCsvRows(text){
+    var rows = [], row = [], cell = '', inQ = false, i = 0;
+    text = String(text || '').replace(/^\uFEFF/, '');
+    for(; i < text.length; i++){
+      var ch = text.charAt(i);
+      if(inQ){
+        if(ch === '"'){
+          if(text.charAt(i+1) === '"'){ cell += '"'; i++; } else { inQ = false; }
+        } else { cell += ch; }
+      } else if(ch === '"'){ inQ = true; }
+      else if(ch === ','){ row.push(cell); cell = ''; }
+      else if(ch === '\n' || ch === '\r'){
+        if(ch === '\r' && text.charAt(i+1) === '\n') i++;
+        row.push(cell); cell = '';
+        if(row.length > 1 || row[0] !== '') rows.push(row);
+        row = [];
+      } else { cell += ch; }
+    }
+    if(cell !== '' || row.length){ row.push(cell); if(row.length > 1 || row[0] !== '') rows.push(row); }
+    return rows;
+  }
+
+  // Reads a GigHelper CSV (current format with ID + ISO timestamp, or an older
+  // export with only locale-formatted Date/Time) into entry objects. Distance
+  // in kilometres is converted back to miles (entries are stored in miles).
+  function parseBackupCsv(text){
+    var rows = parseCsvRows(text);
+    var out = {entries: [], invalid: 0};
+    if(!rows.length) return out;
+    var header = rows[0].map(function(h){ return String(h).trim().toLowerCase(); });
+    function col(name, exact){
+      for(var i = 0; i < header.length; i++){
+        if(exact ? header[i] === name : header[i].indexOf(name) === 0) return i;
+      }
+      return -1;
+    }
+    var cDate = col('date', true), cTime = col('time', true), cType = col('type', true),
+        cStream = col('stream', true), cCat = col('category', true), cId = col('id', true),
+        cAmt = col('amount'), cDist = col('distance'), cSrc = col('source'), cTs = col('timestamp');
+    if(cType === -1 || (cTs === -1 && cDate === -1)) return out;   // not one of our files
+    var km = cDist !== -1 && /\(km\)/.test(header[cDist]);
+    for(var r = 1; r < rows.length; r++){
+      var row = rows[r];
+      var type = String(row[cType] || '').trim().toLowerCase();
+      if(type !== 'income' && type !== 'expense' && type !== 'mileage'){ out.invalid++; continue; }
+      var d = null;
+      if(cTs !== -1 && row[cTs]){ var dt = new Date(row[cTs]); if(!isNaN(dt.getTime())) d = dt; }
+      if(!d && cDate !== -1){
+        var dt2 = new Date((row[cDate] || '') + ' ' + (cTime !== -1 ? (row[cTime] || '') : ''));
+        if(isNaN(dt2.getTime())) dt2 = new Date(row[cDate] || '');
+        if(!isNaN(dt2.getTime())) d = dt2;
+      }
+      if(!d){ out.invalid++; continue; }
+      var amount = cAmt !== -1 ? parseFloat(String(row[cAmt] || '0').replace(/,/g, '')) : 0;
+      var dist = cDist !== -1 ? parseFloat(String(row[cDist] || '0').replace(/,/g, '')) : 0;
+      if(isNaN(amount)) amount = 0;
+      if(isNaN(dist)) dist = 0;
+      var id = cId !== -1 ? String(row[cId] || '').trim() : '';
+      var e = {
+        id: id || newEntryId(), hasId: !!id, type: type,
+        amount: type === 'mileage' ? 0 : amount,
+        miles: type === 'mileage' ? (km ? dist / 1.609344 : dist) : 0,
+        category: (cCat !== -1 && String(row[cCat] || '').trim()) || 'Other',
+        stream: (cStream !== -1 && String(row[cStream] || '').trim()) || DEFAULT_STREAMS[0],
+        ts: d.toISOString()
+      };
+      if(type === 'mileage') e.source = (cSrc !== -1 && String(row[cSrc] || '').trim().toLowerCase() === 'gps') ? 'gps' : 'manual';
+      out.entries.push(e);
+    }
+    return out;
+  }
+
+  function entryDupKey(e){
+    return String(e.ts).slice(0,16) + '|' + e.type + '|' + e.stream + '|' + e.category + '|' + (e.amount||0).toFixed(2) + '|' + (e.miles||0).toFixed(1);
+  }
+
+  // Adds entries from a backup. Never deletes or changes anything already on
+  // the phone: entries with an ID already here are skipped; older files with
+  // no ID are matched on date/type/stream/category/amount instead.
+  function restoreFromCsvText(text){
+    var parsed = parseBackupCsv(text);
+    var ids = {}, keys = {};
+    allEntries().forEach(function(e){ ids[e.id] = true; keys[entryDupKey(e)] = true; });
+    var added = 0, skipped = 0, newStreams = false;
+    parsed.entries.forEach(function(e){
+      var dup = e.hasId ? ids[e.id] : keys[entryDupKey(e)];
+      if(dup){ skipped++; return; }
+      var clean = {id: e.id, type: e.type, amount: e.amount, miles: e.miles, category: e.category, stream: e.stream, ts: e.ts};
+      if(e.source) clean.source = e.source;
+      entries.push(clean);
+      ids[clean.id] = true;
+      added++;
+      if(streams.indexOf(clean.stream) === -1){ streams.push(clean.stream); newStreams = true; }
+    });
+    if(added){
+      if(newStreams) saveStreams(streams);
+      saveEntries(entries);
+      if(newStreams && typeof renderStreamBar === 'function') renderStreamBar();
+      renderAll();
+    }
+    return {added: added, skipped: skipped, invalid: parsed.invalid};
+  }
+
+  function readFileText(file){
+    if(file && typeof file.text === 'function') return file.text();
+    return new Promise(function(resolve, reject){
+      var fr = new FileReader();
+      fr.onload = function(){ resolve(String(fr.result || '')); };
+      fr.onerror = function(){ reject(fr.error); };
+      fr.readAsText(file);
+    });
+  }
+
+  function handleRestoreFile(file){
+    if(!file) return;
+    readFileText(file).then(function(text){
+      var r = restoreFromCsvText(text);
+      var msg;
+      if(!r.added && !r.skipped){ msg = t('storageRestoreNone'); }
+      else { msg = t('storageRestoreDone').replace('{n}', r.added).replace('{d}', r.skipped); }
+      if(r.invalid) msg += ' ' + t('storageRestoreInvalid').replace('{i}', r.invalid);
+      showToast(msg);
+      if(r.added) closeModal('storageModal');
+    }).catch(function(){ showToast(t('storageRestoreError')); });
+  }
+
+  function setTextById(id, key){ var el = document.getElementById(id); if(el) el.textContent = t(key); }
+
+  function buildStorageOptions(box, mode){
+    if(!box) return;
+    box.innerHTML = '';
+    [
+      {id:'phone', title:t('storagePhone'), sub:t('storagePhoneSub'), ok:true},
+      {id:'file', title:t('storageFile'), sub: fsAccessSupported ? t('storageFileSub') : t('storageUnavailable'), ok:fsAccessSupported},
+      {id:'share', title:t('storageShare'), sub: webShareFilesSupported ? t('storageShareSub') : t('storageUnavailable'), ok:webShareFilesSupported}
+    ].forEach(function(d){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'storage-opt' + (mode === d.id ? ' active' : '');
+      b.disabled = !d.ok;
+      var ti = document.createElement('span'); ti.className = 't'; ti.textContent = d.title;
+      var su = document.createElement('span'); su.className = 's'; su.textContent = d.sub;
+      b.appendChild(ti); b.appendChild(su);
+      b.addEventListener('click', function(){ chooseStorage(d.id); });
+      box.appendChild(b);
+    });
+  }
+
+  function renderStorageChooser(){
+    setTextById('lblStorage', 'storageTitle');
+    setTextById('storageIntro', 'storageIntro');
+    setTextById('storageModalTitle', 'storageModalTitle');
+    setTextById('storageModalIntro', 'storageIntro');
+    setTextById('restoreHint', 'storageRestoreHint');
+    setTextById('storageLaterBtn', 'storageLater');
+    ['restoreBackupBtn', 'restoreBackupBtn2'].forEach(function(id){
+      var b = document.getElementById(id);
+      var sp = b && b.querySelector('.t');
+      if(sp) sp.textContent = t('storageRestoreBtn');
+    });
+    idbGetHandle().then(function(handle){
+      var mode = handle ? 'file' : (shareModeActive() ? 'share' : 'phone');
+      var st = document.getElementById('storageStatus');
+      if(st){
+        st.textContent = mode === 'file' ? t('storageStatusFile').replace('{file}', (handle && handle.name) || '')
+          : (mode === 'share' ? t('storageStatusShare') : t('storageStatusPhone'));
+      }
+      buildStorageOptions(document.getElementById('storageOptions'), mode);
+      buildStorageOptions(document.getElementById('storageModalOptions'), mode);
+    });
+  }
+
+  function chooseStorage(mode){
+    markStoragePrompted();
+    if(mode === 'file'){
+      if(!fsAccessSupported) return;
+      saveStorageMode('file');
+      closeModal('storageModal');
+      setupAutoBackup();   // opens the file picker; must run inside this tap
+      return;
+    }
+    if(mode === 'share' && !webShareFilesSupported) return;
+    saveStorageMode(mode);
+    idbClearHandle().then(function(){
+      updateAutoBackupStatusUi();
+      renderStorageChooser();
+      closeModal('storageModal');
+      showToast(mode === 'share' ? t('storageStatusShare') : t('storageStatusPhone'));
+    });
+  }
+
+  // One-time "where should your data be kept?" question — after the welcome
+  // screen on a new install, or on the next open for existing users who
+  // haven't set up a backup file yet.
+  function maybePromptStorageChoice(){
+    var wo = document.getElementById('welcomeOverlay');
+    if(wo && wo.style.display === 'flex') return;
+    var seen = false;
+    try{ seen = !!localStorage.getItem(STORAGE_PROMPTED_KEY); }catch(e){}
+    if(seen) return;
+    idbGetHandle().then(function(h){
+      markStoragePrompted();
+      if(h) return;   // already chose a backup file
+      renderStorageChooser();
+      openModal('storageModal');
+    });
+  }
+
   function updateAutoBackupStatusUi(){
     var statusEl = document.getElementById('autoBackupStatus');
     var setupBtn = document.getElementById('autoBackupSetupBtn');
@@ -2830,7 +3234,7 @@
     var shareBtn = document.getElementById('shareBackupNowBtn');
     if(!statusEl) return;
 
-    if(fsAccessSupported){
+    if(fsAccessSupported && !shareModeActive()){
       idbGetHandle().then(function(handle){
         if(!handle){
           statusEl.textContent = 'Pick a file (e.g. inside your Google Drive or OneDrive folder) and GigHelper will keep it updated automatically.';
@@ -2972,6 +3376,7 @@
       a.href = url; a.download = appName.replace(/\s+/g,'_')+'_tax_summary_'+(streams.length>1 && statStreamFilter!=='all' ? statStreamFilter.replace(/\s+/g,'_')+'_' : '')+now.getFullYear()+'.txt';
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      if(typeof celebrate === 'function') celebrate('big');
     }
   }
   var exportTaxSummaryBtn = document.getElementById('exportTaxSummary');
@@ -3477,14 +3882,15 @@
 
   document.getElementById('vResyncBtn').addEventListener('click', function(){
     document.getElementById('resyncInput').value = Math.round(computeCurrentMileage());
-    openModal('resyncModal');
+    prepareResyncModal(); openModal('resyncModal');
   });
   document.getElementById('resyncSave').addEventListener('click', function(){
     var val = parseFloat(document.getElementById('resyncInput').value);
     if(isNaN(val) || val < 0){ showToast('Enter a valid mileage'); return; }
     vehicle.odoBaseline = val;
     vehicle.baselineSetAt = new Date().toISOString();
-    upsertWeeklyOdoEntry(vehicle.odoBaseline);
+    var weekSel = document.getElementById('resyncWeekSelect');
+    upsertWeeklyOdoEntry(vehicle.odoBaseline, resyncWeekDate(weekSel ? weekSel.value : 'end', new Date()));
     saveVehicle(vehicle);
     renderVehicleProfile();
     renderMaintList();
@@ -3492,6 +3898,7 @@
     checkOdoWeeklyBanner();
     closeModal('resyncModal');
     showToast('Odometer updated');
+    if(typeof celebrate === 'function') celebrate('small');
   });
 
   function renderVehiclePanel(){
@@ -3592,34 +3999,83 @@
     container.innerHTML = html;
   }
 
+  // Weekly mileage as Start / End / Driven. One odometer reading closes a week
+  // and opens the next, so a week's Start is the previous week's End and
+  // Driven = End - Start. A skipped week leaves Start unknown rather than
+  // pretending two weeks were one. The current week shows as in progress
+  // (Start known, End pending) with a rough "so far" from logged miles.
+  function weeklyOdometerRows(log, now, currentOdo){
+    var sorted = log.slice().sort(function(a,b){ return a.weekStart.localeCompare(b.weekStart); });
+    function nextWeekKey(k){ var d = new Date(k + 'T00:00:00'); d.setDate(d.getDate() + 7); return dateKeyLocal(d); }
+    var rows = [];
+    for(var i = 0; i < sorted.length; i++){
+      var cur = sorted[i], prev = i > 0 ? sorted[i-1] : null;
+      var start = (prev && nextWeekKey(prev.weekStart) === cur.weekStart) ? prev.mileage : null;
+      var driven = start === null ? null : cur.mileage - start;
+      rows.push({ weekStart: cur.weekStart, start: start, end: cur.mileage, driven: driven,
+                  check: driven !== null && driven < 0, inProgress: false, soFar: null, hasReading: true });
+    }
+    var curKey = dateKeyLocal(startOfWeek(now || new Date()));
+    var last = sorted.length ? sorted[sorted.length - 1] : null;
+    if(last && last.weekStart < curKey){
+      var st = nextWeekKey(last.weekStart) === curKey ? last.mileage : null;
+      var soFar = (st !== null && typeof currentOdo === 'number' && currentOdo >= st) ? currentOdo - st : null;
+      rows.push({ weekStart: curKey, start: st, end: null, driven: null, check: false, inProgress: true, soFar: soFar, hasReading: false });
+    }
+    return rows.reverse();   // newest first
+  }
+  // Which week a new reading belongs to. Early in the week (Mon-Wed) people read
+  // the odometer to close last week and open this one; later, to close this one.
+  function resyncWeekDefault(now){ var dow = (now || new Date()).getDay(); return (dow >= 1 && dow <= 3) ? 'start' : 'end'; }
+  function resyncWeekDate(choice, now){
+    now = now || new Date();
+    if(choice !== 'start') return now;
+    var d = new Date(startOfWeek(now)); d.setDate(d.getDate() - 1); d.setHours(12, 0, 0, 0);   // the Sunday that closed last week
+    return d;
+  }
+  function prepareResyncModal(){
+    var sel = document.getElementById('resyncWeekSelect');
+    if(!sel) return;
+    document.getElementById('resyncWeekLabel').textContent = t('weeklyOdoTakenAt');
+    sel.options[0].textContent = t('weeklyOdoStartOfWeek');
+    sel.options[1].textContent = t('weeklyOdoEndOfWeek');
+    sel.value = resyncWeekDefault(new Date());
+  }
   function renderWeeklyOdoLog(){
     var container = document.getElementById('weeklyOdoLogList');
     if(!container) return;
     renderMileageComparison();
-    var log = loadWeeklyOdoLog().slice().sort(function(a,b){ return b.weekStart.localeCompare(a.weekStart); });
-    if(log.length === 0){
+    var hint = document.getElementById('weeklyOdoLogHint');
+    if(hint) hint.textContent = t('weeklyOdoHint');
+    var rows = weeklyOdometerRows(loadWeeklyOdoLog(), new Date(), computeCurrentMileage());
+    if(rows.length === 0){
       container.innerHTML = '<div style="color:var(--text-faint); font-size:12px;">' + t('weeklyOdoLogEmpty') + '</div>';
       return;
     }
-    var html = '';
-    for(var i=0;i<log.length;i++){
-      var entry = log[i];
-      var prev = log[i+1]; // next in the desc-sorted array is the prior week
-      var displayVal = Math.round(milesToDisplay(entry.mileage));
-      var deltaHtml = '';
-      if(prev){
-        var deltaVal = Math.round(milesToDisplay(entry.mileage - prev.mileage));
-        var sign = deltaVal >= 0 ? '+' : '';
-        deltaHtml = '<span style="color:var(--text-faint); font-size:11px; margin-left:8px;">'+sign+deltaVal.toLocaleString()+' '+distUnitLabel()+' '+t('weeklyOdoVsLastWeek')+'</span>';
-      }
-      var wkDate = new Date(entry.weekStart+'T00:00:00');
-      var wkLabel = t('weeklyOdoWeekOf') + ' ' + wkDate.toLocaleDateString(currentLang, {month:'short', day:'numeric'});
-      html += '<div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--hairline);">' +
-        '<div><div style="color:var(--text-primary);">'+wkLabel+'</div>' +
-        '<div class="num">' + displayVal.toLocaleString() + ' ' + distUnitLabel() + deltaHtml + '</div></div>' +
-        '<button class="weekly-odo-delete" data-week="'+entry.weekStart+'" aria-label="Delete" style="background:none; border:none; color:var(--text-faint); font-size:16px; padding:4px 6px; flex-shrink:0;">✕</button>' +
-      '</div>';
+    function cell(label, text, bold){
+      return '<div><div style="font-size:11px; color:var(--text-muted);">' + label + '</div>' +
+        '<div class="num" style="' + (bold ? 'color:var(--text-primary); font-weight:700;' : 'color:var(--text-primary);') + '">' + text + '</div></div>';
     }
+    var html = '';
+    rows.forEach(function(r){
+      var wkDate = new Date(r.weekStart + 'T00:00:00');
+      var wkLabel = t('weeklyOdoWeekOf') + ' ' + wkDate.toLocaleDateString(currentLang, {month:'short', day:'numeric'});
+      var dash = '\u2014';
+      var drivenText = r.driven !== null ? fmtDist(r.driven, 0) : dash;
+      var note = '';
+      if(r.check) note = '<div style="font-size:11px; color:var(--amber); margin-top:4px;">\u26A0 ' + t('weeklyOdoCheck') + '</div>';
+      else if(r.inProgress && r.soFar !== null) note = '<div style="font-size:11px; color:var(--text-muted); margin-top:4px;">\u2248 ' + fmtDist(r.soFar, 0) + ' ' + t('weeklyOdoSoFar') + '</div>';
+      var del = r.hasReading
+        ? '<button class="weekly-odo-delete" data-week="' + r.weekStart + '" aria-label="Delete" style="background:none; border:none; color:var(--text-faint); font-size:16px; padding:4px 6px; flex-shrink:0;">\u00D7</button>'
+        : '';
+      html += '<div style="display:flex; align-items:flex-start; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--hairline);">' +
+        '<div style="flex:1; min-width:0;"><div style="color:var(--text-primary); margin-bottom:4px;">' + wkLabel + '</div>' +
+          '<div style="display:flex; gap:18px; flex-wrap:wrap;">' +
+            cell(t('weeklyOdoStart'), r.start !== null ? fmtDist(r.start, 0) : dash, false) +
+            cell(t('weeklyOdoEnd'), r.end !== null ? fmtDist(r.end, 0) : dash, false) +
+            cell(t('weeklyOdoDriven'), drivenText, true) +
+          '</div>' + note + '</div>' + del + '</div>';
+    });
     container.innerHTML = html;
     container.querySelectorAll('.weekly-odo-delete').forEach(function(btn){
       btn.addEventListener('click', function(){
@@ -3636,8 +4092,9 @@
     var banner = document.getElementById('odoWeeklyBanner');
     if(!banner) return;
     if(!vehicle.baselineSetAt){ banner.style.display = 'none'; return; } // no vehicle set up yet — nothing to remind about
-    var wkKey = dateKeyLocal(startOfWeek(new Date()));
-    var loggedThisWeek = loadWeeklyOdoLog().some(function(e){ return e.weekStart === wkKey; });
+    var wkStart = startOfWeek(new Date());
+    var wkKey = dateKeyLocal(wkStart);
+    var loggedThisWeek = loadWeeklyOdoLog().some(function(e){ return e.weekStart === wkKey || odoLogStamp(e) >= wkStart; });
     var dismissed = false;
     try{ dismissed = localStorage.getItem('gh_odo_weekly_dismissed_' + wkKey) === '1'; }catch(e){}
     banner.style.display = (!loggedThisWeek && !dismissed) ? 'flex' : 'none';
@@ -3649,7 +4106,7 @@
       document.querySelectorAll('.panel').forEach(function(p){ p.classList.toggle('active', p.id==='panel-vehicle'); });
       renderVehiclePanel();
       document.getElementById('resyncInput').value = Math.round(computeCurrentMileage());
-      openModal('resyncModal');
+      prepareResyncModal(); openModal('resyncModal');
     });
   }
   var odoWeeklyBannerDismiss = document.getElementById('odoWeeklyBannerDismiss');
@@ -4146,8 +4603,8 @@
   // general personal/small-business finance set — common enough to cover
   // most everyday spending without becoming an overwhelming dropdown.
   function categoriesForStream(streamName){
-    if(streamName === DEFAULT_STREAMS[0]) return ['Uber','DoorDash','Gas','Other'];
-    return ['Housing','Services','Groceries','Credit Card Payment','Insurance','Subscriptions','Transportation','Healthcare','Debt Payment','Shopping','Salary','Other'];
+    if(streamName === DEFAULT_STREAMS[0]) return ['Uber','DoorDash','Gas','Restaurant','Other'];
+    return ['Housing','Services','Groceries','Restaurant','Credit Card Payment','Insurance','Subscriptions','Transportation','Healthcare','Debt Payment','Shopping','Salary','Other'];
   }
   function populateCategorySelect(sel, streamName, ensureValue){
     if(!sel) return;
@@ -4599,11 +5056,35 @@
   }
 
   updateAutoBackupStatusUi();
+  renderStorageChooser();
+  renderCelebrationsUi();
+  var celebrationsBtn = document.getElementById('celebrationsToggleBtn');
+  if(celebrationsBtn) celebrationsBtn.addEventListener('click', function(){
+    var turnOn = !celebrationsEnabled();
+    setCelebrationsEnabled(turnOn);
+    renderCelebrationsUi();
+    if(turnOn) celebrate('small');   // a little preview
+  });
+  var soundBtn = document.getElementById('celebrationSoundToggleBtn');
+  if(soundBtn) soundBtn.addEventListener('click', function(){
+    var turnOn = !celebrationSoundEnabled();
+    setCelebrationSoundEnabled(turnOn);
+    renderCelebrationsUi();
+    if(turnOn){ lastCelebrateAt = 0; playCheer('small'); }   // preview, so they can hear it
+  });
   updateMonthlyCloseStatusUi();
   checkMonthlyClose();
   maybeAutoBackup(false);
   var helpDownloadBtn = document.getElementById('helpDownloadBtn');
   if(helpDownloadBtn) helpDownloadBtn.addEventListener('click', downloadHelpGuide);
+  var restoreFileInput = document.getElementById('restoreFileInput');
+  ['restoreBackupBtn', 'restoreBackupBtn2'].forEach(function(id){
+    var b = document.getElementById(id);
+    if(b && restoreFileInput) b.addEventListener('click', function(){ restoreFileInput.value = ''; restoreFileInput.click(); });
+  });
+  if(restoreFileInput) restoreFileInput.addEventListener('change', function(){
+    handleRestoreFile(restoreFileInput.files && restoreFileInput.files[0]);
+  });
   var autoBackupSetupBtn = document.getElementById('autoBackupSetupBtn');
   if(autoBackupSetupBtn) autoBackupSetupBtn.addEventListener('click', setupAutoBackup);
   var shareBackupNowBtn = document.getElementById('shareBackupNowBtn');
@@ -4623,6 +5104,7 @@
       idbClearHandle().then(function(){
         showToast('Auto-backup turned off');
         updateAutoBackupStatusUi();
+        renderStorageChooser();
         checkBackupReminder();
       });
     });
@@ -4677,8 +5159,10 @@
       var wo = document.getElementById('welcomeOverlay');
       if(wo) wo.style.display = 'none';
       try{ localStorage.setItem('gh_welcome_seen', '1'); }catch(e){}
+      maybePromptStorageChoice();
     });
   }
+  maybePromptStorageChoice();
 
   // Register service worker (enables offline use + installability).
   // Silently no-ops on file:// or if unsupported — this only works over http(s).
