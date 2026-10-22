@@ -90,5 +90,5 @@ test('exportCsv(stream) is not treated as a backup; the Stats button and Log nav
 test('report buttons name the stream and the new i18n key exists in every language', function(){
   assert.ok(/function updateReportButtonLabels/.test(html));
   const langs = (html.match(/byStreamLabel:/g) || []).length;
-  assert.strictEqual(langs, 5, 'byStreamLabel should be defined for all 5 languages (found ' + langs + ')');
+  assert.strictEqual(langs, 8, 'byStreamLabel should be defined for all 8 languages (found ' + langs + ')');
 });

@@ -114,13 +114,13 @@ test('the Vehicle tab shows Start, End and Driven (with a so-far estimate and a 
   assert.ok(!todayIsInWeek || out.indexOf('weeklyOdoSoFar') !== -1 || true);
 });
 
-test('wiring: resync modal has the start/end-of-week chooser, the banner accepts any reading from this calendar week, strings in 5 languages', function(){
+test('wiring: resync modal has the start/end-of-week chooser, the banner accepts any reading from this calendar week, strings in 8 languages', function(){
   ['resyncWeekSelect', 'resyncWeekLabel', 'weeklyOdoLogHint'].forEach(function(id){ assert.ok(html.indexOf('id="' + id + '"') !== -1, 'missing #' + id); });
   assert.ok(/weekSel \? weekSel\.value : 'end'/.test(html), 'saving files the reading under the chosen week');
   assert.ok((html.match(/prepareResyncModal\(\); openModal\('resyncModal'\)/g) || []).length >= 2, 'every way into the modal sets the default');
   assert.ok(/odoLogStamp\(e\) >= wkStart/.test(extractFn(html, 'checkOdoWeeklyBanner')), 'a Monday-morning reading silences this week\'s reminder');
   ['weeklyOdoStart', 'weeklyOdoEnd', 'weeklyOdoDriven', 'weeklyOdoSoFar', 'weeklyOdoCheck', 'weeklyOdoHint', 'weeklyOdoTakenAt', 'weeklyOdoStartOfWeek', 'weeklyOdoEndOfWeek'].forEach(function(k){
     const n = (html.match(new RegExp('\\b' + k + ": '", 'g')) || []).length;
-    assert.strictEqual(n, 5, k + ' should be in all 5 languages (found ' + n + ')');
+    assert.strictEqual(n, 8, k + ' should be in all 8 languages (found ' + n + ')');
   });
 });

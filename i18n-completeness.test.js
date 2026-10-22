@@ -7,9 +7,9 @@ const assert = require('assert');
 const { loadHtml, extractObjectLiteral } = require('./helpers');
 
 const html = loadHtml();
-const EXPECTED_LANGS = ['en-US', 'es-ES', 'it-IT', 'fr-FR', 'zh-CN'];
+const EXPECTED_LANGS = ['en-US', 'es-ES', 'it-IT', 'fr-FR', 'zh-CN', 'pt-BR', 'hi-IN', 'ru-RU'];
 
-test('I18N defines exactly the 5 supported languages', function(){
+test('I18N defines exactly the 8 supported languages', function(){
   const I18N = extractObjectLiteral(html, 'I18N');
   assert.deepStrictEqual(Object.keys(I18N).sort(), EXPECTED_LANGS.slice().sort());
 });
@@ -44,7 +44,7 @@ test('no I18N string value is empty (recurses into nested objects like maintenan
   });
 });
 
-test('HELP_CONTENT defines exactly the 5 supported languages, 12 sections each', function(){
+test('HELP_CONTENT defines exactly the 8 supported languages, 12 sections each', function(){
   const HELP = extractObjectLiteral(html, 'HELP_CONTENT');
   assert.deepStrictEqual(Object.keys(HELP).sort(), EXPECTED_LANGS.slice().sort());
   EXPECTED_LANGS.forEach(function(lang){
@@ -66,7 +66,7 @@ test('every HELP_CONTENT section has a non-empty icon, title, and body in every 
   });
 });
 
-test('CATEGORY_LABELS defines exactly the 5 supported languages, with identical category keys and no empty values', function(){
+test('CATEGORY_LABELS defines exactly the 8 supported languages, with identical category keys and no empty values', function(){
   const CATEGORY_LABELS = extractObjectLiteral(html, 'CATEGORY_LABELS');
   assert.deepStrictEqual(Object.keys(CATEGORY_LABELS).sort(), EXPECTED_LANGS.slice().sort());
   const baseKeys = Object.keys(CATEGORY_LABELS['en-US']).sort();

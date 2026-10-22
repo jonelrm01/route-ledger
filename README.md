@@ -88,3 +88,5 @@ file ending in `.test.js` automatically.
 - **celebrations** — confetti: burst geometry/lifetime, no stacking, Settings off-switch, reduced-motion respected, triggers (mileage, downloads, shared backup, odometer update — not restore), 5-language strings.
 - **weekly-start-end** — weekly mileage as Start / End / Driven (End − Start), in-progress current week, skipped weeks, Monday-morning reading closing last week, Vehicle-tab rendering and wiring.
 - **categories** — Restaurant category: in every stream before Other, translated in 5 languages, understood by voice (category + expense signal) without disturbing existing categories.
+- **ios-voice** — iPhone voice adapter (native speech plugin behind the browser SpeechRecognition interface): result/silence/stop/abort/permission flows, only active on iOS + plugin, tap-to-talk only on iPhone, Install hidden in the native app.
+- **new-languages** — Portuguese, Hindi, Russian: pickers, every voice/navigation/number table, translated Help, and real spoken phrases (income, expense, restaurant, mileage, tab navigation) per language.

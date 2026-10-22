@@ -389,6 +389,9 @@
     <button type="button" data-lang="it-IT">Italiano</button>
     <button type="button" data-lang="fr-FR">Français</button>
     <button type="button" data-lang="zh-CN">中文</button>
+    <button type="button" data-lang="pt-BR">Português</button>
+    <button type="button" data-lang="hi-IN">हिन्दी</button>
+    <button type="button" data-lang="ru-RU">Русский</button>
   </div>
 
   <div style="width:100%; max-width:360px; text-align:left; margin-bottom:20px;">
@@ -819,6 +822,9 @@
           <button type="button" data-lang="it-IT">Italiano</button>
           <button type="button" data-lang="fr-FR">Français</button>
           <button type="button" data-lang="zh-CN">中文</button>
+          <button type="button" data-lang="pt-BR">Português</button>
+          <button type="button" data-lang="hi-IN">हिन्दी</button>
+          <button type="button" data-lang="ru-RU">Русский</button>
         </div>
       </div>
       <div class="settings-section">
@@ -1522,6 +1528,408 @@
       autoTripNotifTitle: 'GigHelper 正在记录行程', autoTripNotifBody: '如果这不是驾车行程，请点击取消。',
       lblMileageSource: '里程来源', mileageSourceHint: "选择哪个来源计入总计和税务扣除。另一个仅用于对比，因此不会重复计算。GPS 需要 Android 应用。", srcManual: '手动', srcGps: 'GPS', srcNotCounted: '未计入', mileageSourceUpdated: '里程来源已更新',
       mileageCompareTitle: '每周里程对比', mileageCompareHint: "按周一至周日汇总，每周需有一次里程表读数。若在周日读取，里程表变化是准确的；否则标记为 ≈，因为它涵盖的日期略有不同。里程表也包含私人驾驶，所以它应该是最大的数字。", cmpOdometer: '里程表', cmpGapOk: 'GPS 与手动相差 {{PCT}}%', cmpGapWarn: 'GPS 与手动相差 {{PCT}}%', cmpOverOdo: '记录的里程高于里程表变化 — 请检查读数'
+    },
+    'pt-BR': {
+      micHintDefault: 'Toque e diga um lançamento, ou <b>"chame este app de [nome]"</b> para renomeá-lo.',
+      micExamples: '"20 reais receita doordash" · "8 reais despesa gasolina" · "registrar 12 milhas"',
+      settingsTitle: 'Configurações',
+      voiceLang: 'Idioma de voz',
+      vehicleProfile: 'Perfil do veículo',
+      make: 'Marca',
+      model: 'Modelo',
+      year: 'Ano',
+      currentMileage: 'Quilometragem atual',
+      firstTimeMaintIntro: 'Quando cada um destes itens foi feito pela última vez? Deixe como está se não tiver certeza — vamos supor que foi na sua quilometragem atual.',
+      currentOdo: 'Hodômetro atual (estimado)',
+      estimatedSub: 'Com base na quilometragem inicial + viagens registradas',
+      resyncLink: 'Atualizar leitura real do hodômetro',
+      maintenance: 'Manutenção',
+      lblManualDate: 'Data',
+      streamDeleteTitle: 'Remover "{{STREAM}}"?',
+      streamDeleteBody: 'Esta fonte tem {{COUNT}} lançamentos. Removê-la não os apaga, mas eles sumirão do seu Registro e das Estatísticas até você movê-los para outra fonte (edite um lançamento para mudar a fonte). Remover mesmo assim?',
+      streamDeleteConfirm: 'Remover mesmo assim',
+      maintDisclaimer: 'Estes são intervalos gerais do setor, não valores específicos do fabricante. Consulte o manual do proprietário para o cronograma exato do seu veículo e toque em um serviço para atualizá-lo quando souber o intervalo real.',
+      resyncTitle: 'Atualizar hodômetro',
+      resyncSub: 'Digite a quilometragem real atual do seu veículo, conforme o painel. As milhas das viagens futuras que você registrar serão somadas a esse número.',
+      odoWeeklyBannerTitle: 'Registre o hodômetro da nova semana',
+      odoWeeklyBannerBody: 'Uma leitura agora encerra a semana passada e inicia esta, para mostrarmos suas milhas semanais.',
+      odoWeeklyBannerBtn: 'Atualizar agora',
+      weeklyOdoLogTitle: 'Registro semanal do hodômetro',
+      weeklyOdoLogEmpty: 'Nenhuma leitura registrada ainda — atualize o hodômetro para começar um histórico.',
+      weeklyOdoWeekOf: 'Semana de',
+      weeklyOdoVsLastWeek: 'vs. semana passada',
+      weeklyOdoStart: 'Início',
+      weeklyOdoEnd: 'Fim',
+      weeklyOdoDriven: 'Percorrido',
+      weeklyOdoSoFar: 'até agora (estimado com suas milhas registradas)',
+      weeklyOdoCheck: 'Confira suas leituras — o fim é menor que o início.',
+      weeklyOdoHint: 'Faça uma leitura do hodômetro no início de cada semana. Ela encerra a semana passada e inicia a nova — a diferença é o que você percorreu naquela semana.',
+      weeklyOdoTakenAt: 'Esta leitura é o…',
+      weeklyOdoStartOfWeek: 'Início desta semana (encerra a semana passada)',
+      weeklyOdoEndOfWeek: 'Fim desta semana',
+      markDone: 'Marcar como feito',
+      edit: 'Editar',
+      statusOk: 'OK',
+      statusSoon: 'vence em breve',
+      statusOverdue: 'atrasado',
+      dueAt: 'próximo em',
+      milesShort: 'mi',
+      items: { oil:'Troca de óleo', tires:'Rodízio de pneus', air_filter:'Filtro de ar', cabin_air_filter:'Filtro de cabine', brake_fluid:'Fluido de freio', brake_pads:'Pastilhas de freio', trans_fluid:'Fluido de transmissão', spark_plugs:'Velas de ignição', coolant:'Troca do líquido de arrefecimento', battery:'Bateria', wiper_blades:'Palhetas do limpador', timing_belt:'Correia dentada' },
+      maintEditTitle: 'Editar serviço',
+      maintEditSub: 'Defina o acompanhamento por quilometragem, por tempo ou ambos — deixe um dos intervalos em branco para acompanhar só um.',
+      lastServiceDateLabel: 'Feito pela última vez em (data)',
+      shareSummary: 'Compartilhar resumo',
+      weeklySummary: 'Resumo semanal',
+      monthlySummary: 'Resumo mensal',
+      allStreamsLabel: 'Todas as fontes',
+      thisWeekLabel: 'Esta semana',
+      lastWeekLabel: 'Semana passada',
+      entrySingular: 'lançamento',
+      entryPlural: 'lançamentos',
+      todayLabel: 'Hoje',
+      yesterdayLabel: 'Ontem',
+      thisMonthLabel: 'Este mês',
+      dailyToggle: 'Diário',
+      weeklyToggle: 'Semanal',
+      monthlyToggle: 'Mensal',
+      wakeToggleOffLabel: 'Ativar ativação por voz',
+      wakeListeningLabel: 'Ouvindo “{{APP}}”',
+      wakePausedLabel: 'Ativação por voz pausada — toque para retomar',
+      micHintWake: 'Diga “{{APP}}” e depois o lançamento — ex.: “{{APP}}, 20 reais receita doordash.”',
+      incomeLabel: 'Receita',
+      expenseLabel: 'Despesas',
+      netLabel: 'Líquido',
+      milesLabel: 'Milhas percorridas',
+      netPerMileLabel: 'Líquido por milha',
+      byCategoryLabel: 'Por categoria',
+      byStreamLabel: 'Por fonte',
+      storageTitle: 'Onde seus dados ficam guardados',
+      storageIntro: 'Seus lançamentos são sempre salvos primeiro neste celular. Você também pode guardar uma cópia extra onde preferir.',
+      storageModalTitle: 'Onde seus dados devem ficar guardados?',
+      storagePhone: 'Somente este celular',
+      storagePhoneSub: 'Nada sai do seu dispositivo.',
+      storageFile: 'Um arquivo ou pasta que eu escolher',
+      storageFileSub: 'Cópia automática, por exemplo dentro do Google Drive ou OneDrive.',
+      storageShare: 'Compartilhar com Drive, Arquivos ou e-mail',
+      storageShareSub: 'Um toque para enviar a si mesmo uma cópia de backup.',
+      storageUnavailable: 'Indisponível neste navegador.',
+      storageStatusPhone: 'Guardados somente neste celular.',
+      storageStatusFile: 'Neste celular, mais uma cópia automática em “{file}”.',
+      storageStatusShare: 'Neste celular, mais cópias de backup que você compartilha.',
+      storageRestoreBtn: 'Restaurar de um arquivo de backup',
+      storageRestoreHint: 'Adiciona os lançamentos de um backup do GigHelper (.csv). Nada que já esteja neste celular é apagado.',
+      storageRestoreDone: '{n} lançamentos restaurados, {d} que já estavam aqui foram ignorados.',
+      storageRestoreNone: 'Nenhum lançamento encontrado nesse arquivo.',
+      storageRestoreError: 'Não foi possível ler esse arquivo.',
+      storageRestoreInvalid: 'Linhas que não puderam ser lidas: {i}.',
+      storageLater: 'Decidir depois',
+      celebrationsTitle: 'Comemorações com confete',
+      celebrationsOn: 'Ativadas — toque para desativar',
+      celebrationsOff: 'Desativadas — toque para ativar',
+      celebrationSoundTitle: 'Som de comemoração',
+      copiedToClipboard: 'Resumo copiado para a área de transferência',
+      welcomeTitle: 'Bem-vindo ao GigHelper',
+      welcomeBody: 'Acompanhe receitas, despesas, quilometragem e manutenção — com as mãos livres, por voz.',
+      getStarted: 'Começar',
+      choosePlatforms: 'Com quais plataformas você trabalha?',
+      addPlatform: 'Adicionar plataforma',
+      addPlatformPlaceholder: 'ex.: Roadie, Shipt...',
+      platformAdded: 'Plataforma adicionada',
+      platformsLabel: 'Plataformas',
+      choosePlatformsHint: 'Marque todas as que se aplicam. Você pode adicionar mais a qualquer momento.',
+      gpsStartTrip: 'Iniciar viagem',
+      gpsEndTrip: 'Encerrar viagem',
+      gpsTripInProgress: 'Viagem em andamento…',
+      gpsTripLogged: 'Viagem registrada: {{MILES}} mi adicionadas a Driving',
+      gpsTripCancel: 'Cancelar viagem',
+      lblAutoTrip: 'Detectar viagens automaticamente',
+      autoTripHint: 'Inicia e encerra o registro de milhas automaticamente com base na sua velocidade — sem precisar tocar em Iniciar/Encerrar. Usa a localização em segundo plano, então o Android mostrará uma pequena notificação contínua enquanto estiver ativo.',
+      autoTripTurnOn: 'Ativar',
+      autoTripTurnOff: 'Desativar',
+      autoTripOnStatus: 'Ativado — as viagens são detectadas automaticamente em segundo plano.',
+      autoTripOffStatus: 'Desativado — use o botão Iniciar/Encerrar viagem na aba Registro.',
+      autoTripNotifTitle: 'O GigHelper está registrando uma viagem',
+      autoTripNotifBody: 'Toque para cancelar se não for uma viagem de carro.',
+      lblMileageSource: 'Contar milhas de',
+      mileageSourceHint: 'Escolha qual fonte alimenta seus totais e a dedução de impostos. A outra fonte é mantida para comparação, então nada é contado duas vezes. O GPS exige o app Android.',
+      srcManual: 'Manual',
+      srcGps: 'GPS',
+      srcNotCounted: 'não contado',
+      mileageSourceUpdated: 'Fonte de milhas atualizada',
+      mileageCompareTitle: 'Comparação semanal de milhas',
+      mileageCompareHint: 'Totais de segunda a domingo de cada semana em que você registrou uma leitura do hodômetro. A variação do hodômetro é exata quando você lê aos domingos; caso contrário, é marcada com ≈ porque cobre dias ligeiramente diferentes. O hodômetro também conta a condução pessoal, então deve ser o maior número.',
+      cmpOdometer: 'Hodômetro',
+      cmpGapOk: 'GPS e manual estão {{PCT}}% distantes',
+      cmpGapWarn: 'GPS e manual diferem em {{PCT}}%',
+      cmpOverOdo: 'As milhas registradas são maiores que a variação do hodômetro — confira suas leituras'
+    },
+    'hi-IN': {
+      micHintDefault: 'टैप करके कोई प्रविष्टि बोलें, या नाम बदलने के लिए <b>"इस ऐप का नाम [नाम] रखो"</b> कहें।',
+      micExamples: '"20 डॉलर आय डोरडैश" · "8 डॉलर खर्च पेट्रोल" · "12 मील दर्ज करो"',
+      settingsTitle: 'सेटिंग्स',
+      voiceLang: 'आवाज़ की भाषा',
+      vehicleProfile: 'वाहन प्रोफ़ाइल',
+      make: 'कंपनी',
+      model: 'मॉडल',
+      year: 'वर्ष',
+      currentMileage: 'वर्तमान माइलेज',
+      firstTimeMaintIntro: 'इनमें से हर काम पिछली बार कब हुआ था? यदि पक्का न हो तो जैसा है वैसा छोड़ दें — हम मान लेंगे कि यह आपके वर्तमान माइलेज पर हुआ था।',
+      currentOdo: 'वर्तमान ओडोमीटर (अनुमानित)',
+      estimatedSub: 'शुरुआती माइलेज + दर्ज की गई यात्राओं के आधार पर',
+      resyncLink: 'ओडोमीटर की असली रीडिंग अपडेट करें',
+      maintenance: 'रखरखाव',
+      lblManualDate: 'तारीख़',
+      streamDeleteTitle: '"{{STREAM}}" हटाएँ?',
+      streamDeleteBody: 'इस स्रोत में {{COUNT}} प्रविष्टियाँ हैं। इसे हटाने से वे मिटेंगी नहीं, लेकिन जब तक आप उन्हें किसी दूसरे स्रोत में नहीं ले जाते, वे आपके लॉग और आँकड़ों से गायब रहेंगी (स्रोत बदलने के लिए प्रविष्टि संपादित करें)। फिर भी हटाएँ?',
+      streamDeleteConfirm: 'फिर भी हटाएँ',
+      maintDisclaimer: 'ये उद्योग के सामान्य अंतराल हैं, किसी निर्माता के विशेष आँकड़े नहीं। अपने वाहन के सटीक शेड्यूल के लिए ओनर्स मैनुअल देखें, और असली अंतराल पता चलने पर किसी सेवा पर टैप करके उसे अपडेट करें।',
+      resyncTitle: 'ओडोमीटर अपडेट करें',
+      resyncSub: 'डैशबोर्ड से अपने वाहन का असली वर्तमान माइलेज दर्ज करें। आगे दर्ज की जाने वाली यात्राओं के मील इसी संख्या में जुड़ते जाएँगे।',
+      odoWeeklyBannerTitle: 'नए सप्ताह के लिए ओडोमीटर दर्ज करें',
+      odoWeeklyBannerBody: 'अभी एक रीडिंग पिछले सप्ताह को बंद करती है और इस सप्ताह को शुरू करती है, ताकि हम आपके साप्ताहिक मील दिखा सकें।',
+      odoWeeklyBannerBtn: 'अभी अपडेट करें',
+      weeklyOdoLogTitle: 'साप्ताहिक ओडोमीटर लॉग',
+      weeklyOdoLogEmpty: 'अभी तक कोई रीडिंग दर्ज नहीं — इतिहास शुरू करने के लिए अपना ओडोमीटर अपडेट करें।',
+      weeklyOdoWeekOf: 'सप्ताह:',
+      weeklyOdoVsLastWeek: 'पिछले सप्ताह की तुलना में',
+      weeklyOdoStart: 'शुरू',
+      weeklyOdoEnd: 'अंत',
+      weeklyOdoDriven: 'चलाया',
+      weeklyOdoSoFar: 'अब तक (आपके दर्ज किए मील से अनुमानित)',
+      weeklyOdoCheck: 'अपनी रीडिंग जाँचें — अंत की रीडिंग शुरू की रीडिंग से कम है।',
+      weeklyOdoHint: 'हर सप्ताह की शुरुआत में ओडोमीटर की एक रीडिंग लें। यह पिछले सप्ताह को बंद करती है और नया सप्ताह शुरू करती है — दोनों का अंतर उस सप्ताह में आपके चलाए मील हैं।',
+      weeklyOdoTakenAt: 'यह रीडिंग है…',
+      weeklyOdoStartOfWeek: 'इस सप्ताह की शुरुआत (पिछला सप्ताह बंद करती है)',
+      weeklyOdoEndOfWeek: 'इस सप्ताह का अंत',
+      markDone: 'पूरा हुआ चिह्नित करें',
+      edit: 'संपादित करें',
+      statusOk: 'ठीक',
+      statusSoon: 'जल्द देय',
+      statusOverdue: 'देर हो गई',
+      dueAt: 'अगली बार',
+      milesShort: 'मील',
+      items: { oil:'इंजन ऑयल बदलना', tires:'टायर रोटेशन', air_filter:'एयर फ़िल्टर', cabin_air_filter:'केबिन एयर फ़िल्टर', brake_fluid:'ब्रेक फ़्लुइड', brake_pads:'ब्रेक पैड', trans_fluid:'ट्रांसमिशन फ़्लुइड', spark_plugs:'स्पार्क प्लग', coolant:'कूलेंट बदलना', battery:'बैटरी', wiper_blades:'वाइपर ब्लेड', timing_belt:'टाइमिंग बेल्ट' },
+      maintEditTitle: 'सेवा संपादित करें',
+      maintEditSub: 'माइलेज के आधार पर, समय के आधार पर, या दोनों से ट्रैकिंग तय करें — केवल एक से ट्रैक करने के लिए दूसरा अंतराल खाली छोड़ दें।',
+      lastServiceDateLabel: 'पिछली बार किया गया (तारीख़)',
+      shareSummary: 'सारांश साझा करें',
+      weeklySummary: 'साप्ताहिक सारांश',
+      monthlySummary: 'मासिक सारांश',
+      allStreamsLabel: 'सभी स्रोत',
+      thisWeekLabel: 'इस सप्ताह',
+      lastWeekLabel: 'पिछला सप्ताह',
+      entrySingular: 'प्रविष्टि',
+      entryPlural: 'प्रविष्टियाँ',
+      todayLabel: 'आज',
+      yesterdayLabel: 'कल',
+      thisMonthLabel: 'इस महीने',
+      dailyToggle: 'दैनिक',
+      weeklyToggle: 'साप्ताहिक',
+      monthlyToggle: 'मासिक',
+      wakeToggleOffLabel: 'वॉइस एक्टिवेशन चालू करें',
+      wakeListeningLabel: '“{{APP}}” सुन रहा है',
+      wakePausedLabel: 'वॉइस एक्टिवेशन रुका है — दोबारा शुरू करने के लिए टैप करें',
+      micHintWake: 'पहले “{{APP}}” कहें, फिर अपनी प्रविष्टि — जैसे: “{{APP}}, 20 डॉलर आय डोरडैश।”',
+      incomeLabel: 'आय',
+      expenseLabel: 'खर्च',
+      netLabel: 'शुद्ध',
+      milesLabel: 'चलाए गए मील',
+      netPerMileLabel: 'प्रति मील शुद्ध कमाई',
+      byCategoryLabel: 'श्रेणी के अनुसार',
+      byStreamLabel: 'स्रोत के अनुसार',
+      storageTitle: 'आपका डेटा कहाँ रखा जाता है',
+      storageIntro: 'आपकी प्रविष्टियाँ हमेशा पहले इसी फ़ोन में सहेजी जाती हैं। आप अपनी पसंद की जगह एक अतिरिक्त प्रति भी रख सकते हैं।',
+      storageModalTitle: 'आपका डेटा कहाँ रखा जाए?',
+      storagePhone: 'केवल यह फ़ोन',
+      storagePhoneSub: 'कुछ भी आपके डिवाइस से बाहर नहीं जाता।',
+      storageFile: 'मेरी चुनी हुई फ़ाइल या फ़ोल्डर',
+      storageFileSub: 'स्वचालित प्रति, जैसे Google Drive या OneDrive के अंदर।',
+      storageShare: 'Drive, Files या ईमेल पर साझा करें',
+      storageShareSub: 'एक टैप में खुद को बैकअप प्रति भेजें।',
+      storageUnavailable: 'इस ब्राउज़र में उपलब्ध नहीं।',
+      storageStatusPhone: 'केवल इसी फ़ोन में रखा गया है।',
+      storageStatusFile: 'इस फ़ोन में, साथ में “{file}” में एक स्वचालित प्रति।',
+      storageStatusShare: 'इस फ़ोन में, साथ में आपकी साझा की गई बैकअप प्रतियाँ।',
+      storageRestoreBtn: 'बैकअप फ़ाइल से बहाल करें',
+      storageRestoreHint: 'GigHelper बैकअप (.csv) की प्रविष्टियाँ जोड़ता है। इस फ़ोन में पहले से मौजूद कुछ भी नहीं मिटता।',
+      storageRestoreDone: '{n} प्रविष्टियाँ बहाल हुईं, {d} पहले से मौजूद होने के कारण छोड़ी गईं।',
+      storageRestoreNone: 'उस फ़ाइल में कोई प्रविष्टि नहीं मिली।',
+      storageRestoreError: 'वह फ़ाइल पढ़ी नहीं जा सकी।',
+      storageRestoreInvalid: 'जो पंक्तियाँ पढ़ी नहीं जा सकीं: {i}।',
+      storageLater: 'बाद में तय करें',
+      celebrationsTitle: 'कॉन्फ़ेटी जश्न',
+      celebrationsOn: 'चालू — बंद करने के लिए टैप करें',
+      celebrationsOff: 'बंद — चालू करने के लिए टैप करें',
+      celebrationSoundTitle: 'जश्न की आवाज़',
+      copiedToClipboard: 'सारांश क्लिपबोर्ड पर कॉपी हो गया',
+      welcomeTitle: 'GigHelper में आपका स्वागत है',
+      welcomeBody: 'आय, खर्च, माइलेज और रखरखाव का हिसाब रखें — आवाज़ से, बिना हाथ लगाए।',
+      getStarted: 'शुरू करें',
+      choosePlatforms: 'आप किन प्लेटफ़ॉर्म पर काम करते हैं?',
+      addPlatform: 'प्लेटफ़ॉर्म जोड़ें',
+      addPlatformPlaceholder: 'जैसे: Roadie, Shipt...',
+      platformAdded: 'प्लेटफ़ॉर्म जोड़ा गया',
+      platformsLabel: 'प्लेटफ़ॉर्म',
+      choosePlatformsHint: 'जो लागू हों सभी चुनें। आप बाद में कभी भी और जोड़ सकते हैं।',
+      gpsStartTrip: 'यात्रा शुरू करें',
+      gpsEndTrip: 'यात्रा समाप्त करें',
+      gpsTripInProgress: 'यात्रा जारी है…',
+      gpsTripLogged: 'यात्रा दर्ज हुई: {{MILES}} मील Driving में जोड़े गए',
+      gpsTripCancel: 'यात्रा रद्द करें',
+      lblAutoTrip: 'यात्राएँ अपने-आप पहचानें',
+      autoTripHint: 'आपकी रफ़्तार के आधार पर मील की ट्रैकिंग अपने-आप शुरू और बंद करता है — शुरू/समाप्त पर टैप करने की ज़रूरत नहीं। यह बैकग्राउंड लोकेशन का उपयोग करता है, इसलिए चालू रहने पर Android एक छोटी स्थायी सूचना दिखाएगा।',
+      autoTripTurnOn: 'चालू करें',
+      autoTripTurnOff: 'बंद करें',
+      autoTripOnStatus: 'चालू — यात्राएँ बैकग्राउंड में अपने-आप पहचानी जाती हैं।',
+      autoTripOffStatus: 'बंद — इसके बजाय लॉग टैब में यात्रा शुरू/समाप्त बटन का उपयोग करें।',
+      autoTripNotifTitle: 'GigHelper एक यात्रा दर्ज कर रहा है',
+      autoTripNotifBody: 'यदि यह ड्राइविंग यात्रा नहीं है तो रद्द करने के लिए टैप करें।',
+      lblMileageSource: 'मील किस स्रोत से गिनें',
+      mileageSourceHint: 'चुनें कि आपके कुल योग और कर कटौती के लिए कौन-सा स्रोत गिना जाए। दूसरा स्रोत तुलना के लिए रखा जाता है, इसलिए कुछ भी दो बार नहीं गिना जाता। GPS के लिए Android ऐप चाहिए।',
+      srcManual: 'मैन्युअल',
+      srcGps: 'GPS',
+      srcNotCounted: 'गिना नहीं गया',
+      mileageSourceUpdated: 'मील का स्रोत अपडेट हुआ',
+      mileageCompareTitle: 'साप्ताहिक माइलेज तुलना',
+      mileageCompareHint: 'हर उस सप्ताह के सोमवार से रविवार तक के कुल मील, जिसकी ओडोमीटर रीडिंग आपने दर्ज की। ओडोमीटर का बदलाव तब सटीक होता है जब आप रविवार को रीडिंग लें; अन्यथा उस पर ≈ लगता है क्योंकि वह थोड़े अलग दिनों को कवर करता है। ओडोमीटर निजी ड्राइविंग भी गिनता है, इसलिए यह सबसे बड़ी संख्या होनी चाहिए।',
+      cmpOdometer: 'ओडोमीटर',
+      cmpGapOk: 'GPS और मैन्युअल में {{PCT}}% का अंतर है',
+      cmpGapWarn: 'GPS और मैन्युअल में {{PCT}}% का अंतर है',
+      cmpOverOdo: 'दर्ज किए गए मील ओडोमीटर के बदलाव से ज़्यादा हैं — अपनी रीडिंग जाँचें'
+    },
+    'ru-RU': {
+      micHintDefault: 'Нажмите и произнесите запись или скажите <b>«назови это приложение [имя]»</b>, чтобы переименовать его.',
+      micExamples: '«20 долларов доход доордаш» · «8 долларов расход бензин» · «запиши 12 миль»',
+      settingsTitle: 'Настройки',
+      voiceLang: 'Язык голоса',
+      vehicleProfile: 'Профиль автомобиля',
+      make: 'Марка',
+      model: 'Модель',
+      year: 'Год',
+      currentMileage: 'Текущий пробег',
+      firstTimeMaintIntro: 'Когда в последний раз выполнялось каждое из этих обслуживаний? Оставьте как есть, если не уверены — мы предположим, что это было при вашем текущем пробеге.',
+      currentOdo: 'Текущий одометр (оценка)',
+      estimatedSub: 'На основе начального пробега и записанных поездок',
+      resyncLink: 'Обновить фактические показания одометра',
+      maintenance: 'Обслуживание',
+      lblManualDate: 'Дата',
+      streamDeleteTitle: 'Удалить «{{STREAM}}»?',
+      streamDeleteBody: 'В этом источнике {{COUNT}} записей. Удаление не сотрёт их, но они исчезнут из Журнала и Статистики, пока вы не перенесёте их в другой источник (измените запись, чтобы сменить источник). Всё равно удалить?',
+      streamDeleteConfirm: 'Всё равно удалить',
+      maintDisclaimer: 'Это общие отраслевые интервалы, а не данные конкретного производителя. Точный график для вашего автомобиля смотрите в руководстве по эксплуатации, а когда узнаете реальный интервал, нажмите на услугу, чтобы обновить его.',
+      resyncTitle: 'Обновить одометр',
+      resyncSub: 'Введите фактический текущий пробег вашего автомобиля с приборной панели. Мили будущих поездок будут добавляться к этому числу.',
+      odoWeeklyBannerTitle: 'Запишите одометр на новую неделю',
+      odoWeeklyBannerBody: 'Одно показание сейчас закрывает прошлую неделю и открывает эту, чтобы мы могли показать ваш недельный пробег.',
+      odoWeeklyBannerBtn: 'Обновить сейчас',
+      weeklyOdoLogTitle: 'Недельный журнал одометра',
+      weeklyOdoLogEmpty: 'Показаний пока нет — обновите одометр, чтобы начать историю.',
+      weeklyOdoWeekOf: 'Неделя с',
+      weeklyOdoVsLastWeek: 'по сравнению с прошлой неделей',
+      weeklyOdoStart: 'Начало',
+      weeklyOdoEnd: 'Конец',
+      weeklyOdoDriven: 'Пройдено',
+      weeklyOdoSoFar: 'пока (оценка по вашим записанным милям)',
+      weeklyOdoCheck: 'Проверьте показания — конечное меньше начального.',
+      weeklyOdoHint: 'Снимайте показание одометра в начале каждой недели. Оно закрывает прошлую неделю и открывает новую — разница и есть пробег за неделю.',
+      weeklyOdoTakenAt: 'Это показание —',
+      weeklyOdoStartOfWeek: 'начало этой недели (закрывает прошлую)',
+      weeklyOdoEndOfWeek: 'конец этой недели',
+      markDone: 'Отметить выполненным',
+      edit: 'Изменить',
+      statusOk: 'OK',
+      statusSoon: 'скоро срок',
+      statusOverdue: 'просрочено',
+      dueAt: 'следующее при',
+      milesShort: 'миль',
+      items: { oil:'Замена масла', tires:'Перестановка шин', air_filter:'Воздушный фильтр', cabin_air_filter:'Салонный фильтр', brake_fluid:'Тормозная жидкость', brake_pads:'Тормозные колодки', trans_fluid:'Трансмиссионная жидкость', spark_plugs:'Свечи зажигания', coolant:'Замена охлаждающей жидкости', battery:'Аккумулятор', wiper_blades:'Щётки стеклоочистителя', timing_belt:'Ремень ГРМ' },
+      maintEditTitle: 'Изменить обслуживание',
+      maintEditSub: 'Задайте отслеживание по пробегу, по времени или по обоим — оставьте один из интервалов пустым, чтобы отслеживать только по одному.',
+      lastServiceDateLabel: 'Последний раз выполнено (дата)',
+      shareSummary: 'Поделиться сводкой',
+      weeklySummary: 'Недельная сводка',
+      monthlySummary: 'Месячная сводка',
+      allStreamsLabel: 'Все источники',
+      thisWeekLabel: 'Эта неделя',
+      lastWeekLabel: 'Прошлая неделя',
+      entrySingular: 'запись',
+      entryPlural: 'записей',
+      todayLabel: 'Сегодня',
+      yesterdayLabel: 'Вчера',
+      thisMonthLabel: 'Этот месяц',
+      dailyToggle: 'По дням',
+      weeklyToggle: 'По неделям',
+      monthlyToggle: 'По месяцам',
+      wakeToggleOffLabel: 'Включить голосовую активацию',
+      wakeListeningLabel: 'Слушаю «{{APP}}»',
+      wakePausedLabel: 'Голосовая активация приостановлена — нажмите, чтобы продолжить',
+      micHintWake: 'Скажите «{{APP}}», а затем запись — например: «{{APP}}, 20 долларов доход доордаш».',
+      incomeLabel: 'Доход',
+      expenseLabel: 'Расходы',
+      netLabel: 'Итого',
+      milesLabel: 'Пройдено миль',
+      netPerMileLabel: 'Прибыль на милю',
+      byCategoryLabel: 'По категориям',
+      byStreamLabel: 'По источникам',
+      storageTitle: 'Где хранятся ваши данные',
+      storageIntro: 'Ваши записи всегда сначала сохраняются на этом телефоне. Дополнительную копию можно хранить в любом выбранном вами месте.',
+      storageModalTitle: 'Где хранить ваши данные?',
+      storagePhone: 'Только на этом телефоне',
+      storagePhoneSub: 'Ничего не покидает ваше устройство.',
+      storageFile: 'Файл или папка по моему выбору',
+      storageFileSub: 'Автоматическая копия, например в Google Drive или OneDrive.',
+      storageShare: 'Отправить в Drive, «Файлы» или по почте',
+      storageShareSub: 'Одно касание — и вы отправите себе резервную копию.',
+      storageUnavailable: 'Недоступно в этом браузере.',
+      storageStatusPhone: 'Хранится только на этом телефоне.',
+      storageStatusFile: 'На этом телефоне плюс автоматическая копия в «{file}».',
+      storageStatusShare: 'На этом телефоне плюс резервные копии, которые вы отправляете.',
+      storageRestoreBtn: 'Восстановить из файла резервной копии',
+      storageRestoreHint: 'Добавляет записи из резервной копии GigHelper (.csv). Ничего из того, что уже есть на этом телефоне, не удаляется.',
+      storageRestoreDone: 'Восстановлено записей: {n}, пропущено уже имеющихся: {d}.',
+      storageRestoreNone: 'В этом файле записей не найдено.',
+      storageRestoreError: 'Не удалось прочитать этот файл.',
+      storageRestoreInvalid: 'Строк, которые не удалось прочитать: {i}.',
+      storageLater: 'Решить позже',
+      celebrationsTitle: 'Конфетти-праздник',
+      celebrationsOn: 'Включено — нажмите, чтобы выключить',
+      celebrationsOff: 'Выключено — нажмите, чтобы включить',
+      celebrationSoundTitle: 'Звук праздника',
+      copiedToClipboard: 'Сводка скопирована в буфер обмена',
+      welcomeTitle: 'Добро пожаловать в GigHelper',
+      welcomeBody: 'Отслеживайте доходы, расходы, пробег и обслуживание — без рук, голосом.',
+      getStarted: 'Начать',
+      choosePlatforms: 'С какими платформами вы работаете?',
+      addPlatform: 'Добавить платформу',
+      addPlatformPlaceholder: 'напр.: Roadie, Shipt...',
+      platformAdded: 'Платформа добавлена',
+      platformsLabel: 'Платформы',
+      choosePlatformsHint: 'Отметьте всё подходящее. Позже можно добавить другие.',
+      gpsStartTrip: 'Начать поездку',
+      gpsEndTrip: 'Завершить поездку',
+      gpsTripInProgress: 'Поездка идёт…',
+      gpsTripLogged: 'Поездка записана: {{MILES}} миль добавлено в Driving',
+      gpsTripCancel: 'Отменить поездку',
+      lblAutoTrip: 'Автоопределение поездок',
+      autoTripHint: 'Автоматически начинает и завершает учёт пробега по вашей скорости — не нужно нажимать «Начать/Завершить». Использует геолокацию в фоне, поэтому пока функция включена, Android показывает небольшое постоянное уведомление.',
+      autoTripTurnOn: 'Включить',
+      autoTripTurnOff: 'Выключить',
+      autoTripOnStatus: 'Включено — поездки определяются автоматически в фоне.',
+      autoTripOffStatus: 'Выключено — используйте кнопку «Начать/Завершить поездку» на вкладке «Журнал».',
+      autoTripNotifTitle: 'GigHelper записывает поездку',
+      autoTripNotifBody: 'Нажмите, чтобы отменить, если это не поездка за рулём.',
+      lblMileageSource: 'Считать мили из',
+      mileageSourceHint: 'Выберите, какой источник формирует итоги и налоговый вычет. Другой источник сохраняется для сравнения, поэтому ничего не считается дважды. GPS работает только в приложении для Android.',
+      srcManual: 'Вручную',
+      srcGps: 'GPS',
+      srcNotCounted: 'не учитывается',
+      mileageSourceUpdated: 'Источник миль обновлён',
+      mileageCompareTitle: 'Недельное сравнение пробега',
+      mileageCompareHint: 'Итоги с понедельника по воскресенье за каждую неделю, на которую у вас есть показание одометра. Изменение одометра точно, если вы снимаете показания по воскресеньям; иначе оно помечено ≈, потому что охватывает немного другие дни. Одометр учитывает и личные поездки, поэтому это должно быть наибольшее число.',
+      cmpOdometer: 'Одометр',
+      cmpGapOk: 'GPS и ручной учёт расходятся на {{PCT}}%',
+      cmpGapWarn: 'GPS и ручной учёт различаются на {{PCT}}%',
+      cmpOverOdo: 'Записанных миль больше, чем изменение одометра — проверьте показания'
     }
   };
 
@@ -1530,7 +1938,10 @@
     'es-ES': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','gasolina':'Gas','combustible':'Gas','mantenimiento':'Maintenance','reparación':'Maintenance','estacionamiento':'Parking / Tolls','peaje':'Parking / Tolls','peajes':'Parking / Tolls','teléfono':'Phone / Data','datos':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart', 'restaurante':'Restaurant','almuerzo':'Restaurant','cena':'Restaurant','desayuno':'Restaurant'},
     'it-IT': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','benzina':'Gas','carburante':'Gas','manutenzione':'Maintenance','riparazione':'Maintenance','parcheggio':'Parking / Tolls','pedaggio':'Parking / Tolls','pedaggi':'Parking / Tolls','telefono':'Phone / Data','dati':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart', 'ristorante':'Restaurant','pranzo':'Restaurant','cena':'Restaurant','colazione':'Restaurant'},
     'fr-FR': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','essence':'Gas','carburant':'Gas','entretien':'Maintenance','réparation':'Maintenance','stationnement':'Parking / Tolls','péage':'Parking / Tolls','péages':'Parking / Tolls','téléphone':'Phone / Data','données':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart', 'restaurant':'Restaurant','déjeuner':'Restaurant','dîner':'Restaurant','petit-déjeuner':'Restaurant'},
-    'zh-CN': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','汽油':'Gas','燃油':'Gas','保养':'Maintenance','维修':'Maintenance','停车':'Parking / Tolls','过路费':'Parking / Tolls','收费':'Parking / Tolls','电话':'Phone / Data','数据':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart', '餐厅':'Restaurant','饭店':'Restaurant','餐馆':'Restaurant','午餐':'Restaurant','晚餐':'Restaurant','早餐':'Restaurant'}
+    'zh-CN': {'doordash':'DoorDash','uber eats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','汽油':'Gas','燃油':'Gas','保养':'Maintenance','维修':'Maintenance','停车':'Parking / Tolls','过路费':'Parking / Tolls','收费':'Parking / Tolls','电话':'Phone / Data','数据':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart', '餐厅':'Restaurant','饭店':'Restaurant','餐馆':'Restaurant','午餐':'Restaurant','晚餐':'Restaurant','早餐':'Restaurant'},
+    'pt-BR': {'doordash':'DoorDash','uber eats':'Uber Eats','ubereats':'Uber Eats','amazon flex':'Amazon Flex','amazon':'Amazon Flex','uber':'Uber','lyft':'Lyft','gasolina':'Gas','combustível':'Gas','combustivel':'Gas','etanol':'Gas','álcool':'Gas','manutenção':'Maintenance','manutencao':'Maintenance','conserto':'Maintenance','reparo':'Maintenance','estacionamento':'Parking / Tolls','pedágio':'Parking / Tolls','pedagio':'Parking / Tolls','telefone':'Phone / Data','celular':'Phone / Data','dados':'Phone / Data','grubhub':'Grubhub','instacart':'Instacart','restaurante':'Restaurant','restaurantes':'Restaurant','almoço':'Restaurant','almoco':'Restaurant','jantar':'Restaurant','café da manhã':'Restaurant','lanche':'Restaurant','fast food':'Restaurant'},
+    'hi-IN': {'डोरडैश':'DoorDash','डोर डैश':'DoorDash','doordash':'DoorDash','उबर ईट्स':'Uber Eats','उबर ईट':'Uber Eats','uber eats':'Uber Eats','अमेज़न फ्लेक्स':'Amazon Flex','अमेजन फ्लेक्स':'Amazon Flex','अमेज़न':'Amazon Flex','अमेजन':'Amazon Flex','उबर':'Uber','uber':'Uber','लिफ्ट':'Lyft','lyft':'Lyft','पेट्रोल':'Gas','डीजल':'Gas','डीज़ल':'Gas','ईंधन':'Gas','गैस':'Gas','रखरखाव':'Maintenance','मरम्मत':'Maintenance','सर्विस':'Maintenance','पार्किंग':'Parking / Tolls','टोल':'Parking / Tolls','फोन':'Phone / Data','फ़ोन':'Phone / Data','डेटा':'Phone / Data','ग्रबहब':'Grubhub','इंस्टाकार्ट':'Instacart','रेस्टोरेंट':'Restaurant','रेस्तरां':'Restaurant','रेस्टोरेन्ट':'Restaurant','नाश्ता':'Restaurant','लंच':'Restaurant','डिनर':'Restaurant','फास्ट फूड':'Restaurant'},
+    'ru-RU': {'дордаш':'DoorDash','доордаш':'DoorDash','дор дэш':'DoorDash','doordash':'DoorDash','убер итс':'Uber Eats','убер ийтс':'Uber Eats','убер ейтс':'Uber Eats','uber eats':'Uber Eats','амазон флекс':'Amazon Flex','амазон':'Amazon Flex','убер':'Uber','uber':'Uber','лифт':'Lyft','lyft':'Lyft','бензин':'Gas','топливо':'Gas','заправка':'Gas','обслуживание':'Maintenance','ремонт':'Maintenance','парковка':'Parking / Tolls','платная дорога':'Parking / Tolls','платные дороги':'Parking / Tolls','проезд':'Parking / Tolls','телефон':'Phone / Data','связь':'Phone / Data','интернет':'Phone / Data','грабхаб':'Grubhub','инстакарт':'Instacart','ресторан':'Restaurant','рестораны':'Restaurant','кафе':'Restaurant','завтрак':'Restaurant','обед':'Restaurant','ужин':'Restaurant','фастфуд':'Restaurant','фаст фуд':'Restaurant'},
   };
 
   var COMMAND_WORDS_BY_LANG = {
@@ -1538,7 +1949,10 @@
     'es-ES': { rename:/(?:llama a esta app|renombra la app a|nombra esta app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:millas|milla)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:kil[oó]metros|km)\b/, mileTrigger:/milla|conduje|conducir|viaje|registra/, amount:/(\d+(?:\.\d+)?)\s*(?:dólares|pesos|d[oó]lares)?/, expense:/gasto|gaste|gast[eé]|pagu[eé]|costo|gasolina|combustible|mantenimiento|reparaci[oó]n|estacionamiento|peaje|restaurante|almuerzo|cena|desayuno/, income:/ingreso|gan[eé]|me pagaron|pago|propina/ },
     'it-IT': { rename:/(?:chiama questa app|rinomina l'app in|rinomina questa app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miglia|miglio)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:chilometri|km)\b/, mileTrigger:/miglia|guidato|guidare|viaggio|registra/, amount:/(\d+(?:\.\d+)?)\s*(?:dollari|euro)?/, expense:/spesa|speso|pagato|costo|benzina|carburante|manutenzione|riparazione|parcheggio|pedaggio|ristorante|pranzo|cena|colazione/, income:/entrata|guadagnato|pagato ricevuto|mancia/ },
     'fr-FR': { rename:/(?:appelle cette app|renomme l'app en|nomme cette app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:miles|mile|mi)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:kilomètres|km)\b/, mileTrigger:/mile|conduit|conduire|trajet|enregistre/, amount:/(\d+(?:\.\d+)?)\s*(?:dollars?|euros?|\$)?/, expense:/dépense|dépensé|payé|coût|essence|carburant|entretien|réparation|stationnement|péage|restaurant|déjeuner|dîner/, income:/revenu|gagné|payé reçu|pourboire/ },
-    'zh-CN': { rename:/(?:把这个应用叫做|重命名应用为|把应用改名为)\s*(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:英里|里)/, mileKm:/(\d+(?:\.\d+)?)\s*(?:公里|千米)/, mileTrigger:/英里|开车|行程|记录/, amount:/(\d+(?:\.\d+)?)\s*(?:美元|元|块)?/, expense:/支出|花了|付了|费用|汽油|燃油|保养|维修|停车|过路费|餐厅|饭店|餐馆|午餐|晚餐|早餐/, income:/收入|赚了|收到|小费/ }
+    'zh-CN': { rename:/(?:把这个应用叫做|重命名应用为|把应用改名为)\s*(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:英里|里)/, mileKm:/(\d+(?:\.\d+)?)\s*(?:公里|千米)/, mileTrigger:/英里|开车|行程|记录/, amount:/(\d+(?:\.\d+)?)\s*(?:美元|元|块)?/, expense:/支出|花了|付了|费用|汽油|燃油|保养|维修|停车|过路费|餐厅|饭店|餐馆|午餐|晚餐|早餐/, income:/收入|赚了|收到|小费/ },
+    'pt-BR': { rename:/(?:chame (?:este|esse) app de|renomeie (?:o )?app para|nomeie (?:este|esse) app)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:milhas|milha|mi)\b/, mileKm:/(\d+(?:\.\d+)?)\s*(?:quilômetros?|quilometros?|km)\b/, mileTrigger:/milha|dirigi|viagem|registr/, amount:/(\d+(?:\.\d+)?)\s*(?:reais|real|r\$|dólares?|dolares?|\$)?/, expense:/despesa|gasto|gastei|paguei|custo|gasolina|combustível|combustivel|manutenção|manutencao|reparo|conserto|estacionamento|pedágio|pedagio|restaurante|almoço|almoco|jantar|café da manhã|lanche/, income:/receita|ganho|ganhei|recebi|renda|gorjeta|pagamento/ },
+    'hi-IN': { rename:/(?:इस ऐप का नाम|ऐप का नाम)\s*(.+?)(?:\s*(?:रखो|रखें|कर दो|करो))?$/, mile:/(\d+(?:\.\d+)?)\s*(?:मील|मिल|mi)/, mileKm:/(\d+(?:\.\d+)?)\s*(?:किलोमीटर|किमी|km)/, mileTrigger:/मील|किलोमीटर|यात्रा|ट्रिप|दर्ज/, amount:/(\d+(?:\.\d+)?)\s*(?:डॉलर|रुपये|रुपया|रु|₹|\$)?/, expense:/खर्च|खर्चा|व्यय|पेट्रोल|डीजल|डीज़ल|ईंधन|गैस|मरम्मत|रखरखाव|पार्किंग|टोल|रेस्टोरेंट|रेस्तरां|नाश्ता|लंच|डिनर/, income:/आय|कमाई|कमाया|आमदनी|मिला|टिप|भुगतान/ },
+    'ru-RU': { rename:/(?:назови это приложение|переименуй приложение в|назови приложение)\s+(.+)/, mile:/(\d+(?:\.\d+)?)\s*(?:миль|мили|миля|mi)/, mileKm:/(\d+(?:\.\d+)?)\s*(?:километров|километра|километр|км|km)/, mileTrigger:/миль|проех|поездк|запиш|запись/, amount:/(\d+(?:\.\d+)?)\s*(?:долларов|доллара|доллар|рублей|рубля|рубль|₽|\$)?/, expense:/расход|потратил|заплатил|стоимость|бензин|топливо|заправк|ремонт|обслуживание|парковк|проезд|ресторан|завтрак|обед|ужин|кафе/, income:/доход|заработал|получил|выручк|чаевые|оплата/ },
   };
 
   var NAV_WORDS_BY_LANG = {
@@ -1546,7 +1960,10 @@
     'es-ES': { log:/(?:abrir|ir a|mostrar)\s+(?:el\s+)?registro|pestaña de registro/, stats:/(?:abrir|ir a|mostrar)\s+(?:las\s+)?estadísticas|pestaña de estadísticas/, calendar:/(?:abrir|ir a|mostrar)\s+(?:el\s+)?calendario|pestaña de calendario/, vehicle:/(?:abrir|ir a|mostrar)\s+(?:el\s+)?vehículo|pestaña de vehículo/ },
     'it-IT': { log:/(?:apri|vai a|mostra)\s+(?:il\s+)?registro|scheda registro/, stats:/(?:apri|vai a|mostra)\s+(?:le\s+)?statistiche|scheda statistiche/, calendar:/(?:apri|vai a|mostra)\s+(?:il\s+)?calendario|scheda calendario/, vehicle:/(?:apri|vai a|mostra)\s+(?:il\s+)?veicolo|scheda veicolo/ },
     'fr-FR': { log:/(?:ouvre|va à|montre)\s+(?:le\s+)?journal|onglet journal/, stats:/(?:ouvre|va à|montre)\s+(?:les\s+)?statistiques|onglet statistiques/, calendar:/(?:ouvre|va à|montre)\s+(?:le\s+)?calendrier|onglet calendrier/, vehicle:/(?:ouvre|va à|montre)\s+(?:le\s+)?véhicule|onglet véhicule/ },
-    'zh-CN': { log:/打开记录|切换到记录|记录标签/, stats:/打开统计|切换到统计|统计标签/, calendar:/打开日历|切换到日历|日历标签/, vehicle:/打开车辆|切换到车辆|车辆标签/ }
+    'zh-CN': { log:/打开记录|切换到记录|记录标签/, stats:/打开统计|切换到统计|统计标签/, calendar:/打开日历|切换到日历|日历标签/, vehicle:/打开车辆|切换到车辆|车辆标签/ },
+    'pt-BR': { log:/(?:abrir|ir para|mostrar)\s+(?:o\s+)?registro|aba registro/, stats:/(?:abrir|ir para|mostrar)\s+(?:as\s+)?estatísticas|aba estatísticas/, calendar:/(?:abrir|ir para|mostrar)\s+(?:o\s+)?calendário|aba calendário/, vehicle:/(?:abrir|ir para|mostrar)\s+(?:o\s+)?veículo|aba veículo/ },
+    'hi-IN': { log:/(?:लॉग|रिकॉर्ड)\s*(?:टैब)?\s*(?:खोलो|खोलें|दिखाओ|पर जाओ)/, stats:/(?:आँकड़े|आंकड़े|स्टैट्स)\s*(?:टैब)?\s*(?:खोलो|खोलें|दिखाओ|पर जाओ)/, calendar:/कैलेंडर\s*(?:टैब)?\s*(?:खोलो|खोलें|दिखाओ|पर जाओ)/, vehicle:/(?:वाहन|गाड़ी)\s*(?:टैब)?\s*(?:खोलो|खोलें|दिखाओ|पर जाओ)/ },
+    'ru-RU': { log:/(?:открой|перейди на|покажи)\s+журнал|вкладка журнал/, stats:/(?:открой|перейди на|покажи)\s+статистику|вкладка статистика/, calendar:/(?:открой|перейди на|покажи)\s+календарь|вкладка календарь/, vehicle:/(?:открой|перейди на|покажи)\s+(?:автомобиль|машину|авто)|вкладка авто/ },
   };
 
   var NAV_LABELS = {
@@ -1554,7 +1971,10 @@
     'es-ES': { log:'Registro', stats:'Estadísticas', calendar:'Calendario', vehicle:'Vehículo' },
     'it-IT': { log:'Registro', stats:'Statistiche', calendar:'Calendario', vehicle:'Veicolo' },
     'fr-FR': { log:'Journal', stats:'Statistiques', calendar:'Calendrier', vehicle:'Véhicule' },
-    'zh-CN': { log:'记录', stats:'统计', calendar:'日历', vehicle:'车辆' }
+    'zh-CN': { log:'记录', stats:'统计', calendar:'日历', vehicle:'车辆' },
+    'pt-BR': { log:'Registro', stats:'Estatísticas', calendar:'Calendário', vehicle:'Veículo' },
+    'hi-IN': { log:'लॉग', stats:'आँकड़े', calendar:'कैलेंडर', vehicle:'वाहन' },
+    'ru-RU': { log:'Журнал', stats:'Статистика', calendar:'Календарь', vehicle:'Авто' },
   };
 
   // Stream switching by voice: "switch to Dojo", "log to Personal", etc.
@@ -1565,7 +1985,10 @@
     'es-ES': /(?:cambia a|cambiar a|cambia de fuente a|cambiar fuente a|registra en|registrar en|ir a)\s+(.+)/,
     'it-IT': /(?:passa a|passa al flusso|cambia flusso a|cambia a|registra su|registra in|vai a)\s+(.+)/,
     'fr-FR': /(?:passe à|passe au flux|change de flux vers|change pour|enregistre dans|enregistrer dans|va à)\s+(.+)/,
-    'zh-CN': /(?:切换到|切换至|记录到)\s*(.+)/
+    'zh-CN': /(?:切换到|切换至|记录到)\s*(.+)/,
+    'pt-BR': /(?:mude para|mudar para|troque para|registre em|registrar em|ir para)\s+(.+)/,
+    'hi-IN': /(.+?)\s+(?:में स्विच करो|पर स्विच करो|में दर्ज करो|पर जाओ)/,
+    'ru-RU': /(?:переключись на|переключи на|запиши в|записать в|перейди на)\s+(.+)/,
   };
   function matchStream(spoken){
     var clean = spoken.trim().replace(/[.。]$/,'').toLowerCase();
@@ -1593,7 +2016,10 @@
     'es-ES': { Gas:'Gasolina', Other:'Otro', Housing:'Vivienda', Services:'Servicios', Groceries:'Comestibles', Restaurant:'Restaurante', 'Credit Card Payment':'Pago de tarjeta de crédito', Insurance:'Seguro', Subscriptions:'Suscripciones', Transportation:'Transporte', Healthcare:'Salud', 'Debt Payment':'Pago de deuda', Shopping:'Compras', Salary:'Salario' },
     'it-IT': { Gas:'Benzina', Other:'Altro', Housing:'Alloggio', Services:'Servizi', Groceries:'Alimentari', Restaurant:'Ristorante', 'Credit Card Payment':'Pagamento carta di credito', Insurance:'Assicurazione', Subscriptions:'Abbonamenti', Transportation:'Trasporti', Healthcare:'Sanità', 'Debt Payment':'Pagamento debito', Shopping:'Acquisti', Salary:'Stipendio' },
     'fr-FR': { Gas:'Essence', Other:'Autre', Housing:'Logement', Services:'Services', Groceries:'Courses', Restaurant:'Restaurant', 'Credit Card Payment':'Paiement carte de crédit', Insurance:'Assurance', Subscriptions:'Abonnements', Transportation:'Transport', Healthcare:'Santé', 'Debt Payment':'Remboursement de dette', Shopping:'Achats', Salary:'Salaire' },
-    'zh-CN': { Gas:'汽油', Other:'其他', Housing:'住房', Services:'服务', Groceries:'食品杂货', Restaurant:'餐厅', 'Credit Card Payment':'信用卡还款', Insurance:'保险', Subscriptions:'订阅服务', Transportation:'交通', Healthcare:'医疗保健', 'Debt Payment':'偿还债务', Shopping:'购物', Salary:'工资' }
+    'zh-CN': { Gas:'汽油', Other:'其他', Housing:'住房', Services:'服务', Groceries:'食品杂货', Restaurant:'餐厅', 'Credit Card Payment':'信用卡还款', Insurance:'保险', Subscriptions:'订阅服务', Transportation:'交通', Healthcare:'医疗保健', 'Debt Payment':'偿还债务', Shopping:'购物', Salary:'工资' },
+    'pt-BR': { Gas:'Combustível', Other:'Outros', Housing:'Moradia', Services:'Serviços', Groceries:'Mercado', Restaurant:'Restaurante', 'Credit Card Payment':'Pagamento do cartão', Insurance:'Seguro', Subscriptions:'Assinaturas', Transportation:'Transporte', Healthcare:'Saúde', 'Debt Payment':'Pagamento de dívida', Shopping:'Compras', Salary:'Salário' },
+    'hi-IN': { Gas:'ईंधन', Other:'अन्य', Housing:'आवास', Services:'सेवाएँ', Groceries:'किराना', Restaurant:'रेस्टोरेंट', 'Credit Card Payment':'क्रेडिट कार्ड भुगतान', Insurance:'बीमा', Subscriptions:'सदस्यता', Transportation:'परिवहन', Healthcare:'स्वास्थ्य सेवा', 'Debt Payment':'कर्ज़ भुगतान', Shopping:'खरीदारी', Salary:'वेतन' },
+    'ru-RU': { Gas:'Топливо', Other:'Другое', Housing:'Жильё', Services:'Коммунальные услуги', Groceries:'Продукты', Restaurant:'Ресторан', 'Credit Card Payment':'Платёж по кредитной карте', Insurance:'Страховка', Subscriptions:'Подписки', Transportation:'Транспорт', Healthcare:'Здоровье', 'Debt Payment':'Выплата долга', Shopping:'Покупки', Salary:'Зарплата' },
   };
   function categoryLabel(cat){
     var dict = CATEGORY_LABELS[currentLang] || CATEGORY_LABELS['en-US'];
@@ -1610,9 +2036,9 @@
       sections: [
         { icon:'👋', title:'Getting started', body:'When you first open GigHelper, you\'ll pick your language, country, and platforms (DoorDash, Uber, etc.). Your country sets your default currency and whether you see miles or kilometers — you can change any of these later in Settings.' },
         { icon:'🗂️', title:'Streams — tracking more than one income source', body:'If you have more than one income source — gig driving, a side business, or just your personal spending — add a Stream for each one in Settings. Once you have two or more, a "Logging to" bar appears at the top of the Log tab; tap a stream there to switch which one new entries go to. Everything you log by voice or by hand is tagged with whatever stream is active, so your Stats and exports can be viewed per stream or all together. One exception: the tax summary export requires picking one specific stream (not "All streams") if you have more than one, so personal spending never ends up in a business tax report. You can also switch streams by voice — say something like "switch to Dojo." If you remove a stream that still has entries, the app will warn you first — those entries aren\'t deleted, but they\'ll be hidden until you move them to another stream.' },
-        { icon:'🎙️', title:'Logging by voice', body:'Tap the microphone and say what happened — for example "20 dollars income doordash", "8 dollars expense gas", or "log 12 miles". You can also say spelled-out numbers like "twenty dollars" and kilometers like "10 kilometers". Works in English, Spanish, Italian, French, and Chinese — switch the voice language in Settings.' },
-        { icon:'✏️', title:'Logging manually', body:'Tap the + button to add an income, expense, or mileage entry by hand — useful if it\'s noisy, you\'re not comfortable speaking the entry aloud, or you just prefer typing. Use the Date field to log something for a past day (like income you forgot to enter yesterday) instead of it landing on today — it defaults to today and won\'t let you pick a future date.' },
-        { icon:'📊', title:'Stats & Calendar', body:'The Stats tab shows your income, expenses, and net earnings per mile (or km) for the day, week, or month. The Calendar tab lets you tap any date to see everything logged that day.' },
+        { icon:'🎙️', title:'Logging by voice', body:'Tap the microphone and say what happened — for example "20 dollars income doordash", "8 dollars expense gas", or "log 12 miles". You can also say spelled-out numbers like "twenty dollars" and kilometers like "10 kilometers". Works in English, Spanish, Italian, French, Chinese, Portuguese, Hindi, and Russian — switch the voice language in Settings.' },
+        { icon:'✏️', title:'Logging manually', body:'Tap the + button to add an income, expense, or mileage entry by hand — useful if it\'s noisy, you\'re not comfortable speaking the entry aloud, or you just prefer typing. Use the Date field to log something for a past day (like income you forgot to enter yesterday) instead of it landing on today — it defaults to today and won\'t let you pick a future date. Each stream has its own categories — for example Restaurant for meals out. Logging mileage or downloading a report triggers a short confetti burst and a cheer; you can turn the confetti and the sound off separately in Settings.' },
+        { icon:'📊', title:'Stats & Calendar', body:'The Stats tab shows your income, expenses, and net earnings per mile (or km) for the day, week, or month. The Calendar tab lets you tap any date to see everything logged that day. Each stream has its own report: Stats opens on the stream you are logging to, and the Share summary, Export CSV and tax summary buttons name the stream they cover (choose "All streams" for a combined view with a by-stream breakdown). Exporting with a stream selected gives a CSV for that stream only; the full backup always includes everything.' },
         { icon:'🚗', title:'Vehicle & maintenance', body:'Add your vehicle\'s make, model, and current mileage in the Vehicle tab. GigHelper tracks common maintenance items (oil changes, tires, brakes, and more) by mileage and/or time, and can send you a notification when something\'s due. Once a week, a banner reminds you to update your actual odometer reading — you can do this any day that week, not just Monday. A "Weekly odometer log" in the Vehicle tab keeps a history of these readings with how much you drove week to week. Below the odometer log, a weekly comparison (Monday to Sunday) puts your odometer change next to your GPS and manual miles and flags weeks where they don\'t line up. For an exact odometer figure, take your reading on Sundays; other days are marked ≈. The odometer also counts personal driving, so it should be the highest number. Weekly mileage: take one odometer reading at the start of each week — it closes last week and opens the new one. The Weekly odometer log then shows each week’s Start, End and the miles you drove (End minus Start).' },
         { icon:'📍', title:'GPS mileage tracking (native app only)', body:'If you\'re using the native Android app, the Log tab has a "Start trip" / "End trip" card that measures your driving distance with GPS and logs it straight to your Driving stream — handy when you forget to log mileage by voice or hand. In Settings you can also turn on "Auto-detect trips," which starts and stops tracking on its own once your speed shows you\'re driving, so you don\'t have to remember to tap Start or End at all. This feature isn\'t available in the web version, only the installed Android app. GPS-tracked trips are tagged "GPS" and typed or voice entries are tagged "Manual". In Settings, "Count miles from" picks which source feeds your totals and tax deduction — the other is kept for comparison, so nothing is counted twice.' },
         { icon:'✉️', title:'Contact support', body:'Have a problem or a suggestion? Email us at gighelper.help@gmail.com. The "Report a problem" button in Settings opens an email with a diagnostic report already attached.' },
@@ -1630,9 +2056,9 @@
       sections: [
         { icon:'👋', title:'Primeros pasos', body:'Al abrir GigHelper por primera vez, elegirás tu idioma, país y plataformas (DoorDash, Uber, etc.). Tu país define tu moneda predeterminada y si ves millas o kilómetros — puedes cambiar todo esto después en Ajustes.' },
         { icon:'🗂️', title:'Fuentes — seguimiento de más de una fuente de ingresos', body:'Si tienes más de una fuente de ingresos — conducir para apps de reparto, un negocio propio, o simplemente tus gastos personales — añade una Fuente para cada una en Ajustes. Cuando tengas dos o más, aparecerá una barra "Registrando en" en la parte superior de la pestaña Registro; toca una fuente ahí para cambiar a cuál se asignan los nuevos registros. Todo lo que registres por voz o a mano se etiqueta con la fuente activa, así que tus Estadísticas y exportaciones se pueden ver por fuente o todas juntas. Una excepción: la exportación del resumen de impuestos requiere elegir una fuente específica (no "Todas las fuentes") si tienes más de una, para que tus gastos personales nunca terminen en un informe de impuestos de negocio. También puedes cambiar de fuente por voz — di algo como "cambia a Dojo". Si eliminas una fuente que aún tiene registros, la app te avisará antes — esos registros no se borran, pero quedarán ocultos hasta que los muevas a otra fuente.' },
-        { icon:'🎙️', title:'Registrar por voz', body:'Toca el micrófono y di lo que pasó — por ejemplo "20 dólares ingreso doordash", "8 dólares gasto gasolina", o "registra 12 millas". También puedes decir números escritos como "veinte dólares" y kilómetros como "10 kilómetros". Funciona en inglés, español, italiano, francés y chino — cambia el idioma de voz en Ajustes.' },
-        { icon:'✏️', title:'Registrar manualmente', body:'Toca el botón + para añadir un ingreso, gasto o kilometraje a mano — útil si hay ruido, no te sientes cómodo hablando en voz alta, o simplemente prefieres escribir. Usa el campo Fecha para registrar algo de un día pasado (por ejemplo, un ingreso que olvidaste registrar ayer) en lugar de que quede en el día de hoy — viene predeterminado en hoy y no te deja elegir una fecha futura.' },
-        { icon:'📊', title:'Estadísticas y calendario', body:'La pestaña Estadísticas muestra tus ingresos, gastos y ganancia neta por milla (o km) del día, semana o mes. La pestaña Calendario te deja tocar cualquier fecha para ver todo lo registrado ese día.' },
+        { icon:'🎙️', title:'Registrar por voz', body:'Toca el micrófono y di lo que pasó — por ejemplo "20 dólares ingreso doordash", "8 dólares gasto gasolina", o "registra 12 millas". También puedes decir números escritos como "veinte dólares" y kilómetros como "10 kilómetros". Funciona en inglés, español, italiano, francés, chino, portugués, hindi y ruso — cambia el idioma de voz en Ajustes.' },
+        { icon:'✏️', title:'Registrar manualmente', body:'Toca el botón + para añadir un ingreso, gasto o kilometraje a mano — útil si hay ruido, no te sientes cómodo hablando en voz alta, o simplemente prefieres escribir. Usa el campo Fecha para registrar algo de un día pasado (por ejemplo, un ingreso que olvidaste registrar ayer) en lugar de que quede en el día de hoy — viene predeterminado en hoy y no te deja elegir una fecha futura. Cada fuente tiene sus propias categorías — por ejemplo, Restaurante para comidas fuera. Registrar kilometraje o descargar un informe lanza una breve lluvia de confeti y un aplauso; puedes desactivar el confeti y el sonido por separado en Ajustes.' },
+        { icon:'📊', title:'Estadísticas y calendario', body:'La pestaña Estadísticas muestra tus ingresos, gastos y ganancia neta por milla (o km) del día, semana o mes. La pestaña Calendario te deja tocar cualquier fecha para ver todo lo registrado ese día. Cada fuente tiene su propio informe: Estadísticas se abre en la fuente en la que estás registrando, y los botones Compartir resumen, Exportar CSV y resumen fiscal indican la fuente que cubren (elige "Todas las fuentes" para una vista combinada con desglose por fuente). Exportar con una fuente seleccionada da un CSV solo de esa fuente; el respaldo completo siempre incluye todo.' },
         { icon:'🚗', title:'Vehículo y mantenimiento', body:'Añade la marca, modelo y kilometraje actual de tu vehículo en la pestaña Vehículo. GigHelper rastrea el mantenimiento común (cambios de aceite, llantas, frenos y más) por kilometraje y/o tiempo, y puede avisarte cuando algo esté por vencer. Una vez a la semana, un aviso te recuerda actualizar tu lectura real del odómetro — puedes hacerlo cualquier día de esa semana, no solo el lunes. Un "Registro semanal del odómetro" en la pestaña Vehículo guarda un historial de estas lecturas con cuánto condujiste semana a semana. Debajo del registro del odómetro, una comparación semanal (de lunes a domingo) pone el cambio del odómetro junto a tus millas de GPS y manuales y marca las semanas donde no coinciden. Para una cifra exacta del odómetro, toma la lectura los domingos; otros días se marcan con ≈. El odómetro también cuenta la conducción personal, así que debería ser el número más alto. Kilometraje semanal: toma una lectura del odómetro al comienzo de cada semana: cierra la semana pasada y abre la nueva. El registro semanal del odómetro muestra el Inicio, el Fin y lo recorrido de cada semana (Fin menos Inicio).' },
         { icon:'📍', title:'Seguimiento de millaje por GPS (solo app nativa)', body:'Si usas la app nativa de Android, la pestaña Registro tiene una tarjeta "Iniciar viaje" / "Terminar viaje" que mide tu distancia recorrida por GPS y la registra directamente en tu fuente Driving — útil cuando olvidas registrar el kilometraje por voz o a mano. En Ajustes también puedes activar "Detectar viajes automáticamente", que inicia y detiene el seguimiento por sí solo en cuanto tu velocidad indica que estás conduciendo, así no tienes que recordar tocar Iniciar o Terminar. Esta función no está disponible en la versión web, solo en la app de Android instalada. Los viajes por GPS se etiquetan "GPS" y las entradas escritas o por voz se etiquetan "Manual". En Ajustes, "Contar millas de" elige qué fuente alimenta tus totales y la deducción de impuestos; la otra se conserva para comparar, así nada se cuenta dos veces.' },
         { icon:'✉️', title:'Contactar con soporte', body:'¿Tienes un problema o una sugerencia? Escríbenos a gighelper.help@gmail.com. El botón "Reportar un problema" en Ajustes prepara un correo con un informe de diagnóstico.' },
@@ -1650,9 +2076,9 @@
       sections: [
         { icon:'👋', title:'Per iniziare', body:'Alla prima apertura di GigHelper, sceglierai lingua, paese e piattaforme (DoorDash, Uber, ecc.). Il tuo paese imposta la valuta predefinita e se vedi miglia o chilometri — puoi cambiare tutto questo dopo nelle Impostazioni.' },
         { icon:'🗂️', title:'Flussi — monitorare più di una fonte di reddito', body:'Se hai più di una fonte di reddito — guida per app di consegne, un\'attività secondaria, o semplicemente le tue spese personali — aggiungi un Flusso per ciascuna in Impostazioni. Quando ne hai due o più, in cima alla scheda Registro apparirà una barra "Registrazione su"; tocca un flusso lì per cambiare a quale vengono assegnate le nuove voci. Tutto ciò che registri, a voce o manualmente, viene etichettato con il flusso attivo, così le tue Statistiche ed esportazioni si possono vedere per flusso o tutte insieme. Un\'eccezione: l\'esportazione del riepilogo fiscale richiede di scegliere un flusso specifico (non "Tutti i flussi") se ne hai più di uno, così le spese personali non finiscono mai in un rendiconto fiscale aziendale. Puoi anche cambiare flusso con la voce — di\' qualcosa come "passa a Dojo". Se rimuovi un flusso che ha ancora delle voci, l\'app ti avviserà prima — quelle voci non vengono eliminate, ma resteranno nascoste finché non le sposti in un altro flusso.' },
-        { icon:'🎙️', title:'Registrare con la voce', body:'Tocca il microfono e di\' cosa è successo — ad esempio "20 dollari entrata doordash", "8 dollari spesa benzina", o "registra 12 miglia". Puoi anche dire numeri scritti come "venti dollari" e chilometri come "10 chilometri". Funziona in inglese, spagnolo, italiano, francese e cinese — cambia la lingua vocale nelle Impostazioni.' },
-        { icon:'✏️', title:'Registrare manualmente', body:'Tocca il pulsante + per aggiungere entrata, spesa o chilometraggio a mano — utile se c\'è rumore, non ti senti a tuo agio a parlare ad alta voce, o preferisci semplicemente digitare. Usa il campo Data per registrare qualcosa per un giorno passato (ad esempio un\'entrata che hai dimenticato di registrare ieri) invece che sul giorno di oggi — è impostato di default su oggi e non permette di scegliere una data futura.' },
-        { icon:'📊', title:'Statistiche e calendario', body:'La scheda Statistiche mostra entrate, spese e guadagno netto per miglio (o km) del giorno, settimana o mese. La scheda Calendario ti permette di toccare qualsiasi data per vedere tutto ciò che è stato registrato quel giorno.' },
+        { icon:'🎙️', title:'Registrare con la voce', body:'Tocca il microfono e di\' cosa è successo — ad esempio "20 dollari entrata doordash", "8 dollari spesa benzina", o "registra 12 miglia". Puoi anche dire numeri scritti come "venti dollari" e chilometri come "10 chilometri". Funziona in inglese, spagnolo, italiano, francese, cinese, portoghese, hindi e russo — cambia la lingua vocale nelle Impostazioni.' },
+        { icon:'✏️', title:'Registrare manualmente', body:'Tocca il pulsante + per aggiungere entrata, spesa o chilometraggio a mano — utile se c\'è rumore, non ti senti a tuo agio a parlare ad alta voce, o preferisci semplicemente digitare. Usa il campo Data per registrare qualcosa per un giorno passato (ad esempio un\'entrata che hai dimenticato di registrare ieri) invece che sul giorno di oggi — è impostato di default su oggi e non permette di scegliere una data futura. Ogni flusso ha le proprie categorie — ad esempio Ristorante per i pasti fuori. Registrare chilometri o scaricare un rapporto fa partire una breve pioggia di coriandoli e un applauso; puoi disattivare coriandoli e suono separatamente nelle Impostazioni.' },
+        { icon:'📊', title:'Statistiche e calendario', body:'La scheda Statistiche mostra entrate, spese e guadagno netto per miglio (o km) del giorno, settimana o mese. La scheda Calendario ti permette di toccare qualsiasi data per vedere tutto ciò che è stato registrato quel giorno. Ogni flusso ha il proprio rapporto: Statistiche si apre sul flusso in cui stai registrando, e i pulsanti Condividi riepilogo, Esporta CSV e riepilogo fiscale indicano il flusso che coprono (scegli "Tutti i flussi" per una vista combinata con dettaglio per flusso). Esportando con un flusso selezionato ottieni un CSV solo di quel flusso; il backup completo include sempre tutto.' },
         { icon:'🚗', title:'Veicolo e manutenzione', body:'Aggiungi marca, modello e chilometraggio attuale del tuo veicolo nella scheda Veicolo. GigHelper traccia la manutenzione comune (cambio olio, gomme, freni e altro) per chilometraggio e/o tempo, e può avvisarti quando qualcosa è in scadenza. Una volta a settimana, un avviso ti ricorda di aggiornare la lettura reale del contachilometri — puoi farlo in qualsiasi giorno di quella settimana, non solo lunedì. Un "Registro settimanale del contachilometri" nella scheda Veicolo conserva uno storico di queste letture con quanto hai percorso settimana per settimana. Sotto il registro del contachilometri, un confronto settimanale (da lunedì a domenica) affianca la variazione del contachilometri alle miglia GPS e manuali e segnala le settimane in cui non coincidono. Per un valore esatto del contachilometri, fai la lettura di domenica; gli altri giorni sono contrassegnati con ≈. Il contachilometri include anche la guida personale, quindi dovrebbe essere il numero più alto. Chilometraggio settimanale: fai una lettura del contachilometri all’inizio di ogni settimana: chiude la settimana scorsa e apre la nuova. Il registro settimanale mostra Inizio, Fine e i chilometri percorsi (Fine meno Inizio).' },
         { icon:'📍', title:'Tracciamento chilometraggio via GPS (solo app nativa)', body:'Se usi l\'app nativa Android, la scheda Registro ha una scheda "Inizia viaggio" / "Termina viaggio" che misura la distanza percorsa via GPS e la registra direttamente nel tuo flusso Driving — utile quando dimentichi di registrare il chilometraggio a voce o a mano. Nelle Impostazioni puoi anche attivare "Rileva viaggi automaticamente", che avvia e ferma il tracciamento da solo appena la tua velocità indica che stai guidando, così non devi ricordarti di toccare Inizia o Termina. Questa funzione non è disponibile nella versione web, solo nell\'app Android installata. I viaggi tracciati via GPS sono etichettati "GPS" e le voci scritte o vocali "Manuale". In Impostazioni, "Conta le miglia da" sceglie quale fonte alimenta i totali e la deduzione fiscale; l\'altra resta per il confronto, così nulla viene contato due volte.' },
         { icon:'✉️', title:'Contatta l\'assistenza', body:'Hai un problema o un suggerimento? Scrivici a gighelper.help@gmail.com. Il pulsante "Segnala un problema" nelle Impostazioni prepara un\'email con un rapporto diagnostico.' },
@@ -1670,9 +2096,9 @@
       sections: [
         { icon:'👋', title:'Premiers pas', body:'À la première ouverture de GigHelper, vous choisirez votre langue, pays et plateformes (DoorDash, Uber, etc.). Votre pays définit votre devise par défaut et si vous voyez des miles ou des kilomètres — vous pouvez tout modifier plus tard dans les Paramètres.' },
         { icon:'🗂️', title:'Flux — suivre plusieurs sources de revenus', body:'Si vous avez plusieurs sources de revenus — conduite pour une appli de livraison, une activité secondaire, ou simplement vos dépenses personnelles — ajoutez un Flux pour chacune dans Paramètres. Dès que vous en avez deux ou plus, une barre "Enregistrement dans" apparaît en haut de l\'onglet Journal ; touchez un flux pour changer celui auquel les nouvelles entrées sont attribuées. Tout ce que vous enregistrez, à la voix ou manuellement, est étiqueté avec le flux actif, afin que vos Statistiques et exports puissent être consultés par flux ou tous ensemble. Une exception : l\'export du résumé fiscal exige de choisir un flux précis (pas "Tous les flux") si vous en avez plusieurs, afin que vos dépenses personnelles ne se retrouvent jamais dans un rapport fiscal professionnel. Vous pouvez aussi changer de flux à la voix — dites par exemple "passe à Dojo". Si vous supprimez un flux qui contient encore des entrées, l\'appli vous préviendra d\'abord — ces entrées ne sont pas effacées, mais elles resteront masquées jusqu\'à ce que vous les déplaciez vers un autre flux.' },
-        { icon:'🎙️', title:'Enregistrer à la voix', body:'Touchez le micro et dites ce qui s\'est passé — par exemple "20 dollars revenu doordash", "8 dollars dépense essence", ou "enregistre 12 miles". Vous pouvez aussi dire des nombres en toutes lettres comme "vingt dollars" et des kilomètres comme "10 kilomètres". Fonctionne en anglais, espagnol, italien, français et chinois — changez la langue vocale dans les Paramètres.' },
-        { icon:'✏️', title:'Enregistrer manuellement', body:'Touchez le bouton + pour ajouter un revenu, une dépense ou un kilométrage à la main — utile en cas de bruit, si vous n\'êtes pas à l\'aise pour parler à voix haute, ou si vous préférez simplement taper. Utilisez le champ Date pour enregistrer quelque chose pour un jour passé (par exemple un revenu que vous avez oublié d\'enregistrer hier) au lieu qu\'il soit attribué à aujourd\'hui — il est par défaut sur aujourd\'hui et ne permet pas de choisir une date future.' },
-        { icon:'📊', title:'Statistiques et calendrier', body:'L\'onglet Statistiques affiche vos revenus, dépenses et gain net par mile (ou km) du jour, de la semaine ou du mois. L\'onglet Calendrier vous permet de toucher n\'importe quelle date pour voir tout ce qui a été enregistré ce jour-là.' },
+        { icon:'🎙️', title:'Enregistrer à la voix', body:'Touchez le micro et dites ce qui s\'est passé — par exemple "20 dollars revenu doordash", "8 dollars dépense essence", ou "enregistre 12 miles". Vous pouvez aussi dire des nombres en toutes lettres comme "vingt dollars" et des kilomètres comme "10 kilomètres". Fonctionne en anglais, espagnol, italien, français, chinois, portugais, hindi et russe — changez la langue vocale dans les Paramètres.' },
+        { icon:'✏️', title:'Enregistrer manuellement', body:'Touchez le bouton + pour ajouter un revenu, une dépense ou un kilométrage à la main — utile en cas de bruit, si vous n\'êtes pas à l\'aise pour parler à voix haute, ou si vous préférez simplement taper. Utilisez le champ Date pour enregistrer quelque chose pour un jour passé (par exemple un revenu que vous avez oublié d\'enregistrer hier) au lieu qu\'il soit attribué à aujourd\'hui — il est par défaut sur aujourd\'hui et ne permet pas de choisir une date future. Chaque flux a ses propres catégories — par exemple Restaurant pour les repas à l’extérieur. Enregistrer du kilométrage ou télécharger un rapport déclenche une courte pluie de confettis et des applaudissements ; vous pouvez désactiver séparément les confettis et le son dans les Paramètres.' },
+        { icon:'📊', title:'Statistiques et calendrier', body:'L\'onglet Statistiques affiche vos revenus, dépenses et gain net par mile (ou km) du jour, de la semaine ou du mois. L\'onglet Calendrier vous permet de toucher n\'importe quelle date pour voir tout ce qui a été enregistré ce jour-là. Chaque flux a son propre rapport : Statistiques s’ouvre sur le flux dans lequel vous enregistrez, et les boutons Partager le résumé, Exporter en CSV et résumé fiscal indiquent le flux concerné (choisissez "Tous les flux" pour une vue combinée avec détail par flux). Exporter avec un flux sélectionné donne un CSV de ce flux uniquement ; la sauvegarde complète inclut toujours tout.' },
         { icon:'🚗', title:'Véhicule et entretien', body:'Ajoutez la marque, le modèle et le kilométrage actuel de votre véhicule dans l\'onglet Véhicule. GigHelper suit l\'entretien courant (vidanges, pneus, freins, et plus) selon le kilométrage et/ou le temps, et peut vous notifier quand quelque chose arrive à échéance. Une fois par semaine, une bannière vous rappelle de mettre à jour votre relevé réel du compteur — vous pouvez le faire n\'importe quel jour de cette semaine, pas seulement le lundi. Un "Relevé hebdomadaire du compteur" dans l\'onglet Véhicule conserve un historique de ces relevés avec le kilométrage parcouru semaine après semaine. Sous le relevé du compteur, une comparaison hebdomadaire (du lundi au dimanche) place la variation du compteur à côté de vos miles GPS et manuels et signale les semaines qui ne concordent pas. Pour un chiffre exact du compteur, faites votre relevé le dimanche ; les autres jours sont marqués ≈. Le compteur inclut aussi la conduite personnelle, il doit donc être le chiffre le plus élevé. Kilométrage hebdomadaire : relevez le compteur une fois au début de chaque semaine ; il clôt la semaine passée et ouvre la nouvelle. Le relevé hebdomadaire affiche le Début, la Fin et les kilomètres parcourus (Fin moins Début).' },
         { icon:'📍', title:'Suivi du kilométrage par GPS (application native uniquement)', body:'Si vous utilisez l\'application native Android, l\'onglet Journal comporte une carte « Démarrer le trajet » / « Terminer le trajet » qui mesure la distance parcourue par GPS et l\'enregistre directement dans votre flux Driving — pratique quand vous oubliez d\'enregistrer le kilométrage à la voix ou à la main. Dans les Paramètres, vous pouvez aussi activer « Détecter les trajets automatiquement », qui démarre et arrête le suivi tout seul dès que votre vitesse indique que vous conduisez, sans avoir à penser à toucher Démarrer ou Terminer. Cette fonctionnalité n\'est pas disponible dans la version web, uniquement dans l\'application Android installée. Les trajets suivis par GPS sont étiquetés "GPS" et les saisies tapées ou vocales "Manuel". Dans Paramètres, "Compter les miles depuis" choisit la source utilisée pour vos totaux et la déduction fiscale ; l\'autre est conservée pour comparaison, donc rien n\'est compté deux fois.' },
         { icon:'✉️', title:'Contacter le support', body:'Un problème ou une suggestion ? Écrivez-nous à gighelper.help@gmail.com. Le bouton « Signaler un problème » dans les Paramètres prépare un e-mail avec un rapport de diagnostic.' },
@@ -1690,9 +2116,9 @@
       sections: [
         { icon:'👋', title:'快速开始', body:'首次打开 GigHelper 时，您将选择语言、国家和平台（DoorDash、Uber 等）。您的国家决定默认货币，以及显示英里还是公里 — 之后都可以在设置中更改。' },
         { icon:'🗂️', title:'收入来源 — 追踪多个收入来源', body:'如果您有不止一个收入来源 —— 网约车/外卖配送、副业，或只是个人日常开支 —— 可以在设置中为每一个添加一个"收入来源"。当您有两个或更多来源时，记录标签页顶部会出现一个"记录到"栏；点击其中一个来源即可切换新记录归属的来源。无论是语音还是手动记录，都会标记为当前激活的来源，因此您的统计和导出数据既可以按来源单独查看，也可以合并查看。但有一个例外：如果您有多个收入来源，导出税务摘要时必须选择一个具体来源（而不是"所有来源"），这样可以确保个人开支永远不会出现在商业税务报告中。您也可以通过语音切换来源 —— 例如说"切换到Dojo"。如果您删除的来源下仍有记录，应用会先提醒您 —— 这些记录不会被删除，但会一直隐藏，直到您把它们移到其他来源。' },
-        { icon:'🎙️', title:'语音记录', body:'点按麦克风并说出发生的事情 — 例如"20美元收入doordash"、"8美元支出汽油"或"记录12英里"。您也可以说出数字词，如"二十美元"，以及公里，如"10公里"。支持英语、西班牙语、意大利语、法语和中文 — 可在设置中切换语音语言。' },
-        { icon:'✏️', title:'手动记录', body:'点按 + 按钮手动添加收入、支出或里程 — 在环境嘈杂、不方便说话或您只是更喜欢打字时很有用。使用"日期"字段可以为过去的某一天记录内容（例如昨天忘记记录的收入），而不是记到今天 — 该字段默认是今天，且不能选择未来的日期。' },
-        { icon:'📊', title:'统计与日历', body:'"统计"选项卡显示您当天、当周或当月的收入、支出和每英里（或公里）净收益。"日历"选项卡让您点按任意日期查看当天记录的所有内容。' },
+        { icon:'🎙️', title:'语音记录', body:'点按麦克风并说出发生的事情 — 例如"20美元收入doordash"、"8美元支出汽油"或"记录12英里"。您也可以说出数字词，如"二十美元"，以及公里，如"10公里"。支持英语、西班牙语、意大利语、法语、中文、葡萄牙语、印地语和俄语 — 可在设置中切换语音语言。' },
+        { icon:'✏️', title:'手动记录', body:'点按 + 按钮手动添加收入、支出或里程 — 在环境嘈杂、不方便说话或您只是更喜欢打字时很有用。使用"日期"字段可以为过去的某一天记录内容（例如昨天忘记记录的收入），而不是记到今天 — 该字段默认是今天，且不能选择未来的日期。 每个来源都有自己的类别——例如“餐厅”用于外出就餐。记录里程或下载报告时会出现一阵短暂的彩纸和欢呼声；您可以在设置中分别关闭彩纸和声音。' },
+        { icon:'📊', title:'统计与日历', body:'"统计"选项卡显示您当天、当周或当月的收入、支出和每英里（或公里）净收益。"日历"选项卡让您点按任意日期查看当天记录的所有内容。 每个来源都有自己的报告：统计页会打开您正在记录的来源，“分享摘要”“导出 CSV”和税务摘要按钮会标明所涵盖的来源（选择“所有来源”可查看按来源分项的合并视图）。选择某个来源后导出，只会得到该来源的 CSV；完整备份始终包含所有内容。' },
         { icon:'🚗', title:'车辆与保养', body:'在"车辆"选项卡中添加您车辆的品牌、型号和当前里程。GigHelper 会按里程和/或时间跟踪常见保养项目（换机油、轮胎、刹车等），并在到期时提醒您。每周都会有一个提醒横幅，提示您更新实际的里程表读数 — 您可以在当周的任意一天完成，不必是周一。"车辆"选项卡中的"每周里程表记录"会保存这些读数的历史，并显示每周之间的行驶里程变化。里程表记录下方的每周对比（周一至周日）会把里程表变化与您的 GPS 里程和手动里程并排显示，并标出不一致的周。若要获得准确的里程表数值，请在周日读取；其他日期会标记为 ≈。里程表也包含私人驾驶，所以它应该是最大的数字。 每周里程：每周开始时记录一次里程表读数——它结束上周并开启新的一周。每周里程表记录会显示每周的起始、结束读数以及行驶里程（结束减起始）。' },
         { icon:'📍', title:'GPS 里程追踪（仅限原生应用）', body:'如果您使用的是原生 Android 应用，"记录"选项卡中会有一个"开始行程" / "结束行程"卡片，通过 GPS 测量您的行驶距离，并直接记录到您的 Driving 收入来源 — 在您忘记用语音或手动记录里程时很有用。您也可以在设置中开启"自动检测行程"，一旦您的速度显示您正在驾驶，它就会自动开始和停止追踪，无需记得手动点击开始或结束。此功能在网页版中不可用，仅限已安装的 Android 应用。GPS 追踪的行程会标记为"GPS"，手动或语音输入的会标记为"手动"。在设置中，"里程来源"决定哪个来源计入总计和税务扣除；另一个仅用于对比，因此不会重复计算。' },
         { icon:'✉️', title:'联系支持', body:'遇到问题或有建议？请发送电子邮件至 gighelper.help@gmail.com。在“设置”中点击“报告问题”会自动生成包含诊断信息的邮件。' },
@@ -1700,6 +2126,66 @@
         { icon:'🌍', title:'货币、单位与地区', body:'在设置中，设置您的国家、货币，以及距离显示为英里还是公里。更改这些设置不会改变您过去的记录 — 数据的存储方式始终一致，只是按您选择的单位显示。' },
         { icon:'🧾', title:'税务工具（仅限美国）', body:'如果您的国家设置为美国，GigHelper 会提醒您季度预估税的截止日期，并可使用 IRS 标准里程扣除额导出税务摘要。其他国家/地区因涉及美国特定税务规则而不显示这些工具。' },
         { icon:'✂️', title:'重命名应用', body:'对麦克风说"把这个应用叫做[名称]"，或直接在设置中更改。' }
+      ]
+    },
+    'pt-BR': {
+      intro: 'Exibido no idioma do seu app. Toque em uma seção para expandi-la.',
+      downloadLabel: '⬇ Baixar guia',
+      fileTitle: 'GigHelper — Guia do usuário',
+      title: 'Guia do usuário',
+      sections: [
+        { icon:'👋', title:'Primeiros passos', body:'Ao abrir o GigHelper pela primeira vez, você escolherá seu idioma, país e plataformas (DoorDash, Uber etc.). Seu país define a moeda padrão e se você vê milhas ou quilômetros — você pode mudar tudo isso depois em Configurações.' },
+        { icon:'🗂️', title:'Fontes — acompanhando mais de uma fonte de renda', body:'Se você tem mais de uma fonte de renda — dirigir para apps, um negócio próprio ou apenas seus gastos pessoais — adicione uma Fonte para cada uma em Configurações. Quando houver duas ou mais, aparece uma barra "Registrando em" no topo da aba Registro; toque em uma fonte ali para trocar para onde vão os novos lançamentos. Tudo que você registra por voz ou à mão recebe a fonte ativa, então suas Estatísticas e exportações podem ser vistas por fonte ou todas juntas. Uma exceção: a exportação do resumo de impostos exige escolher uma fonte específica (não "Todas as fontes") se você tiver mais de uma, para que gastos pessoais nunca entrem em um relatório de impostos do negócio. Você também pode trocar de fonte por voz — diga algo como "mude para Dojo". Se remover uma fonte que ainda tem lançamentos, o app avisa antes — esses lançamentos não são apagados, mas ficam ocultos até você movê-los para outra fonte.' },
+        { icon:'🎙️', title:'Registrar por voz', body:'Toque no microfone e diga o que aconteceu — por exemplo "20 reais receita doordash", "8 reais despesa gasolina" ou "registrar 12 milhas". Você também pode dizer números por extenso, como "vinte reais", e quilômetros, como "10 quilômetros". Funciona em inglês, espanhol, italiano, francês, chinês, português, hindi e russo — troque o idioma de voz em Configurações.' },
+        { icon:'✏️', title:'Registrar manualmente', body:'Toque no botão + para adicionar uma receita, despesa ou quilometragem à mão — útil se houver barulho, se você não se sente à vontade falando em voz alta ou se prefere digitar. Use o campo Data para registrar algo de um dia passado (como uma receita que você esqueceu de lançar ontem) em vez de cair no dia de hoje — o padrão é hoje e não é possível escolher uma data futura. Cada fonte tem suas próprias categorias — por exemplo, Restaurante para refeições fora. Registrar milhas ou baixar um relatório dispara uma breve chuva de confete e uma comemoração; você pode desativar o confete e o som separadamente em Configurações.' },
+        { icon:'📊', title:'Estatísticas e calendário', body:'A aba Estatísticas mostra sua receita, despesas e ganho líquido por milha (ou km) do dia, da semana ou do mês. Cada fonte tem seu próprio relatório: as Estatísticas abrem na fonte em que você está registrando, e os botões Compartilhar resumo, Exportar CSV e resumo de impostos mostram o nome da fonte que cobrem (escolha "Todas as fontes" para uma visão combinada com detalhamento por fonte). Exportar com uma fonte selecionada gera um CSV só dessa fonte; o backup completo sempre inclui tudo. A aba Calendário permite tocar em qualquer data para ver tudo que foi registrado naquele dia.' },
+        { icon:'🚗', title:'Veículo e manutenção', body:'Adicione marca, modelo e quilometragem atual do seu veículo na aba Veículo. O GigHelper acompanha itens comuns de manutenção (troca de óleo, pneus, freios e mais) por quilometragem e/ou tempo e pode enviar uma notificação quando algo estiver vencendo. Uma vez por semana, um aviso lembra você de atualizar a leitura real do hodômetro — você pode fazer isso em qualquer dia da semana, não só na segunda. Um "Registro semanal do hodômetro" na aba Veículo guarda o histórico dessas leituras com quanto você percorreu de semana em semana. Abaixo do registro, uma comparação semanal (segunda a domingo) coloca a variação do hodômetro ao lado das suas milhas de GPS e manuais e destaca as semanas em que não batem. Para um valor exato do hodômetro, faça a leitura aos domingos; nos outros dias aparece ≈. O hodômetro também conta a condução pessoal, então deve ser o maior número. Quilometragem semanal: faça uma leitura do hodômetro no início de cada semana — ela encerra a semana passada e abre a nova. O Registro semanal do hodômetro mostra então o Início, o Fim e o que você percorreu (Fim menos Início).' },
+        { icon:'📍', title:'Rastreamento de milhas por GPS (somente app nativo)', body:'Se você usa o app nativo para Android, a aba Registro tem um cartão "Iniciar viagem" / "Encerrar viagem" que mede a distância dirigida por GPS e a registra direto na sua fonte Driving — útil quando você esquece de registrar a quilometragem por voz ou à mão. Em Configurações, você também pode ativar "Detectar viagens automaticamente", que inicia e para o rastreamento sozinho assim que sua velocidade indica que você está dirigindo, sem precisar lembrar de tocar em Iniciar ou Encerrar. Este recurso não está disponível na versão web, só no app Android instalado. Viagens rastreadas por GPS recebem a etiqueta "GPS" e lançamentos digitados ou por voz, "Manual". Em Configurações, "Contar milhas de" escolhe qual fonte alimenta seus totais e a dedução de impostos — a outra é mantida para comparação, então nada é contado duas vezes.' },
+        { icon:'✉️', title:'Falar com o suporte', body:'Tem um problema ou uma sugestão? Escreva para gighelper.help@gmail.com. O botão "Relatar um problema" em Configurações abre um e-mail com um relatório de diagnóstico já anexado.' },
+        { icon:'💾', title:'Fazendo backup dos seus dados', body:'Seus lançamentos ficam apenas neste dispositivo, a menos que você faça backup. Em Configurações, ative o backup automático para salvar sozinho em um arquivo que você escolher (por exemplo, dentro da sua pasta do Google Drive ou OneDrive) — disponível no Chrome e no Edge. No iOS Safari e em outros navegadores sem essa opção, as Configurações oferecem um botão "Compartilhar backup agora" — ele envia um arquivo de backup direto para Arquivos, iCloud Drive, Google Drive ou e-mail com um toque. Você também pode exportar um CSV manualmente a qualquer momento. Em Configurações, “Onde seus dados ficam guardados” permite escolher: somente este celular, uma cópia automática em um arquivo ou pasta que você escolher, ou uma cópia que você compartilha. Para recuperar seus dados (por exemplo, em um celular novo), toque em “Restaurar de um arquivo de backup” e escolha um backup do GigHelper — nada que já esteja no celular é apagado.' },
+        { icon:'🌍', title:'Moeda, unidades e região', body:'Em Configurações, defina seu país, moeda e se as distâncias aparecem em milhas ou quilômetros. Mudar isso não altera seus lançamentos passados — eles são guardados de forma consistente e apenas exibidos na unidade que você escolher.' },
+        { icon:'🧾', title:'Ferramentas de impostos (somente EUA)', body:'Se o seu país estiver definido como Estados Unidos, o GigHelper lembra você dos prazos trimestrais de imposto estimado e pode exportar um resumo de impostos usando a dedução padrão do IRS por milha. Essas ferramentas ficam ocultas para outros países por serem específicas das regras fiscais dos EUA.' },
+        { icon:'✂️', title:'Renomear o app', body:'Diga ao microfone "chame este app de [nome]" ou mude diretamente em Configurações.' }
+      ]
+    },
+    'hi-IN': {
+      intro: 'आपके ऐप की भाषा में दिखाया गया है। किसी भाग को खोलने के लिए उस पर टैप करें।',
+      downloadLabel: '⬇ गाइड डाउनलोड करें',
+      fileTitle: 'GigHelper — उपयोगकर्ता मार्गदर्शिका',
+      title: 'उपयोगकर्ता मार्गदर्शिका',
+      sections: [
+        { icon:'👋', title:'शुरुआत', body:'GigHelper पहली बार खोलने पर आप अपनी भाषा, देश और प्लेटफ़ॉर्म (DoorDash, Uber आदि) चुनेंगे। आपका देश डिफ़ॉल्ट मुद्रा तय करता है और यह भी कि दूरी मील में दिखे या किलोमीटर में — यह सब आप बाद में सेटिंग्स में बदल सकते हैं।' },
+        { icon:'🗂️', title:'स्रोत — एक से ज़्यादा आय स्रोतों का हिसाब', body:'यदि आपके पास एक से ज़्यादा आय स्रोत हैं — डिलीवरी ऐप के लिए ड्राइविंग, अपना कारोबार, या सिर्फ़ निजी खर्च — तो सेटिंग्स में हर एक के लिए एक स्रोत जोड़ें। जब दो या अधिक हों, तो लॉग टैब के ऊपर "इसमें दर्ज हो रहा है" पट्टी दिखती है; वहाँ किसी स्रोत पर टैप करके बदलें कि नई प्रविष्टियाँ किसमें जाएँ। आप आवाज़ से या हाथ से जो भी दर्ज करते हैं, उस पर सक्रिय स्रोत का निशान लगता है, इसलिए आपके आँकड़े और एक्सपोर्ट हर स्रोत के अनुसार या सब साथ में देखे जा सकते हैं। एक अपवाद: यदि आपके एक से ज़्यादा स्रोत हैं तो कर सारांश के एक्सपोर्ट के लिए एक विशेष स्रोत चुनना ज़रूरी है ("सभी स्रोत" नहीं), ताकि निजी खर्च कभी कारोबार की कर रिपोर्ट में न जाएँ। आप आवाज़ से भी स्रोत बदल सकते हैं — जैसे "Dojo पर स्विच करो" कहें। यदि आप ऐसा स्रोत हटाते हैं जिसमें अभी प्रविष्टियाँ हैं, तो ऐप पहले चेतावनी देगा — वे प्रविष्टियाँ मिटती नहीं, पर जब तक आप उन्हें किसी दूसरे स्रोत में नहीं ले जाते, वे छिपी रहेंगी।' },
+        { icon:'🎙️', title:'आवाज़ से दर्ज करना', body:'माइक्रोफ़ोन पर टैप करें और बताएँ कि क्या हुआ — जैसे "20 डॉलर आय डोरडैश", "8 डॉलर खर्च पेट्रोल", या "12 मील दर्ज करो"। आप "बीस डॉलर" जैसी शब्दों में लिखी संख्याएँ और "10 किलोमीटर" जैसी दूरी भी बोल सकते हैं। यह अंग्रेज़ी, स्पेनिश, इतालवी, फ़्रेंच, चीनी, पुर्तगाली, हिन्दी और रूसी में काम करता है — आवाज़ की भाषा सेटिंग्स में बदलें।' },
+        { icon:'✏️', title:'हाथ से दर्ज करना', body:'+ बटन पर टैप करके आय, खर्च या माइलेज की प्रविष्टि हाथ से जोड़ें — शोर हो, ज़ोर से बोलने में असहजता हो, या आप बस टाइप करना पसंद करें तो उपयोगी। बीते हुए दिन की प्रविष्टि (जैसे कल दर्ज करना भूली हुई आय) आज की तारीख़ पर पड़ने के बजाय सही दिन पर दर्ज करने के लिए तारीख़ फ़ील्ड का उपयोग करें — यह डिफ़ॉल्ट रूप से आज की होती है और भविष्य की तारीख़ चुनने नहीं देती। हर स्रोत की अपनी श्रेणियाँ हैं — जैसे बाहर खाने के लिए रेस्टोरेंट। मील दर्ज करने या रिपोर्ट डाउनलोड करने पर थोड़ी देर कॉन्फ़ेटी की बौछार और तालियों की आवाज़ आती है; आप सेटिंग्स में कॉन्फ़ेटी और आवाज़ को अलग-अलग बंद कर सकते हैं।' },
+        { icon:'📊', title:'आँकड़े और कैलेंडर', body:'आँकड़े टैब दिन, सप्ताह या महीने के लिए आपकी आय, खर्च और प्रति मील (या किमी) शुद्ध कमाई दिखाता है। हर स्रोत की अपनी रिपोर्ट है: आँकड़े उसी स्रोत पर खुलते हैं जिसमें आप दर्ज कर रहे हैं, और सारांश साझा करें, CSV एक्सपोर्ट और कर सारांश बटन उस स्रोत का नाम बताते हैं जिसे वे कवर करते हैं (स्रोत-वार ब्योरे के साथ संयुक्त दृश्य के लिए "सभी स्रोत" चुनें)। स्रोत चुनकर एक्सपोर्ट करने पर केवल उसी स्रोत की CSV बनती है; पूरा बैकअप हमेशा सब कुछ शामिल करता है। कैलेंडर टैब में किसी भी तारीख़ पर टैप करके उस दिन दर्ज सब कुछ देखा जा सकता है।' },
+        { icon:'🚗', title:'वाहन और रखरखाव', body:'वाहन टैब में अपने वाहन की कंपनी, मॉडल और वर्तमान माइलेज जोड़ें। GigHelper आम रखरखाव (ऑयल बदलना, टायर, ब्रेक आदि) को माइलेज और/या समय के आधार पर ट्रैक करता है और कुछ देय होने पर सूचना भेज सकता है। सप्ताह में एक बार एक बैनर आपको ओडोमीटर की असली रीडिंग अपडेट करने की याद दिलाता है — आप यह उस सप्ताह किसी भी दिन कर सकते हैं, सिर्फ़ सोमवार को नहीं। वाहन टैब में "साप्ताहिक ओडोमीटर लॉग" इन रीडिंग का इतिहास रखता है और बताता है कि आपने हर सप्ताह कितना चलाया। लॉग के नीचे एक साप्ताहिक तुलना (सोमवार से रविवार) ओडोमीटर के बदलाव को आपके GPS और मैन्युअल मील के साथ रखती है और उन सप्ताहों को चिह्नित करती है जहाँ वे मेल नहीं खाते। ओडोमीटर के सटीक आँकड़े के लिए रविवार को रीडिंग लें; बाकी दिनों पर ≈ लगता है। ओडोमीटर निजी ड्राइविंग भी गिनता है, इसलिए यह सबसे बड़ी संख्या होनी चाहिए। साप्ताहिक माइलेज: हर सप्ताह की शुरुआत में ओडोमीटर की एक रीडिंग लें — यह पिछला सप्ताह बंद करती है और नया खोलती है। फिर साप्ताहिक ओडोमीटर लॉग हर सप्ताह की शुरू और अंत की रीडिंग और आपके चलाए मील (अंत घटा शुरू) दिखाता है।' },
+        { icon:'📍', title:'GPS से माइलेज ट्रैकिंग (केवल नेटिव ऐप)', body:'यदि आप Android का नेटिव ऐप उपयोग करते हैं, तो लॉग टैब में "यात्रा शुरू करें" / "यात्रा समाप्त करें" कार्ड होता है जो GPS से आपकी तय की गई दूरी नापकर उसे सीधे आपके Driving स्रोत में दर्ज करता है — तब काम आता है जब आप आवाज़ या हाथ से माइलेज दर्ज करना भूल जाते हैं। सेटिंग्स में आप "यात्राएँ अपने-आप पहचानें" भी चालू कर सकते हैं, जो आपकी रफ़्तार से ड्राइविंग का पता चलते ही ट्रैकिंग अपने-आप शुरू और बंद करता है, ताकि आपको शुरू या समाप्त पर टैप करना याद ही न रखना पड़े। यह सुविधा वेब संस्करण में उपलब्ध नहीं है, केवल इंस्टॉल किए गए Android ऐप में है। GPS से ट्रैक की गई यात्राओं पर "GPS" और टाइप या आवाज़ से दर्ज प्रविष्टियों पर "मैन्युअल" निशान होता है। सेटिंग्स में "मील किस स्रोत से गिनें" चुनता है कि आपके कुल योग और कर कटौती के लिए कौन-सा स्रोत गिना जाए — दूसरा तुलना के लिए रखा जाता है, इसलिए कुछ भी दो बार नहीं गिना जाता।' },
+        { icon:'✉️', title:'सहायता से संपर्क करें', body:'कोई समस्या या सुझाव है? हमें gighelper.help@gmail.com पर ईमेल करें। सेटिंग्स में "समस्या की रिपोर्ट करें" बटन एक ईमेल खोलता है जिसमें डायग्नोस्टिक रिपोर्ट पहले से जुड़ी होती है।' },
+        { icon:'💾', title:'अपने डेटा का बैकअप', body:'जब तक आप बैकअप न लें, आपकी प्रविष्टियाँ केवल इसी डिवाइस पर रहती हैं। सेटिंग्स में अपनी चुनी हुई फ़ाइल में अपने-आप सहेजने के लिए ऑटो-बैकअप चालू करें (जैसे आपके Google Drive या OneDrive फ़ोल्डर के अंदर) — यह Chrome और Edge में उपलब्ध है। iOS Safari और ऐसे दूसरे ब्राउज़र में जिनमें यह विकल्प नहीं है, सेटिंग्स में उसकी जगह "अभी बैकअप साझा करें" बटन मिलता है — यह एक टैप में बैकअप फ़ाइल सीधे Files, iCloud Drive, Google Drive या ईमेल को भेज देता है। आप कभी भी हाथ से CSV भी एक्सपोर्ट कर सकते हैं। सेटिंग्स में "आपका डेटा कहाँ रखा जाता है" से आप चुन सकते हैं: केवल यह फ़ोन, आपकी चुनी हुई फ़ाइल या फ़ोल्डर में स्वचालित प्रति, या आपकी साझा की गई प्रति। अपना डेटा वापस लाने के लिए (जैसे नए फ़ोन पर) "बैकअप फ़ाइल से बहाल करें" पर टैप करें और GigHelper का बैकअप चुनें — फ़ोन में पहले से मौजूद कुछ भी नहीं मिटता।' },
+        { icon:'🌍', title:'मुद्रा, इकाइयाँ और क्षेत्र', body:'सेटिंग्स में अपना देश, मुद्रा और यह चुनें कि दूरी मील में दिखे या किलोमीटर में। इन्हें बदलने से आपकी पुरानी प्रविष्टियाँ नहीं बदलतीं — वे एक जैसे रूप में सहेजी जाती हैं और बस आपकी चुनी इकाई में दिखाई जाती हैं।' },
+        { icon:'🧾', title:'कर उपकरण (केवल अमेरिका)', body:'यदि आपका देश संयुक्त राज्य अमेरिका चुना गया है, तो GigHelper आपको तिमाही अनुमानित कर की समय-सीमाएँ याद दिलाता है और IRS की मानक माइलेज कटौती के साथ कर सारांश एक्सपोर्ट कर सकता है। ये उपकरण अन्य देशों के लिए छिपे रहते हैं क्योंकि ये अमेरिकी कर नियमों के लिए हैं।' },
+        { icon:'✂️', title:'ऐप का नाम बदलना', body:'माइक्रोफ़ोन से कहें "इस ऐप का नाम [नाम] रखो", या सीधे सेटिंग्स में बदलें।' }
+      ]
+    },
+    'ru-RU': {
+      intro: 'Отображается на языке вашего приложения. Нажмите на раздел, чтобы развернуть его.',
+      downloadLabel: '⬇ Скачать руководство',
+      fileTitle: 'GigHelper — Руководство пользователя',
+      title: 'Руководство пользователя',
+      sections: [
+        { icon:'👋', title:'Начало работы', body:'При первом запуске GigHelper вы выберете язык, страну и платформы (DoorDash, Uber и т. д.). Страна определяет валюту по умолчанию и то, в чём вы видите расстояние — в милях или километрах. Всё это можно изменить позже в Настройках.' },
+        { icon:'🗂️', title:'Источники — учёт нескольких источников дохода', body:'Если у вас больше одного источника дохода — работа водителем в сервисах доставки, собственный бизнес или просто личные расходы — добавьте отдельный Источник для каждого в Настройках. Когда их два или больше, вверху вкладки «Журнал» появляется панель «Записываю в»; нажмите на источник, чтобы переключить, в какой из них попадают новые записи. Всё, что вы записываете голосом или вручную, помечается активным источником, поэтому Статистику и экспорт можно смотреть по каждому источнику или все вместе. Одно исключение: для экспорта налоговой сводки нужно выбрать конкретный источник (не «Все источники»), если их несколько, чтобы личные расходы никогда не попали в налоговый отчёт бизнеса. Источники можно переключать и голосом — скажите, например, «переключись на Dojo». Если вы удалите источник, в котором ещё есть записи, приложение предупредит вас заранее — эти записи не стираются, но будут скрыты, пока вы не перенесёте их в другой источник.' },
+        { icon:'🎙️', title:'Запись голосом', body:'Нажмите на микрофон и скажите, что произошло, — например, «20 долларов доход доордаш», «8 долларов расход бензин» или «запиши 12 миль». Можно также называть числа словами, например «двадцать долларов», и километры, например «10 километров». Работает на английском, испанском, итальянском, французском, китайском, португальском, хинди и русском — язык голоса меняется в Настройках.' },
+        { icon:'✏️', title:'Ручной ввод', body:'Нажмите кнопку «+», чтобы добавить доход, расход или пробег вручную — удобно, если шумно, вам неловко говорить вслух или вы просто предпочитаете печатать. В поле «Дата» можно записать что-то за прошедший день (например, доход, который вы забыли внести вчера), чтобы запись не попала на сегодня; по умолчанию стоит сегодняшняя дата, а выбрать будущую нельзя. У каждого источника свои категории — например, «Ресторан» для еды вне дома. Запись миль или скачивание отчёта сопровождается коротким салютом из конфетти и звуком аплодисментов; конфетти и звук можно отключить отдельно в Настройках.' },
+        { icon:'📊', title:'Статистика и календарь', body:'Вкладка «Статистика» показывает ваш доход, расходы и чистую прибыль на милю (или км) за день, неделю или месяц. У каждого источника свой отчёт: «Статистика» открывается на источнике, в который вы записываете, а кнопки «Поделиться сводкой», «Экспорт CSV» и налоговая сводка называют источник, который они охватывают (выберите «Все источники» для общего вида с разбивкой по источникам). Экспорт при выбранном источнике даёт CSV только по нему; полная резервная копия всегда включает всё. Во вкладке «Календарь» можно нажать на любую дату и увидеть всё, что записано в этот день.' },
+        { icon:'🚗', title:'Автомобиль и обслуживание', body:'Добавьте марку, модель и текущий пробег автомобиля на вкладке «Авто». GigHelper отслеживает типовое обслуживание (замена масла, шины, тормоза и другое) по пробегу и/или по времени и может прислать уведомление, когда подходит срок. Раз в неделю баннер напоминает обновить фактические показания одометра — это можно сделать в любой день недели, не только в понедельник. «Недельный журнал одометра» на вкладке «Авто» хранит историю этих показаний и то, сколько вы проехали от недели к неделе. Под журналом недельное сравнение (с понедельника по воскресенье) ставит изменение одометра рядом с вашими милями по GPS и вручную и отмечает недели, где они не сходятся. Для точного значения одометра снимайте показания по воскресеньям; в другие дни стоит ≈. Одометр учитывает и личные поездки, поэтому это должно быть наибольшее число. Недельный пробег: снимайте одно показание одометра в начале каждой недели — оно закрывает прошлую неделю и открывает новую. Тогда в Недельном журнале одометра для каждой недели видны Начало, Конец и пройденное расстояние (Конец минус Начало).' },
+        { icon:'📍', title:'GPS-учёт пробега (только в приложении)', body:'Если вы пользуетесь приложением для Android, на вкладке «Журнал» есть карточка «Начать поездку» / «Завершить поездку», которая измеряет пройденное расстояние по GPS и сразу записывает его в источник Driving — удобно, если вы забыли внести пробег голосом или вручную. В Настройках можно также включить «Автоопределение поездок»: учёт сам начинается и заканчивается, как только скорость показывает, что вы едете, так что нажимать «Начать» или «Завершить» не нужно. Эта функция недоступна в веб-версии, только в установленном приложении для Android. Поездки, учтённые по GPS, помечаются «GPS», а введённые вручную или голосом — «Вручную». В Настройках пункт «Считать мили из» выбирает, какой источник формирует итоги и налоговый вычет — другой сохраняется для сравнения, поэтому ничего не считается дважды.' },
+        { icon:'✉️', title:'Связаться с поддержкой', body:'Есть проблема или предложение? Напишите нам на gighelper.help@gmail.com. Кнопка «Сообщить о проблеме» в Настройках открывает письмо с уже приложенным диагностическим отчётом.' },
+        { icon:'💾', title:'Резервное копирование данных', body:'Ваши записи хранятся только на этом устройстве, пока вы не сделаете резервную копию. В Настройках включите автокопирование, чтобы данные сохранялись сами в выбранный вами файл (например, в папку Google Drive или OneDrive) — доступно в Chrome и Edge. В iOS Safari и других браузерах без такой возможности в Настройках есть кнопка «Поделиться резервной копией» — она передаёт файл копии в «Файлы», iCloud Drive, Google Drive или на почту одним касанием. Можно также в любой момент вручную выгрузить CSV. В Настройках пункт «Где хранятся ваши данные» позволяет выбрать: только этот телефон, автоматическая копия в выбранном файле или папке либо копия, которой вы делитесь. Чтобы вернуть данные (например, на новом телефоне), нажмите «Восстановить из файла резервной копии» и выберите копию GigHelper — ничего из того, что уже есть на телефоне, не удаляется.' },
+        { icon:'🌍', title:'Валюта, единицы и регион', body:'В Настройках укажите страну, валюту и то, в каких единицах показывать расстояния — в милях или километрах. Изменение не затрагивает прошлые записи — они хранятся единообразно и просто отображаются в выбранных единицах.' },
+        { icon:'🧾', title:'Налоговые инструменты (только США)', body:'Если в качестве страны выбраны Соединённые Штаты, GigHelper напоминает о сроках квартальных расчётных налогов и может выгрузить налоговую сводку со стандартным вычетом IRS на милю. Для других стран эти инструменты скрыты, так как относятся к налоговым правилам США.' },
+        { icon:'✂️', title:'Переименование приложения', body:'Скажите микрофону «назови это приложение [имя]» или измените название прямо в Настройках.' }
       ]
     }
   };
@@ -1878,7 +2364,7 @@
     var installBtn = document.getElementById('installSettingsBtn');
     if(!installBtn) return;
     var standalone = false;
-    try { standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true; } catch(e){}
+    try { standalone = isNativeApp() || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true; } catch(e){}
     if(standalone){ installBtn.style.display = 'none'; return; }
     installBtn.addEventListener('click', function(){ closeModal('settingsModal'); openModal('installModal'); });
   })();
@@ -4160,7 +4646,116 @@
   });
 
   /* ---------------- Voice recognition ---------------- */
-  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  /* ---------------- iPhone voice (native speech plugin) ----------------
+     Inside an iPhone/iPad app, the browser's built-in speech recognition is not
+     dependable, so the app can use a native Capacitor speech plugin instead
+     (@capacitor-community/speech-recognition, which calls Apple's Speech
+     framework). This adapter makes that plugin look like the browser's
+     SpeechRecognition object, so none of the voice code below has to change.
+     It switches on ONLY on iOS inside the native app with the plugin installed;
+     Android and the web version are untouched. */
+  function isIOSNativeApp(){
+    try{ return isNativeApp() && typeof window.Capacitor.getPlatform === 'function' && window.Capacitor.getPlatform() === 'ios'; }catch(e){ return false; }
+  }
+  function makeNativeSpeechRecognition(plugin, timers){
+    var setT = (timers && timers.setTimeout) || setTimeout;
+    var clearT = (timers && timers.clearTimeout) || clearTimeout;
+    var SILENCE_MS = 1400;   // this long after the last words = the utterance is over
+    function permState(p){ return p && (p.speechRecognition || p.permission); }
+    function NativeSpeechRecognition(){
+      this.lang = 'en-US'; this.continuous = false; this.interimResults = false; this.maxAlternatives = 5;
+      this.onstart = null; this.onend = null; this.onerror = null; this.onresult = null;
+      this._running = false; this._finished = true; this._aborted = false;
+      this._handles = []; this._timer = null; this._stopTimer = null; this._matches = null;
+    }
+    NativeSpeechRecognition.prototype._fire = function(name, ev){
+      var h = this['on' + name];
+      if(typeof h === 'function'){ try{ h.call(this, ev || {}); }catch(e){} }
+    };
+    NativeSpeechRecognition.prototype._cleanup = function(){
+      if(this._timer){ clearT(this._timer); this._timer = null; }
+      if(this._stopTimer){ clearT(this._stopTimer); this._stopTimer = null; }
+      this._handles.forEach(function(h){ try{ if(h && typeof h.remove === 'function') h.remove(); }catch(e){} });
+      this._handles = [];
+    };
+    // Ends the session: delivers the last words heard (or "no-speech"), then onend.
+    NativeSpeechRecognition.prototype._finish = function(){
+      if(this._finished) return;
+      this._finished = true;
+      var matches = this._matches, aborted = this._aborted;
+      this._cleanup();
+      this._running = false;
+      if(!aborted){
+        if(matches && matches.length){
+          var alts = matches.map(function(tr, i){ return { transcript: tr, confidence: i === 0 ? 0.9 : 0.5 }; });
+          alts.isFinal = true;
+          this._fire('result', { resultIndex: 0, results: [alts] });
+        } else {
+          this._fire('error', { error: 'no-speech' });
+        }
+      }
+      this._fire('end');
+    };
+    NativeSpeechRecognition.prototype._fail = function(code){
+      if(this._finished) return;
+      this._finished = true;
+      this._cleanup();
+      this._running = false;
+      this._fire('error', { error: code });
+      this._fire('end');
+    };
+    NativeSpeechRecognition.prototype.start = function(){
+      var self = this;
+      if(this._running) throw new Error('InvalidStateError: recognition has already started');
+      this._running = true; this._finished = false; this._aborted = false; this._matches = null;
+      Promise.resolve().then(function(){ return plugin.checkPermissions(); }).then(function(p){
+        if(permState(p) === 'granted') return 'granted';
+        return plugin.requestPermissions().then(function(r){ return permState(r) || 'denied'; });
+      }).then(function(state){
+        if(state !== 'granted'){ self._fail('not-allowed'); return; }
+        if(self._finished) return;   // stopped while the permission sheet was open
+        return Promise.all([
+          plugin.addListener('partialResults', function(d){
+            var m = d && d.matches;
+            if(!m || !m.length || self._finished) return;
+            self._matches = m.slice();
+            if(self._timer) clearT(self._timer);
+            self._timer = setT(function(){ self.stop(); }, SILENCE_MS);
+          }),
+          plugin.addListener('listeningState', function(d){ if(d && d.status === 'stopped') self._finish(); })
+        ]).then(function(handles){
+          self._handles = handles;
+          if(self._finished){ self._cleanup(); return; }
+          self._fire('start');
+          return plugin.start({ language: self.lang, maxResults: self.maxAlternatives || 5, partialResults: true, popup: false });
+        });
+      }).catch(function(err){
+        var msg = String((err && (err.message || err)) || '').toLowerCase();
+        self._fail(msg.indexOf('permission') !== -1 || msg.indexOf('denied') !== -1 ? 'not-allowed' : 'network');
+      });
+    };
+    NativeSpeechRecognition.prototype.stop = function(){
+      var self = this;
+      if(!this._running || this._finished) return;
+      try{ var r = plugin.stop(); if(r && typeof r.catch === 'function') r.catch(function(){}); }catch(e){}
+      if(this._stopTimer) clearT(this._stopTimer);
+      this._stopTimer = setT(function(){ self._finish(); }, 800);   // in case the plugin never reports "stopped"
+    };
+    NativeSpeechRecognition.prototype.abort = function(){
+      if(!this._running || this._finished) return;
+      this._aborted = true;
+      try{ var r = plugin.stop(); if(r && typeof r.catch === 'function') r.catch(function(){}); }catch(e){}
+      this._finish();
+    };
+    return NativeSpeechRecognition;
+  }
+  function nativeSpeechRecognitionCtor(){
+    if(!isIOSNativeApp()) return null;
+    var plugin = window.Capacitor.Plugins && window.Capacitor.Plugins.SpeechRecognition;
+    return plugin ? makeNativeSpeechRecognition(plugin) : null;
+  }
+
+  var SpeechRecognition = nativeSpeechRecognitionCtor() || window.SpeechRecognition || window.webkitSpeechRecognition;
   var recognition = null;
   var listening = false;
   var micBtn = document.getElementById('micBtn');
@@ -4252,7 +4847,10 @@
       onze:11,douze:12,treize:13,quatorze:14,quinze:15,seize:16,vingt:20,trente:30,quarante:40,
       cinquante:50,soixante:60,cent:100},
     'zh-CN': {零:0,一:1,二:2,两:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9,十:10,
-      二十:20,三十:30,四十:40,五十:50,六十:60,七十:70,八十:80,九十:90,百:100}
+      二十:20,三十:30,四十:40,五十:50,六十:60,七十:70,八十:80,九十:90,百:100},
+    'pt-BR': {'zero':0,'um':1,'uma':1,'dois':2,'duas':2,'três':3,'tres':3,'quatro':4,'cinco':5,'seis':6,'sete':7,'oito':8,'nove':9,'dez':10,'onze':11,'doze':12,'treze':13,'catorze':14,'quatorze':14,'quinze':15,'dezesseis':16,'dezessete':17,'dezoito':18,'dezenove':19,'vinte':20,'trinta':30,'quarenta':40,'cinquenta':50,'sessenta':60,'setenta':70,'oitenta':80,'noventa':90,'cem':100},
+    'hi-IN': {'शून्य':0,'एक':1,'दो':2,'तीन':3,'चार':4,'पाँच':5,'पांच':5,'छह':6,'छः':6,'सात':7,'आठ':8,'नौ':9,'दस':10,'ग्यारह':11,'बारह':12,'तेरह':13,'चौदह':14,'पंद्रह':15,'सोलह':16,'सत्रह':17,'अठारह':18,'उन्नीस':19,'बीस':20,'तीस':30,'चालीस':40,'पचास':50,'साठ':60,'सत्तर':70,'अस्सी':80,'नब्बे':90,'सौ':100},
+    'ru-RU': {'ноль':0,'один':1,'одна':1,'два':2,'две':2,'три':3,'четыре':4,'пять':5,'шесть':6,'семь':7,'восемь':8,'девять':9,'десять':10,'одиннадцать':11,'двенадцать':12,'тринадцать':13,'четырнадцать':14,'пятнадцать':15,'шестнадцать':16,'семнадцать':17,'восемнадцать':18,'девятнадцать':19,'двадцать':20,'тридцать':30,'сорок':40,'пятьдесят':50,'шестьдесят':60,'семьдесят':70,'восемьдесят':80,'девяносто':90,'сто':100}
   };
   function wordsToDigitsBasic(text, lang){
     var map = NUMBER_WORDS_BASIC[lang];
@@ -4544,7 +5142,12 @@
       startRecognitionAs('manual');
     });
 
-    if(wakeToggle){
+    if(wakeToggle && isIOSNativeApp()){
+      // Apple limits speech sessions and doesn't allow listening in the background,
+      // so on iPhone voice is tap-to-talk only.
+      wakeModeEnabled = false;
+      wakeToggle.style.display = 'none';
+    } else if(wakeToggle){
       wakeToggle.addEventListener('click', function(){
         wakeModeEnabled = !wakeModeEnabled;
         saveWakeMode(wakeModeEnabled);

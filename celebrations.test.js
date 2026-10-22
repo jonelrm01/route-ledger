@@ -99,13 +99,13 @@ test('triggers: mileage (manual/voice/GPS), CSV + tax downloads, shared backup, 
   assert.ok(extractFn(html, 'restoreFromCsvText').indexOf('celebrate') === -1, 'restoring a backup is not a celebration');
 });
 
-test('Settings switch exists and its three strings are in all 5 languages', function(){
+test('Settings switch exists and its three strings are in all 8 languages', function(){
   ['celebrationsSection', 'celebrationsToggleBtn', 'lblCelebrations'].forEach(function(id){
     assert.ok(html.indexOf('id="' + id + '"') !== -1, 'missing #' + id);
   });
   ['celebrationsTitle', 'celebrationsOn', 'celebrationsOff'].forEach(function(k){
     const n = (html.match(new RegExp('\\b' + k + ": '", 'g')) || []).length;
-    assert.strictEqual(n, 5, k + ' should be in all 5 languages (found ' + n + ')');
+    assert.strictEqual(n, 8, k + ' should be in all 8 languages (found ' + n + ')');
   });
 });
 
@@ -147,10 +147,10 @@ test('confetti and sound are independent; reduced motion silences only the confe
   assert.strictEqual(none.celebrate('big'), false);
 });
 
-test('Settings has a sound switch and its title is in all 5 languages', function(){
+test('Settings has a sound switch and its title is in all 8 languages', function(){
   ['celebrationSoundSection', 'celebrationSoundToggleBtn', 'lblCelebrationSound'].forEach(function(id){
     assert.ok(html.indexOf('id="' + id + '"') !== -1, 'missing #' + id);
   });
   const n = (html.match(/\bcelebrationSoundTitle: '/g) || []).length;
-  assert.strictEqual(n, 5);
+  assert.strictEqual(n, 8);
 });

@@ -112,7 +112,7 @@ test('junk rows are counted, not silently imported; non-GigHelper files add noth
   assert.deepStrictEqual([other.added, other.skipped, other.invalid], [0, 0, 0]);
 });
 
-test('chooser UI: three options, restore buttons, one-time prompt, and all 5 languages have every new string', function(){
+test('chooser UI: three options, restore buttons, one-time prompt, and all 8 languages have every new string', function(){
   ['storageSection', 'storageOptions', 'restoreBackupBtn', 'restoreFileInput', 'storageModal', 'storageModalOptions', 'restoreBackupBtn2'].forEach(function(id){
     assert.ok(html.indexOf('id="' + id + '"') !== -1, 'missing #' + id);
   });
@@ -122,7 +122,7 @@ test('chooser UI: three options, restore buttons, one-time prompt, and all 5 lan
   const keys = ['storageTitle','storageIntro','storageModalTitle','storagePhone','storagePhoneSub','storageFile','storageFileSub','storageShare','storageShareSub','storageUnavailable','storageStatusPhone','storageStatusFile','storageStatusShare','storageRestoreBtn','storageRestoreHint','storageRestoreDone','storageRestoreNone','storageRestoreError','storageRestoreInvalid','storageLater'];
   keys.forEach(function(k){
     const n = (html.match(new RegExp('\\b' + k + ": '", 'g')) || []).length;
-    assert.strictEqual(n, 5, k + ' should be defined in all 5 languages (found ' + n + ')');
+    assert.strictEqual(n, 8, k + ' should be defined in all 8 languages (found ' + n + ')');
   });
 });
 
