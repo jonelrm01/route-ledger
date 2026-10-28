@@ -3,13 +3,12 @@
 // (the Personal/Driving mixup, the silent-orphan deletion bug), so it gets
 // the most direct coverage.
 const assert = require('assert');
-const { loadHtml, extractFn, runInSandbox } = require('./helpers');
+const { loadHtml, extractFn, runInSandbox, categoriesSandbox } = require('./helpers');
 
 const html = loadHtml();
 
 test('categoriesForStream: Driving keeps its curated platform categories', function(){
-  const fn = extractFn(html, 'categoriesForStream');
-  const sandbox = runInSandbox(["var DEFAULT_STREAMS = ['Driving'];", fn]);
+  const sandbox = categoriesSandbox(html); // no saved work profile = the original delivery default
   // Arrays built inside a vm sandbox are a different realm than this file's
   // Array, so assert.deepStrictEqual's prototype check fails even when the
   // contents match — compare via a plain value join instead.
@@ -17,8 +16,7 @@ test('categoriesForStream: Driving keeps its curated platform categories', funct
 });
 
 test('categoriesForStream: every non-Driving stream gets the expanded set, and never the Driving-only ones', function(){
-  const fn = extractFn(html, 'categoriesForStream');
-  const sandbox = runInSandbox(["var DEFAULT_STREAMS = ['Driving'];", fn]);
+  const sandbox = categoriesSandbox(html);
   ['Personal', 'Dojo', 'App Sales', 'Some Future Custom Stream'].forEach(function(streamName){
     const cats = sandbox.categoriesForStream(streamName);
     assert.ok(cats.indexOf('Other') !== -1, streamName + ' must keep "Other" so old entries stay valid');

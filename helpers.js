@@ -76,4 +76,31 @@ function runInSandbox(sources, mocks){
   return sandbox;
 }
 
-module.exports = { loadHtml, extractScript, extractFn, extractObjectLiteral, runInSandbox, APP_HTML_PATH };
+// categoriesForStream() reads the saved work profile (which type of work the
+// person does) to pick the Driving stream's categories. This builds a sandbox
+// with the REAL loadWorkProfile / saveWorkProfile / WORK_TYPE_CATEGORIES from
+// index.html and a fake localStorage. Pass a stored profile object to
+// simulate an answered onboarding, a raw string to simulate corrupt storage,
+// or nothing to simulate a user who never answered (the pre-existing default).
+function categoriesSandbox(html, storedProfile){
+  const store = {};
+  if(storedProfile !== undefined){
+    store['routeLedger.workProfile.v1'] = (typeof storedProfile === 'string') ? storedProfile : JSON.stringify(storedProfile);
+  }
+  const localStorage = {
+    getItem: function(k){ return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },
+    setItem: function(k, v){ store[k] = String(v); }
+  };
+  return runInSandbox([
+    "var DEFAULT_STREAMS = ['Driving'];",
+    "var storageWorks = true;",
+    "var WORK_PROFILE_KEY = 'routeLedger.workProfile.v1';",
+    "var WORK_TYPES = ['delivery','contractor','towing','other'];",
+    "var WORK_TYPE_CATEGORIES = " + JSON.stringify(extractObjectLiteral(html, 'WORK_TYPE_CATEGORIES')) + ";",
+    extractFn(html, 'loadWorkProfile'),
+    extractFn(html, 'saveWorkProfile'),
+    extractFn(html, 'categoriesForStream')
+  ], { localStorage: localStorage, store: store });
+}
+
+module.exports = { loadHtml, extractScript, extractFn, extractObjectLiteral, runInSandbox, categoriesSandbox, APP_HTML_PATH };

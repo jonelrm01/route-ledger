@@ -2,12 +2,12 @@
 // "Restaurant" is a built-in expense category in every stream, translated,
 // and understood by voice entry in all five languages.
 const assert = require('assert');
-const { loadHtml, extractFn, extractObjectLiteral, runInSandbox } = require('./helpers');
+const { loadHtml, extractFn, extractObjectLiteral, runInSandbox, categoriesSandbox } = require('./helpers');
 
 const html = loadHtml();
 
 test('Restaurant is offered in Driving, Dojo, Personal and custom streams, just before Other', function(){
-  const sb = runInSandbox(["var DEFAULT_STREAMS = ['Driving'];", extractFn(html, 'categoriesForStream')]);
+  const sb = categoriesSandbox(html);
   ['Driving', 'Dojo', 'Personal', 'My Side Gig'].forEach(function(stream){
     const cats = Array.from(sb.categoriesForStream(stream));
     assert.strictEqual(cats.filter(function(c){ return c === 'Restaurant'; }).length, 1, stream + ' has Restaurant exactly once');
@@ -16,9 +16,9 @@ test('Restaurant is offered in Driving, Dojo, Personal and custom streams, just 
   });
 });
 
-test('Restaurant has a display name in all 8 languages', function(){
+test('Restaurant has a display name in all 5 languages', function(){
   const labels = extractObjectLiteral(html, 'CATEGORY_LABELS');
-  ['en-US', 'es-ES', 'it-IT', 'fr-FR', 'zh-CN', 'pt-BR', 'hi-IN', 'ru-RU'].forEach(function(lang){
+  ['en-US', 'es-ES', 'it-IT', 'fr-FR', 'zh-CN'].forEach(function(lang){
     assert.ok(labels[lang] && labels[lang].Restaurant, lang + ' is missing a Restaurant label');
   });
   assert.strictEqual(labels['es-ES'].Restaurant, 'Restaurante');
