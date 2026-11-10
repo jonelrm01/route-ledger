@@ -95,7 +95,7 @@ test('triggers: mileage (manual/voice/GPS), CSV + tax downloads, shared backup, 
   assert.ok(/celebrate\('big'\)/.test(extractFn(html, 'exportCsv')), 'CSV export');
   assert.ok(/celebrate\('big'\)/.test(extractFn(html, 'exportTaxSummary')), 'tax summary download');
   assert.ok(/celebrate\('big'\)/.test(extractFn(html, 'shareBackupNow')), 'shared backup');
-  assert.ok(/showToast\('Odometer updated'\);\n\s*if\(typeof celebrate === 'function'\) celebrate\('small'\)/.test(html), 'odometer update');
+  assert.ok(/showToast\('Odometer updated'\);\n\s*if\(typeof celebrate === 'function'\) celebrate\('big'\)/.test(html), 'odometer update');
   assert.ok(extractFn(html, 'restoreFromCsvText').indexOf('celebrate') === -1, 'restoring a backup is not a celebration');
 });
 
@@ -153,4 +153,32 @@ test('Settings has a sound switch and its title is in all 5 languages', function
   });
   const n = (html.match(/\bcelebrationSoundTitle: '/g) || []).length;
   assert.strictEqual(n, 5);
+});
+
+test('Vehicle tab: every update gets the big confetti + fanfare (maintenance Mark done and Edit, Save vehicle, odometer), but opening a form does not', function(){
+  const between = function(a, b){ const i = html.indexOf(a), j = html.indexOf(b, i + a.length); assert.ok(i !== -1 && j !== -1, 'markers not found: ' + a); return html.slice(i, j); };
+  const big = /if\(typeof celebrate === 'function'\) celebrate\('big'\)/;
+  const done = between("container.querySelectorAll('[data-action=\"done\"]')", "container.querySelectorAll('[data-action=\"edit\"]')");
+  assert.ok(done.indexOf('saveVehicle(vehicle)') !== -1 && done.indexOf('saveVehicle(vehicle)') < done.search(big), 'Mark done celebrates after saving');
+  const editOpen = between("container.querySelectorAll('[data-action=\"edit\"]')", 'var maintEditKey');
+  assert.strictEqual(editOpen.indexOf('celebrate'), -1, 'tapping Edit only opens the form; nothing to celebrate yet');
+  const editSave = between("document.getElementById('maintEditSave').addEventListener", "document.getElementById('vehicleSave').addEventListener");
+  assert.ok(editSave.indexOf('saveVehicle(vehicle)') < editSave.search(big) && editSave.indexOf("showToast('Service updated')") < editSave.search(big), 'saving an edited item celebrates');
+  const save = between("document.getElementById('vehicleSave').addEventListener", "var vehicleNudgeDismissBtn");
+  assert.ok(save.indexOf('saveVehicle(vehicle)') < save.search(big), 'Save vehicle celebrates after saving');
+  assert.ok(/showToast\('Odometer updated'\);\n\s*if\(typeof celebrate === 'function'\) celebrate\('big'\)/.test(html), 'saving an odometer reading celebrates');
+});
+
+test('Vehicle tab: an invalid odometer entry does not celebrate', function(){
+  const i = html.indexOf("document.getElementById('resyncSave').addEventListener");
+  const block = html.slice(i, i + 1400);
+  assert.ok(block.indexOf("showToast('Enter a valid mileage'); return;") !== -1);
+  assert.ok(block.indexOf("showToast('Enter a valid mileage'); return;") < block.indexOf("celebrate('big')"), 'the early return on bad input comes before the celebration');
+});
+
+test('the guide tells people the Vehicle tab updates celebrate, in all 5 languages', function(){
+  const { extractObjectLiteral } = require('./helpers');
+  const HELP = extractObjectLiteral(html, 'HELP_CONTENT');
+  const words = { 'en-US': /maintenance item on the Vehicle tab/, 'es-ES': /pestaña Vehículo/, 'it-IT': /scheda Veicolo/, 'fr-FR': /onglet Véhicule/, 'zh-CN': /保养项目/ };
+  Object.keys(words).forEach(function(lang){ assert.ok(words[lang].test(HELP[lang].sections[13].body), lang + ': Confetti section should mention the Vehicle tab'); });
 });

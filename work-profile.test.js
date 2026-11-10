@@ -94,3 +94,33 @@ test('work profile strings exist in all 5 languages', function(){
     keys.forEach(function(k){ assert.ok(i18n[lang][k] && i18n[lang][k].length > 0, lang + ' missing ' + k); });
   });
 });
+
+test('wiring: finishing setup shows the welcome card with the celebration; the storage prompt waits for "Let\'s go"', function(){
+  const body = html.slice(html.indexOf("welcomeBtn.addEventListener('click'"), html.indexOf("maybePromptStorageChoice();\n\n  // Register service worker"));
+  const saved = body.indexOf("localStorage.setItem('gh_welcome_seen', '1')");
+  const open = body.indexOf("openModal('welcomeDoneModal')");
+  const celebrate = body.indexOf("celebrate('big')");
+  assert.ok(saved !== -1 && open > saved, 'the card appears only after the answers are saved and the setup screen is closed');
+  assert.ok(celebrate > open, 'confetti and chime play on top of the card');
+  assert.ok(body.indexOf('paintWelcomeDoneTexts(chosenProfile.usesVehicle)') !== -1, 'text must match the person\'s answer (trips are not mentioned if they do not drive)');
+  const clickHandler = body.slice(body.indexOf("welcomeDoneBtn.addEventListener('click'"));
+  const closeAt = clickHandler.indexOf("closeModal('welcomeDoneModal')");
+  const syncAt = clickHandler.indexOf('syncWeeklyReminder(true)');
+  const promptAt = clickHandler.indexOf('maybePromptStorageChoice()');
+  assert.ok(closeAt !== -1 && syncAt > closeAt && promptAt > syncAt, 'tapping "Let\'s go" closes the card, asks for notification permission (Android app), and only then shows the storage prompt');
+  assert.strictEqual(/setTimeout\(maybePromptStorageChoice/.test(body), false, 'no timer: the storage prompt must not cover the card');
+});
+
+test('welcome card exists and its text is translated in all 5 languages', function(){
+  ['welcomeDoneModal', 'welcomeDoneTitle', 'welcomeDoneBody', 'welcomeDoneBtn'].forEach(function(id){
+    assert.ok(html.indexOf('id="' + id + '"') !== -1, 'missing #' + id);
+  });
+  const i18n = extractObjectLiteral(html, 'I18N');
+  ['en-US', 'es-ES', 'it-IT', 'fr-FR', 'zh-CN'].forEach(function(lang){
+    ['welcomeDoneTitle', 'welcomeDoneBody', 'welcomeDoneBodyNoVehicle', 'welcomeDoneBtn'].forEach(function(k){
+      assert.ok(i18n[lang][k] && !/[<>]/.test(i18n[lang][k]), lang + ' missing or unsafe ' + k);
+    });
+    assert.notStrictEqual(i18n[lang].welcomeDoneBody, i18n[lang].welcomeDoneBodyNoVehicle, lang + ': the no-vehicle text must differ (it leaves out trips)');
+  });
+  assert.ok(/trip/i.test(i18n['en-US'].welcomeDoneBody) && !/trip/i.test(i18n['en-US'].welcomeDoneBodyNoVehicle));
+});

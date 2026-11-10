@@ -1,90 +1,114 @@
-# GigHelper regression tests
+# GigHelper support agent
 
-These check the app's most fragile pieces automatically instead of relying on
-re-typed one-off tests each chat session (which is how the same
-stream-tagging bug ended up getting reintroduced more than once).
+An assistant that reads the emails sent to your GigHelper support Gmail account
+and answers the ones the **user guide** clearly covers, in the customer's
+language (English, Spanish, Italian, French or Chinese). Everything else goes
+to you.
 
-## Running them
+It runs for free inside Google (Apps Script). You only pay Anthropic for the
+AI calls, usually a small fraction of a cent to a few cents per email depending
+on the model (see Anthropic's pricing page).
 
-You need Node.js installed (no other setup, no `npm install` — everything
-here uses only Node's built-ins). From the project folder:
+## What it will and will not do
 
-```
-node tests/run.js
-```
+**It answers** how-to and troubleshooting questions that the guide covers.
 
-You'll get a pass/fail line per test, and a summary at the end like:
+**It never answers, it hands to you** (label `AI/needs-human`, starred, left
+unread, optional alert email): refunds and billing, privacy or data-deletion
+requests, bug reports and lost data, tax advice, feature requests, angry
+customers, questions about prices or iPhone availability, anything not in the
+guide, anything that depends on an attachment, and any language other than the
+five above.
 
-```
-25 passed, 0 failed  (6 files, 25 tests)
-```
+**Safety built in** (all of it is checked by automated tests):
+- Starts in **DRAFT mode**: it writes the reply as a Gmail draft and you press
+  Send. Switch to SEND mode only after you trust the drafts.
+- Only replies with category `how_to` or `troubleshooting`, with confidence 0.7
+  or higher. A reply that contains a link, another email address, or is too
+  long is thrown away and sent to you instead.
+- Customer emails are treated as untrusted text. A message that says "ignore
+  your rules" is escalated, and even a fooled model can only produce text that
+  has to pass the checks above.
+- Never replies to no-reply addresses, mailing lists, auto-responders, or
+  itself. At most 2 of its own replies per conversation and 4 per sender every
+  6 hours, then a person takes over.
+- A daily cap on AI calls (default 150) so a flood of mail cannot run up a bill.
+- Every automatic reply says it was written by the AI assistant and invites
+  the customer to reply for a person.
 
-If anything fails, it prints the test name and the specific reason. A
-failure here means a real behavior changed in `index.html` — either an
-intentional change (update the test to match) or an accidental regression
-(fix the app code).
+## Setup (about 30 minutes, once)
 
-## What's covered
+### 1. Get an API key
+1. Create an account at console.anthropic.com and add billing.
+2. In the console, create an **API key** and copy it. Set a monthly spend limit
+   there too, as a second safety net.
 
-- **static-checks** — the inline script's JS still parses, and no two
-  elements share an `id` (a duplicate silently breaks `getElementById`
-  lookups for one of them).
-- **i18n-completeness** — every one of the 5 supported languages (English,
-  Spanish, Italian, French, Chinese) has exactly the same set of UI strings
-  and the same 10 Help-guide sections, with nothing left empty. This is the
-  check that would have caught a string added to English but forgotten in
-  the other four.
-- **streams** — per-stream category lists (Driving vs. everything else),
-  counting a stream's entries before allowing deletion, and the
-  delete-confirmation text substitution.
-- **weekly-odometer** — Monday-based week boundaries, and that logging twice
-  in the same week overwrites instead of creating a duplicate row.
-- **manual-entry-date** — backdating a manual entry lands it on the chosen
-  day (not today), at noon local time to dodge timezone/DST edge cases.
-- **share-backup** — the iOS/unsupported-browser Web Share backup path:
-  feature detection across a few mocked browsers, and the success/cancel/
-  failure/guard behavior of the actual share function.
+### 2. Create the script **while signed in as the support Gmail account**
+1. Go to script.google.com, click **New project**, name it `GigHelper support`.
+2. Replace the contents of `Code.gs` with the file `Code.gs` from this folder.
+3. Add two more script files (the **+** next to Files, choose Script) named
+   `Knowledge` and `Eval`, and paste in `Knowledge.gs` and `Eval.gs`.
+4. **Project Settings** (gear icon) → tick **Show "appsscript.json" manifest
+   file in editor**, open it, and paste the contents of `appsscript.json`.
+   Change `timeZone` to yours if you like.
+5. Still in Project Settings → **Script properties** → add:
+   | Property | Value |
+   |---|---|
+   | `ANTHROPIC_API_KEY` | your key |
+   | `MODE` | `draft` |
+   | `OWNER_EMAIL` | your personal email, for "needs you" alerts (optional) |
 
-- **mileage-source** — every mileage entry is tagged `manual` or `gps`
-  (untagged older entries count as manual); only the chosen primary source
-  feeds totals, the tax deduction, and the estimated odometer; both GPS entry
-  points tag their trips; the CSV export has a Source column.
+   Optional: `MODEL` (default `claude-haiku-5-5`; try `claude-sonnet-5-5` if
+   answers are not good enough), `ESCALATION_ACK` = `on` (in SEND mode, sends
+   a short "a person will reply" note), `DAILY_CALL_CAP`.
 
-- **voice-parse** — speech-engine quirks: split brand names ("door dash"),
-  hyphenated numbers ("twenty-five"), picking the first of several candidate
-  transcripts that actually parses, amount + platform with no keyword logging
-  as income (Driving stream only), and unrelated speech still being rejected.
+### 3. Switch it on
+1. Open `Code.gs`, choose the function **setup** in the dropdown, press **Run**.
+   Google asks you to authorize. Because this is your own unpublished script it
+   shows an "unverified app" warning: click **Advanced → Go to GigHelper
+   support (unsafe)** and allow. This is normal for your own script.
+2. Run **testApiKey**. The log should say the key works.
+3. Run **runEval** (opens the practice exam in `Eval.gs`, about 27 made-up
+   emails). Read the log (**Execution log**). Fix anything marked `FAIL`
+   before going further. Nothing in your inbox is touched by this.
 
-- **mileage-comparison** — the weekly odometer vs GPS vs manual comparison,
-  Monday through Sunday: week boundaries, GPS/manual split (untagged old
-  entries count as manual), odometer change from the previous week's reading
-  (exact only when both readings were on a Sunday, otherwise marked ≈, and
-  blank if a week was skipped), the 10% GPS/manual gap flag, and the
-  logged-miles-above-odometer flag (exact readings only).
-## How this works, if you're curious
+### 4. Run in DRAFT mode for at least two weeks
+- Ask a friend (or yourself from another address) to email the support
+  address with real questions in different languages.
+- Every 10 minutes the agent checks the inbox. Answers appear as **drafts** in
+  the conversation and the label `AI/drafted`. Read each one, edit if needed,
+  and send it yourself.
+- Anything it won't answer gets `AI/needs-human`.
+- Keep a note of every draft you had to fix. If you fix many, tell me and we
+  improve the prompt or the guide.
 
-`index.html` is one big file with no build step, so these tests don't
-"import" the app the normal way. `helpers.js` pulls specific functions and
-objects (like `categoriesForStream` or the `I18N` dictionary) directly out
-of the real `index.html` text at test-run time, and runs them in a small
-sandboxed environment with just the fake browser bits each test needs (a
-fake `localStorage`, a fake button, etc). That means a test is always
-checking today's actual shipped code — if a function's behavior changes,
-the test picks up the new version automatically; there's no separate copy
-of the logic to remember to keep in sync.
+### 5. Go live (only when drafts are consistently right)
+- Change the script property `MODE` to `send`. That's it. Check the
+  `AI/answered` label daily for the first week.
+- To pause at any time: set `MODE` back to `draft`, or delete the trigger
+  (Triggers → clock icon on the left).
 
-## Adding a new test
+## Keeping it up to date
+The agent's knowledge is the in-app User guide. Whenever you change the guide
+in `index.html`:
+1. Run `node tools/build-knowledge.js` (writes a new `Knowledge.gs`).
+2. Paste the new `Knowledge.gs` into the script.
+3. The project's automated tests fail if `Knowledge.gs` is out of date, so you
+   will be reminded.
 
-When you (or a future session) fix a bug or add a feature that's easy to
-break by accident later, add a case here rather than only testing it once
-in chat. Copy the pattern in an existing `*.test.js` file — extract the
-real function with `extractFn`, feed it whatever mocks it needs, assert on
-the result. Keep tests in whichever file matches the feature area, or start
-a new `something.test.js` file if it's a new area — `run.js` picks up any
-file ending in `.test.js` automatically.
-- **design-refresh** — guards the Oct 2026 color/layout refresh: palette tokens, sentence-case labels, 5-item bottom nav (no duplicate top tabs), Install moved to Settings, centered/wider "All streams" chip, grouped Today/Week/Month card, single wake-status line.
-- **stream-reports** — each stream's own report: summary header names the stream, only that stream's numbers, "All streams" gets a per-stream breakdown, per-stream CSV vs full backup CSV.
-- **storage-restore** — "Where your data is kept" chooser and restore: backup CSV round-trips exactly (ids, ISO timestamps, km→mi), restoring is additive and never duplicates, old exports still load, junk rows are counted, chooser/i18n wiring.
-- **celebrations** — confetti: burst geometry/lifetime, no stacking, Settings off-switch, reduced-motion respected, triggers (mileage, downloads, shared backup, odometer update — not restore), 5-language strings.
-- **weekly-start-end** — weekly mileage as Start / End / Driven (End − Start), in-progress current week, skipped weeks, Monday-morning reading closing last week, Vehicle-tab rendering and wiring.
-- **categories** — Restaurant category: in every stream before Other, translated in 5 languages, understood by voice (category + expense signal) without disturbing existing categories.
+## Before you launch
+- Update your **privacy policy**: say that emails sent to support are
+  processed by an AI provider (Anthropic) to draft replies, and tell customers
+  not to email passwords, card numbers or similar. Read Anthropic's current
+  terms and privacy information to describe their data handling accurately.
+- A free Gmail account has daily limits on emails sent from a script. Check
+  Google's current "Apps Script quotas" page; it is plenty for a small app but
+  matters if you grow.
+
+## Limits to know about
+- It cannot see attachments or screenshots. Those go to you.
+- It only looks at the last 3 messages of a conversation.
+- It answers from the guide, so it is only as good as the guide. When it
+  escalates something that people ask often, that is a sign the guide needs a
+  new section.
+- It is not a lawyer, accountant or tax advisor, and it won't pretend to be.
